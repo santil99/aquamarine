@@ -1,5 +1,6 @@
 import type { SalesRepository } from "@/application/ports/salesRepository";
 import { getDayRangeInTimeZone } from "@/domain/business/businessDay";
+import type { SaleCatalogOption } from "@/domain/sales/newSale";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
 
@@ -11,6 +12,32 @@ interface SaleRow {
 }
 
 export const supabaseSalesRepository: SalesRepository = {
+  async listCatalogs() {
+    const [categories, paymentMethods] = await Promise.all([
+      supabase.from("categories").select("id, name").order("name").returns<SaleCatalogOption[]>(),
+      supabase.from("payment_methods").select("id, name").order("name").returns<SaleCatalogOption[]>(),
+    ]);
+
+    if (categories.error) throw categories.error;
+    if (paymentMethods.error) throw paymentMethods.error;
+
+    return { categories: categories.data, paymentMethods: paymentMethods.data };
+  },
+
+  async create(record) {
+    const { error } = await supabase.from("sales").insert({
+      user_id: record.userId,
+      amount: record.amount,
+      category_id: record.categoryId,
+      payment_method_id: record.paymentMethodId,
+      detail: record.detail,
+    });
+
+    if (error) {
+      throw error;
+    }
+  },
+
   async listForDate(business, selectedDate) {
     const { start, end } = getDayRangeInTimeZone(selectedDate, business.timeZone);
 

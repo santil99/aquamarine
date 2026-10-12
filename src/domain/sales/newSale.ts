@@ -16,11 +16,21 @@ export type NewSaleValidationErrors = Partial<
   Record<NewSaleField, NewSaleFieldError>
 >;
 
+export function normalizeSaleAmount(amount: string): string {
+  return amount.trim().replace(",", ".");
+}
+
+export function normalizeSaleDetail(detail: string | null): string | null {
+  const trimmed = detail?.trim() ?? "";
+  return trimmed ? trimmed : null;
+}
+
 /**
  * Validates the input data for creating a new sale record.
  *
  * What it does:
- * - Checks `amount`: Must be present, positive, and formatted as a valid currency/decimal (up to 2 decimals).
+ * - Checks `amount`: Must be present, positive, and formatted with a comma as decimal separator
+ *   (for example "150" or "150,5" or "150,50"). If a comma is written, it needs 1 or 2 digits after it.
  * - Checks `categoryId`: Must not be empty.
  * - Checks `detail`: Optional, but cannot exceed 500 characters.
  *
@@ -36,8 +46,8 @@ export function validateNewSale(input: NewSaleInput): NewSaleValidationErrors {
   if (!amount) {
     errors.amount = "required";
   } else if (
-    !/^\d+(?:\.\d{1,2})?$/.test(amount) ||
-    !/[1-9]/.test(amount.replace(".", ""))
+    !/^\d+(?:,\d{1,2})?$/.test(amount) ||
+    !/[1-9]/.test(amount)
   ) {
     errors.amount = "invalid";
   }

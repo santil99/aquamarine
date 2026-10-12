@@ -1,4 +1,7 @@
 export const es = {
+  common: {
+    loading: "Cargando",
+  },
   layout: {
     title: "Mi negocio",
     openMenu: "Abrir menú",
@@ -6,13 +9,15 @@ export const es = {
     menuLabel: "Menú de navegación",
     logout: "Cerrar sesión",
     logoutError: "No se pudo cerrar la sesión. Reintenta.",
-    profileLoading: "Cargando perfil...",
+    darkMode: "Modo oscuro",
     profileUnavailable: "Perfil no disponible",
-    options: ["Pantalla 1", "Pantalla 2", "Pantalla 3"],
+    navigation: {
+      newSale: "Nueva venta",
+      salesToday: "Ventas del día",
+    },
   },
   salesList: {
     title: "Ventas de hoy",
-    loading: "Cargando ventas...",
     empty: "No hay ventas registradas hoy.",
     error: "No se pudieron cargar las ventas.",
     retry: "Reintentar",
@@ -25,6 +30,26 @@ export const es = {
       paymentMethod: "Medio de pago",
       action: "Acción",
     },
+  },
+  newSale: {
+    title: "Nueva venta",
+    catalogsError: "No pudimos cargar las categorías y medios de pago.",
+    retry: "Reintentar",
+    amountLabel: "Monto",
+    amountRequired: "Ingresa el monto de la venta.",
+    amountInvalid: "Ingresa un monto mayor a cero con hasta 2 decimales, usando coma para los decimales.",
+    categoryLabel: "Categoría",
+    categoryPlaceholder: "Selecciona una categoría",
+    categoryRequired: "Selecciona una categoría.",
+    paymentMethodLabel: "Medio de pago (opcional)",
+    paymentMethodPlaceholder: "Selecciona un medio de pago",
+    noPaymentMethod: "Sin medio de pago",
+    detailLabel: "Detalle (opcional)",
+    detailTooLong: "El detalle no puede superar los 500 caracteres.",
+    submit: "Registrar venta",
+    submitting: "Registrando...",
+    saved: "Venta registrada.",
+    saveError: "No pudimos registrar la venta. Revisa tu conexión y reintenta.",
   },
   login: {
     title: "Iniciar sesión",

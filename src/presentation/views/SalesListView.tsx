@@ -57,12 +57,7 @@ function SalesListContent({
   onRetry: () => void;
 }) {
   if (state.status === "loading") {
-    return (
-      <div className="flex items-center gap-3">
-        <Spinner size="sm" />
-        <p>{texts.loading}</p>
-      </div>
-    );
+    return <Spinner size="sm" aria-label={es.common.loading} />;
   }
 
   if (state.status === "error") {

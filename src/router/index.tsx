@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router";
 import { AuthService } from "@/application/services/authService";
 import { SalesService } from "@/application/services/salesService";
+import type { NewSaleInput } from "@/domain/sales/newSale";
 import { activeBusiness } from "@/infrastructure/business/mockBusinessContext";
 import { supabaseAuthRepository } from "@/infrastructure/supabase/supabaseAuthRepository";
 import { supabaseSalesRepository } from "@/infrastructure/supabase/supabaseSalesRepository";
 import { AppLayout } from "@/presentation/layout/AppLayout";
 import { LoginView } from "@/presentation/views/LoginView";
+import { NewSaleView } from "@/presentation/views/NewSaleView";
 import { SalesListView } from "@/presentation/views/SalesListView";
 
 const authService = new AuthService(supabaseAuthRepository);
@@ -14,6 +16,8 @@ const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepos
 
 const loadUser = () => authService.getCurrentUser();
 const listSales = () => salesService.listToday(activeBusiness);
+const loadCatalogs = () => salesService.loadCatalogs();
+const registerSale = (input: NewSaleInput) => salesService.registerSale(input);
 
 export default function AppRoutes() {
   return (
@@ -21,6 +25,10 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedLayout />}>
         <Route path="/" element={<SalesListView listSales={listSales} />} />
+        <Route
+          path="/sales/new"
+          element={<NewSaleView loadCatalogs={loadCatalogs} registerSale={registerSale} />}
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

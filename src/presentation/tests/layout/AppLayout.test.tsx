@@ -1,8 +1,18 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render as renderWithoutRouter, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import type { ReactElement } from "react";
+import { MemoryRouter, useLocation } from "react-router";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AuthenticatedUser } from "@/application/ports/authRepository";
 import { AppLayout } from "@/presentation/layout/AppLayout";
+
+function render(ui: ReactElement) {
+  return renderWithoutRouter(<MemoryRouter>{ui}</MemoryRouter>);
+}
+
+function LocationProbe() {
+  return <p>{useLocation().pathname}</p>;
+}
 
 const authenticatedUser: AuthenticatedUser = {
   id: "user-1",
@@ -13,9 +23,16 @@ const authenticatedUser: AuthenticatedUser = {
 const noopLogout = () => Promise.resolve();
 
 describe("AppLayout", () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    document.documentElement.classList.remove("dark");
+  });
 
-  it("shows the authenticated profile and the mock options in the menu", async () => {
+  afterEach(() => {
+    cleanup();
+    document.documentElement.classList.remove("dark");
+  });
+
+  it("shows the authenticated profile and the navigation options in the menu", async () => {
     const interaction = userEvent.setup();
     render(
       <AppLayout loadUser={() => Promise.resolve(authenticatedUser)} onLogout={noopLogout}>
@@ -30,9 +47,25 @@ describe("AppLayout", () => {
 
     expect(await screen.findByText("Santiago")).toBeTruthy();
     expect(screen.getByText("santi@example.com")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Pantalla 1" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Pantalla 2" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Pantalla 3" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Nueva venta" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Ventas del día" })).toBeTruthy();
+  });
+
+  it("navigates to the selected screen and closes the menu", async () => {
+    const interaction = userEvent.setup();
+    render(
+      <AppLayout loadUser={() => Promise.resolve(authenticatedUser)} onLogout={noopLogout}>
+        <LocationProbe />
+      </AppLayout>,
+    );
+
+    await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+    await interaction.click(await screen.findByRole("button", { name: "Nueva venta" }));
+
+    expect(await screen.findByText("/sales/new")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
   });
 
   it("shows a localized fallback in the menu when there is no user", async () => {
@@ -44,14 +77,14 @@ describe("AppLayout", () => {
     expect(await screen.findByText("Perfil no disponible")).toBeTruthy();
   });
 
-  it("closes the menu when an option is selected", async () => {
+  it("closes the menu when a navigation option is selected", async () => {
     const interaction = userEvent.setup();
     render(
       <AppLayout loadUser={() => Promise.resolve(authenticatedUser)} onLogout={noopLogout}>{null}</AppLayout>,
     );
 
     await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
-    await interaction.click(await screen.findByRole("button", { name: "Pantalla 2" }));
+    await interaction.click(await screen.findByRole("button", { name: "Ventas del día" }));
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).toBeNull();
@@ -79,5 +112,33 @@ describe("AppLayout", () => {
     await interaction.click(screen.getByRole("button", { name: "Cerrar sesión" }));
 
     expect((await screen.findByRole("alert")).textContent).toBe("No se pudo cerrar la sesión. Reintenta.");
+  });
+
+  it("switches the document to dark mode from the menu toggle", async () => {
+    const interaction = userEvent.setup();
+    render(<AppLayout loadUser={() => Promise.resolve(null)} onLogout={noopLogout}>{null}</AppLayout>);
+
+    await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+    const toggle = (await screen.findByRole("switch", { name: "Modo oscuro" })) as HTMLInputElement;
+    expect(toggle.checked).toBe(false);
+
+    await interaction.click(toggle);
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(toggle.checked).toBe(true);
+
+    await interaction.click(toggle);
+    expect(document.documentElement.classList.contains("dark")).toBe(false);
+    expect(toggle.checked).toBe(false);
+  });
+
+  it("starts with the toggle reflecting the dark mode already applied", async () => {
+    const interaction = userEvent.setup();
+    document.documentElement.classList.add("dark");
+    render(<AppLayout loadUser={() => Promise.resolve(null)} onLogout={noopLogout}>{null}</AppLayout>);
+
+    await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+
+    const toggle = (await screen.findByRole("switch", { name: "Modo oscuro" })) as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
   });
 });

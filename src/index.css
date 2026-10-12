@@ -1,2 +1,17 @@
 @import "tailwindcss";
-@import "@heroui/styles"; 
+@import "@heroui/styles";
+
+@theme {
+  --color-primary: var(--color-indigo-600);
+  --color-secondary: var(--color-teal-600);
+}
+
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --accent: var(--color-indigo-600);
+}
+
+.dark {
+  --background: oklch(20% 0.005 285.823);
+}

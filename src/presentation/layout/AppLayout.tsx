@@ -1,9 +1,16 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Button, Drawer } from "@heroui/react";
+import { Button, Drawer, Spinner, Switch } from "@heroui/react";
+import { useLocation, useNavigate } from "react-router";
 import type { AuthenticatedUser } from "@/application/ports/authRepository";
 import { es } from "@/presentation/texts/es";
+import { applyThemeMode, getCurrentThemeMode, type ThemeMode } from "@/presentation/theme/themeMode";
 
 const texts = es.layout;
+
+const navigationItems = [
+  { path: "/sales/new", label: texts.navigation.newSale, Icon: PlusIcon },
+  { path: "/", label: texts.navigation.salesToday, Icon: ListIcon },
+];
 
 type ProfileState =
   | { status: "loading" }
@@ -20,6 +27,20 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState<ProfileState>({ status: "loading" });
   const [hasLogoutError, setHasLogoutError] = useState(false);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(getCurrentThemeMode);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  function navigateTo(path: string) {
+    setIsMenuOpen(false);
+    navigate(path);
+  }
+
+  function handleDarkModeChange(isDark: boolean) {
+    const nextMode: ThemeMode = isDark ? "dark" : "light";
+    applyThemeMode(nextMode);
+    setThemeMode(nextMode);
+  }
 
   useEffect(() => {
     let isCurrent = true;
@@ -88,16 +109,34 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
                 <Drawer.CloseTrigger aria-label={texts.closeMenu} />
               </Drawer.Header>
               <Drawer.Body className="flex flex-col gap-2">
-                {texts.options.map((option) => (
-                  <Button
-                    key={option}
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onPress={() => setIsMenuOpen(false)}
-                  >
-                    {option}
-                  </Button>
-                ))}
+                {navigationItems.map(({ path, label, Icon }) => {
+                  const isActive = location.pathname === path;
+
+                  return (
+                    <Button
+                      key={path}
+                      variant={isActive ? "secondary" : "ghost"}
+                      aria-current={isActive ? "page" : undefined}
+                      className="w-full justify-start gap-3"
+                      onPress={() => navigateTo(path)}
+                    >
+                      <Icon />
+                      {label}
+                    </Button>
+                  );
+                })}
+                <Switch
+                  isSelected={themeMode === "dark"}
+                  onChange={handleDarkModeChange}
+                  className="mt-4"
+                >
+                  <Switch.Content>
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                    {texts.darkMode}
+                  </Switch.Content>
+                </Switch>
               </Drawer.Body>
             </Drawer.Dialog>
           </Drawer.Content>
@@ -119,7 +158,7 @@ function toProfileState(user: AuthenticatedUser | null): ProfileState {
 
 function ProfileSummary({ profile }: { profile: ProfileState }) {
   if (profile.status === "loading") {
-    return <p>{texts.profileLoading}</p>;
+    return <Spinner size="sm" aria-label={es.common.loading} />;
   }
 
   if (profile.status === "unavailable") {
@@ -133,6 +172,22 @@ function ProfileSummary({ profile }: { profile: ProfileState }) {
         <p className="break-all text-sm">{profile.email}</p>
       ) : null}
     </div>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+    </svg>
   );
 }
 

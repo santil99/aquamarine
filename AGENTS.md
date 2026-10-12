@@ -15,6 +15,8 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Para problemas comunes, preferir APIs estándar y bibliotecas conocidas, seguras y mantenidas antes que formatos o mecanismos propios. Si una regla específica exige lógica propia, extraerla a una utilidad reutilizable fuera del componente.
 - Mantener la UI mínima con HeroUI. Para esta tabla no implementar sorting, filtros ni helpers propios de ordenamiento; quedan fuera del alcance acordado.
 - Diseñar mobile-first. Mantener cada pantalla en `src/presentation/views/`; los archivos de ruta deben ser adaptadores delgados que renderizan una vista, no contener toda su UI.
+- Los estados de carga muestran solo el `Spinner` de HeroUI, sin texto visible, en todas las pantallas. Su `aria-label` usa `es.common.loading`.
+- Validar formularios en tiempo real: los errores de un campo aparecen al editarlo y se mantienen hasta corregirlo; al enviar se validan todos los campos.
 - No introducir DDD avanzado, servicios de dominio ni value objects para envolver datos sin comportamiento.
 - Usar Vite, React, TypeScript estricto y HeroUI. Mantener los textos de interfaz en la localización existente.
 - Leer la constitución y la spec activa antes de implementar. No ampliar el alcance aprobado por suposición.

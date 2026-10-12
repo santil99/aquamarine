@@ -13,10 +13,11 @@ const sales: SaleListItem[] = [
 describe("SalesListView", () => {
   afterEach(cleanup);
 
-  it("shows a loading state while sales are being fetched", () => {
+  it("shows a loading spinner while sales are being fetched", () => {
     render(<SalesListView listSales={() => new Promise(() => {})} />);
 
-    expect(screen.getByText("Cargando ventas...")).toBeTruthy();
+    expect(screen.getByRole("status")).toBeTruthy();
+    expect(screen.queryByText("Cargando ventas...")).toBeNull();
   });
 
   it("renders sales with formatted amounts and the exact daily total", async () => {
