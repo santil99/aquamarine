@@ -18,6 +18,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - No introducir DDD avanzado, servicios de dominio ni value objects para envolver datos sin comportamiento.
 - Usar Vite, React, TypeScript estricto y HeroUI. Mantener los textos de interfaz en la localización existente.
 - Leer la constitución y la spec activa antes de implementar. No ampliar el alcance aprobado por suposición.
+- No deben quedar warnings en ningun archivo. Comprobar que no haya warnings. Si hay corregirlos.
 
 ## Testing
 

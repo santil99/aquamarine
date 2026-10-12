@@ -1,0 +1,56 @@
+export interface SaleCatalogOption {
+  id: string;
+  name: string;
+}
+
+export interface NewSaleInput {
+  amount: string;
+  categoryId: string;
+  paymentMethodId: string | null;
+  detail: string | null;
+}
+
+export type NewSaleField = "amount" | "categoryId" | "detail";
+export type NewSaleFieldError = "required" | "invalid" | "tooLong";
+export type NewSaleValidationErrors = Partial<
+  Record<NewSaleField, NewSaleFieldError>
+>;
+
+/**
+ * Validates the input data for creating a new sale record.
+ *
+ * What it does:
+ * - Checks `amount`: Must be present, positive, and formatted as a valid currency/decimal (up to 2 decimals).
+ * - Checks `categoryId`: Must not be empty.
+ * - Checks `detail`: Optional, but cannot exceed 500 characters.
+ *
+ * Usage / How it exposes to caller:
+ * Accept a `NewSaleInput` object and return a `NewSaleValidationErrors` map containing error keys 
+ * for any invalid fields. An empty returned object indicates valid input.
+ */
+export function validateNewSale(input: NewSaleInput): NewSaleValidationErrors {
+  const errors: NewSaleValidationErrors = {};
+  const amount = input.amount.trim();
+
+  // Validate amount field
+  if (!amount) {
+    errors.amount = "required";
+  } else if (
+    !/^\d+(?:\.\d{1,2})?$/.test(amount) ||
+    !/[1-9]/.test(amount.replace(".", ""))
+  ) {
+    errors.amount = "invalid";
+  }
+
+  // Validate category selection
+  if (!input.categoryId.trim()) {
+    errors.categoryId = "required";
+  }
+
+  // Validate detail character limit
+  if ((input.detail?.length ?? 0) > 500) {
+    errors.detail = "tooLong";
+  }
+
+  return errors;
+}
