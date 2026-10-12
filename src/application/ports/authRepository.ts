@@ -4,6 +4,10 @@ export interface AuthenticatedUser {
   email: string | null;
 }
 
+export class AuthCredentialsError extends Error {}
+
+export class AuthConnectionError extends Error {}
+
 export interface AuthRepository {
   signIn(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;

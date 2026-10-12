@@ -1,4 +1,12 @@
-import type { AuthRepository } from "@/application/ports/authRepository";
+import {
+  AuthApiError,
+  type AuthError,
+} from "@supabase/supabase-js";
+import {
+  AuthConnectionError,
+  AuthCredentialsError,
+  type AuthRepository,
+} from "@/application/ports/authRepository";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
 
 export const supabaseAuthRepository: AuthRepository = {
@@ -6,9 +14,10 @@ export const supabaseAuthRepository: AuthRepository = {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      throw error;
+      throw toSignInError(error);
     }
   },
+
 
   async signOut() {
     const { error } = await supabase.auth.signOut();
@@ -25,9 +34,14 @@ export const supabaseAuthRepository: AuthRepository = {
       return null;
     }
 
+    const metadata = data.user.user_metadata;
+    const name = [metadata.name, metadata.full_name].find(
+      (value): value is string => typeof value === "string" && value.trim() !== "",
+    );
+
     return {
       id: data.user.id,
-      displayName: null,
+      displayName: name?.trim() ?? null,
       email: data.user.email ?? null,
     };
   },
@@ -42,3 +56,11 @@ export const supabaseAuthRepository: AuthRepository = {
     return data.session !== null;
   },
 };
+
+function toSignInError(error: AuthError): Error {
+  const isRejected = error instanceof AuthApiError && error.status >= 400 && error.status < 500;
+
+  return isRejected
+    ? new AuthCredentialsError(error.message)
+    : new AuthConnectionError(error.message);
+}

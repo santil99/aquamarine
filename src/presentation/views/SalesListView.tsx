@@ -3,7 +3,9 @@ import { Button, Spinner, Table } from "@heroui/react";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import { sumSaleAmounts } from "@/domain/sales/saleTotal";
 import { formatAmount } from "@/presentation/formatters/amount";
-import { salesListTexts as texts } from "@/presentation/texts/salesList";
+import { es } from "@/presentation/texts/es";
+
+const texts = es.salesList;
 
 type LoadState =
   | { status: "loading" }
@@ -41,7 +43,7 @@ export function SalesListView({ listSales }: SalesListViewProps) {
 
   return (
     <section className="flex w-full max-w-3xl flex-col gap-4">
-      <h1 className="text-xl font-bold">{texts.title}</h1>
+      <h2 className="text-xl font-bold">{texts.title}</h2>
       <SalesListContent state={state} onRetry={retry} />
     </section>
   );

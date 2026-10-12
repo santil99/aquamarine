@@ -26,6 +26,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Ser moderado con la cantidad de Tests, no hacer sobreingenieria en testing. Se debe testear lo importante.
 - No agregar tests para SERVICES ni REPOSITORIES. Tampoco testear getters/setters, adaptadores triviales, formato trivial ni comportamiento que ya proporcione HeroUI.
 - Para cambios de UI, validar con los tests de presentación y los checks disponibles. No realizar test funcionales ni e2e. No levantar servidores de desarrollo para comprobar nada.
+- Los archivos de tests deben ir todos en su carpeta propia. Por ejemplo en presentation/tests/sales para los que son especificos de ventas.
 
 ## Comandos
 
