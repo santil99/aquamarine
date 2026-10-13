@@ -1,7 +1,6 @@
 import type { AuthRepository } from "@/application/ports/authRepository";
 import type { SalesCatalogs, SalesRepository } from "@/application/ports/salesRepository";
 import type { BusinessContext } from "@/domain/business/businessContext";
-import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import {
   normalizeSaleAmount,
   normalizeSaleDetail,
@@ -29,11 +28,10 @@ export class SalesService {
     this.authRepository = authRepository;
   }
 
-  async listToday(business: BusinessContext): Promise<SaleListItem[]> {
+  async listForDate(business: BusinessContext, date: string): Promise<SaleListItem[]> {
     await this.requireAuthenticatedUser();
 
-    const today = getTodayInTimeZone(business.timeZone);
-    return this.salesRepository.listForDate(business, today);
+    return this.salesRepository.listForDate(business, date);
   }
 
   async loadCatalogs(): Promise<SalesCatalogs> {

@@ -2,14 +2,13 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Button, Drawer, Spinner, Switch } from "@heroui/react";
 import { useLocation, useNavigate } from "react-router";
 import type { AuthenticatedUser } from "@/application/ports/authRepository";
-import { es } from "@/presentation/texts/es";
 import { applyThemeMode, getCurrentThemeMode, type ThemeMode } from "@/presentation/theme/themeMode";
+import { useLanguage, useTexts } from "@/presentation/texts/useTexts";
+import type { Language } from "@/presentation/texts/languages";
 
-const texts = es.layout;
-
-const navigationItems = [
-  { path: "/sales/new", label: texts.navigation.newSale, Icon: PlusIcon },
-  { path: "/", label: texts.navigation.salesToday, Icon: ListIcon },
+const languageOptions: { language: Language; label: string }[] = [
+  { language: "es", label: "Español" },
+  { language: "en", label: "English" },
 ];
 
 type ProfileState =
@@ -24,6 +23,12 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
+  const texts = useTexts().layout;
+  const { language, setLanguage } = useLanguage();
+  const navigationItems = [
+    { path: "/sales/new", label: texts.navigation.newSale, Icon: PlusIcon },
+    { path: "/", label: texts.navigation.salesToday, Icon: ListIcon },
+  ];
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState<ProfileState>({ status: "loading" });
   const [hasLogoutError, setHasLogoutError] = useState(false);
@@ -137,6 +142,25 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
                     {texts.darkMode}
                   </Switch.Content>
                 </Switch>
+                <div className="mt-4 flex flex-col gap-2">
+                  <span className="text-sm font-semibold">{texts.language}</span>
+                  <div className="flex gap-2">
+                    {languageOptions.map((option) => {
+                      const isActive = option.language === language;
+
+                      return (
+                        <Button
+                          key={option.language}
+                          variant={isActive ? "secondary" : "outline"}
+                          aria-pressed={isActive}
+                          onPress={() => setLanguage(option.language)}
+                        >
+                          {option.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
               </Drawer.Body>
             </Drawer.Dialog>
           </Drawer.Content>
@@ -157,8 +181,10 @@ function toProfileState(user: AuthenticatedUser | null): ProfileState {
 }
 
 function ProfileSummary({ profile }: { profile: ProfileState }) {
+  const { common, layout: texts } = useTexts();
+
   if (profile.status === "loading") {
-    return <Spinner size="sm" aria-label={es.common.loading} />;
+    return <Spinner size="sm" aria-label={common.loading} />;
   }
 
   if (profile.status === "unavailable") {

@@ -7,15 +7,7 @@ import {
   type LoginFieldError,
   type LoginFieldErrors,
 } from "@/domain/auth/loginFields";
-import { es } from "@/presentation/texts/es";
-
-const texts = es.login;
-
-const fieldErrorMessages: Record<LoginFieldError, string> = {
-  emailRequired: texts.emailRequired,
-  emailInvalid: texts.emailInvalid,
-  passwordRequired: texts.passwordRequired,
-};
+import { useTexts } from "@/presentation/texts/useTexts";
 
 interface LoginViewProps {
   signIn: (email: string, password: string) => Promise<void>;
@@ -23,6 +15,12 @@ interface LoginViewProps {
 }
 
 export function LoginView({ signIn, onSignedIn }: LoginViewProps) {
+  const texts = useTexts().login;
+  const fieldErrorMessages: Record<LoginFieldError, string> = {
+    emailRequired: texts.emailRequired,
+    emailInvalid: texts.emailInvalid,
+    passwordRequired: texts.passwordRequired,
+  };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});

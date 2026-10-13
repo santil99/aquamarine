@@ -1,6 +1,7 @@
 export const es = {
   common: {
     loading: "Cargando",
+    locale: "es-AR",
   },
   layout: {
     title: "Mi negocio",
@@ -10,6 +11,7 @@ export const es = {
     logout: "Cerrar sesión",
     logoutError: "No se pudo cerrar la sesión. Reintenta.",
     darkMode: "Modo oscuro",
+    language: "Idioma",
     profileUnavailable: "Perfil no disponible",
     navigation: {
       newSale: "Nueva venta",
@@ -17,8 +19,8 @@ export const es = {
     },
   },
   salesList: {
-    title: "Ventas de hoy",
-    empty: "No hay ventas registradas hoy.",
+    title: "Ventas",
+    empty: "No hay ventas registradas para este día.",
     error: "No se pudieron cargar las ventas.",
     retry: "Reintentar",
     detail: "Ver detalle",
@@ -29,6 +31,13 @@ export const es = {
       category: "Categoría",
       paymentMethod: "Medio de pago",
       action: "Acción",
+    },
+    dateNavigator: {
+      previousDay: "Día anterior",
+      nextDay: "Día siguiente",
+      calendar: "Calendario",
+      today: "Hoy",
+      yesterday: "Ayer",
     },
   },
   newSale: {
@@ -63,4 +72,4 @@ export const es = {
     invalidCredentials: "El email o la contraseña no son correctos. Revísalos e intenta de nuevo.",
     connectionError: "No pudimos conectarnos. Revisa tu conexión y reintenta.",
   },
-} as const;
+};

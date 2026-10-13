@@ -5,6 +5,7 @@ import { MemoryRouter, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AuthenticatedUser } from "@/application/ports/authRepository";
 import { AppLayout } from "@/presentation/layout/AppLayout";
+import { LanguageProvider } from "@/presentation/texts/LanguageProvider";
 
 function render(ui: ReactElement) {
   return renderWithoutRouter(<MemoryRouter>{ui}</MemoryRouter>);
@@ -140,5 +141,27 @@ describe("AppLayout", () => {
 
     const toggle = (await screen.findByRole("switch", { name: "Modo oscuro" })) as HTMLInputElement;
     expect(toggle.checked).toBe(true);
+  });
+
+  it("switches the layout texts to English from the menu and back to Spanish", async () => {
+    const interaction = userEvent.setup();
+    renderWithoutRouter(
+      <LanguageProvider>
+        <MemoryRouter>
+          <AppLayout loadUser={() => Promise.resolve(null)} onLogout={noopLogout}>{null}</AppLayout>
+        </MemoryRouter>
+      </LanguageProvider>,
+    );
+
+    await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+    await interaction.click(await screen.findByRole("button", { name: "English" }));
+
+    expect(screen.getByRole("button", { name: "Close menu" })).toBeTruthy();
+    expect(document.documentElement.lang).toBe("en");
+
+    await interaction.click(screen.getByRole("button", { name: "Español" }));
+
+    expect(screen.getByRole("button", { name: "Cerrar menú" })).toBeTruthy();
+    expect(document.documentElement.lang).toBe("es");
   });
 });

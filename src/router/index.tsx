@@ -15,7 +15,7 @@ const authService = new AuthService(supabaseAuthRepository);
 const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepository);
 
 const loadUser = () => authService.getCurrentUser();
-const listSales = () => salesService.listToday(activeBusiness);
+const listSales = (date: string) => salesService.listForDate(activeBusiness, date);
 const loadCatalogs = () => salesService.loadCatalogs();
 const registerSale = (input: NewSaleInput) => salesService.registerSale(input);
 
@@ -24,7 +24,10 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedLayout />}>
-        <Route path="/" element={<SalesListView listSales={listSales} />} />
+        <Route
+          path="/"
+          element={<SalesListView listSales={listSales} timeZone={activeBusiness.timeZone} />}
+        />
         <Route
           path="/sales/new"
           element={<NewSaleView loadCatalogs={loadCatalogs} registerSale={registerSale} />}

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button, Spinner, Table } from "@heroui/react";
+import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import { sumSaleAmounts } from "@/domain/sales/saleTotal";
+import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
-import { es } from "@/presentation/texts/es";
-
-const texts = es.salesList;
+import { useTexts } from "@/presentation/texts/useTexts";
 
 type LoadState =
   | { status: "loading" }
@@ -13,17 +13,21 @@ type LoadState =
   | { status: "success"; sales: SaleListItem[] };
 
 interface SalesListViewProps {
-  listSales: () => Promise<SaleListItem[]>;
+  readonly listSales: (date: string) => Promise<SaleListItem[]>;
+  readonly timeZone: string;
 }
 
-export function SalesListView({ listSales }: SalesListViewProps) {
+export function SalesListView({ listSales, timeZone }: SalesListViewProps) {
+  const texts = useTexts().salesList;
+  const [today] = useState(() => getTodayInTimeZone(timeZone));
+  const [selectedDate, setSelectedDate] = useState(today);
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let isCurrent = true;
 
-    listSales()
+    listSales(selectedDate)
       .then((sales) => {
         if (isCurrent) setState({ status: "success", sales });
       })
@@ -34,7 +38,12 @@ export function SalesListView({ listSales }: SalesListViewProps) {
     return () => {
       isCurrent = false;
     };
-  }, [listSales, attempt]);
+  }, [listSales, selectedDate, attempt]);
+
+  const changeDate = (date: string) => {
+    setSelectedDate(date);
+    setState({ status: "loading" });
+  };
 
   const retry = () => {
     setState({ status: "loading" });
@@ -44,6 +53,7 @@ export function SalesListView({ listSales }: SalesListViewProps) {
   return (
     <section className="flex w-full max-w-3xl flex-col gap-4">
       <h2 className="text-xl font-bold">{texts.title}</h2>
+      <DateNavigator date={selectedDate} today={today} onDateChange={changeDate} />
       <SalesListContent state={state} onRetry={retry} />
     </section>
   );
@@ -53,11 +63,14 @@ function SalesListContent({
   state,
   onRetry,
 }: {
-  state: LoadState;
-  onRetry: () => void;
+  readonly state: LoadState;
+  readonly onRetry: () => void;
 }) {
+  const { common, salesList: texts } = useTexts();
+  const locale = common.locale;
+
   if (state.status === "loading") {
-    return <Spinner size="sm" aria-label={es.common.loading} />;
+    return <Spinner size="sm" aria-label={common.loading} />;
   }
 
   if (state.status === "error") {
@@ -90,7 +103,7 @@ function SalesListContent({
               {(sale) => (
                 <Table.Row id={sale.id}>
                   <Table.Cell className="whitespace-nowrap text-right">
-                    {formatAmount(sale.amount)}
+                    {formatAmount(sale.amount, locale)}
                   </Table.Cell>
                   <Table.Cell>{sale.category}</Table.Cell>
                   <Table.Cell>
@@ -109,7 +122,7 @@ function SalesListContent({
       </Table.Root>
       <div className="flex justify-between gap-2 border-t pt-3 font-semibold">
         <span>{texts.dailyTotal}</span>
-        <span>{formatAmount(sumSaleAmounts(state.sales.map((sale) => sale.amount)))}</span>
+        <span>{formatAmount(sumSaleAmounts(state.sales.map((sale) => sale.amount)), locale)}</span>
       </div>
     </>
   );

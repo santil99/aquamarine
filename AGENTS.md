@@ -18,7 +18,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Los estados de carga muestran solo el `Spinner` de HeroUI, sin texto visible, en todas las pantallas. Su `aria-label` usa `es.common.loading`.
 - Validar formularios en tiempo real: los errores de un campo aparecen al editarlo y se mantienen hasta corregirlo; al enviar se validan todos los campos.
 - No introducir DDD avanzado, servicios de dominio ni value objects para envolver datos sin comportamiento.
-- Usar Vite, React, TypeScript estricto y HeroUI. Mantener los textos de interfaz en la localización existente.
+- Usar Vite, React, TypeScript estricto y HeroUI. Los textos de interfaz viven en `src/presentation/texts/` (un diccionario por idioma, `en.ts` tipado contra `es.ts`). Las vistas nunca importan un idioma fijo: obtienen los textos con `useTexts()` y el idioma activo se cambia desde `LanguageContext`. Los montos se formatean con el locale del idioma activo.
 - Leer la constitución y la spec activa antes de implementar. No ampliar el alcance aprobado por suposición.
 - No deben quedar warnings en ningun archivo. Comprobar que no haya warnings. Si hay corregirlos.
 

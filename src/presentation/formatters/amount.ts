@@ -1,12 +1,10 @@
-const AMOUNT_LOCALE = "es-AR";
-
 /**
  * Formats a decimal amount string without going through a JS number, so large
  * values keep their exact digits. Fraction digits are shown only when non-zero.
  */
-export function formatAmount(amount: string): string {
+export function formatAmount(amount: string, locale: string): string {
   const [units, fraction = ""] = amount.split(".");
-  const formatter = new Intl.NumberFormat(AMOUNT_LOCALE);
+  const formatter = new Intl.NumberFormat(locale);
   const groupedUnits = formatter.format(BigInt(units));
 
   if (!/[1-9]/.test(fraction)) {

@@ -21,16 +21,9 @@ import {
   type NewSaleInput,
   type NewSaleValidationErrors,
 } from "@/domain/sales/newSale";
-import { es } from "@/presentation/texts/es";
+import { useTexts } from "@/presentation/texts/useTexts";
 
-const texts = es.newSale;
 const NO_PAYMENT_METHOD = "none";
-
-const errorMessages: Record<NewSaleField, Partial<Record<NewSaleFieldError, string>>> = {
-  amount: { required: texts.amountRequired, invalid: texts.amountInvalid },
-  categoryId: { required: texts.categoryRequired },
-  detail: { tooLong: texts.detailTooLong },
-};
 
 type CatalogState =
   | { status: "loading" }
@@ -45,6 +38,12 @@ interface NewSaleViewProps {
 }
 
 export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
+  const texts = useTexts().newSale;
+  const errorMessages: Record<NewSaleField, Partial<Record<NewSaleFieldError, string>>> = {
+    amount: { required: texts.amountRequired, invalid: texts.amountInvalid },
+    categoryId: { required: texts.categoryRequired },
+    detail: { tooLong: texts.detailTooLong },
+  };
   const [catalogs, setCatalogs] = useState<CatalogState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [amount, setAmount] = useState("");
@@ -115,6 +114,11 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
     }
   }
 
+  const fieldMessage = (field: NewSaleField): string | undefined => {
+    const code = fieldErrors[field];
+    return code ? errorMessages[field][code] : undefined;
+  };
+
   const isLoadingCatalogs = catalogs.status === "loading";
   const categories = catalogs.status === "success" ? catalogs.catalogs.categories : [];
   const paymentMethods = catalogs.status === "success" ? catalogs.catalogs.paymentMethods : [];
@@ -151,7 +155,7 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
         >
           <Label>{texts.amountLabel}</Label>
           <Input inputMode="decimal" />
-          {fieldErrors.amount ? <FieldError>{fieldMessage(fieldErrors, "amount")}</FieldError> : null}
+          {fieldErrors.amount ? <FieldError>{fieldMessage("amount")}</FieldError> : null}
         </TextField>
 
         <Select
@@ -185,7 +189,7 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
         </Select>
         {fieldErrors.categoryId ? (
           <p role="alert" className="-mt-2 text-sm text-danger">
-            {fieldMessage(fieldErrors, "categoryId")}
+            {fieldMessage("categoryId")}
           </p>
         ) : null}
 
@@ -234,7 +238,7 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
         >
           <Label>{texts.detailLabel}</Label>
           <TextArea rows={3} />
-          {fieldErrors.detail ? <FieldError>{fieldMessage(fieldErrors, "detail")}</FieldError> : null}
+          {fieldErrors.detail ? <FieldError>{fieldMessage("detail")}</FieldError> : null}
         </TextField>
 
         {saveError ? (
@@ -251,11 +255,6 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
       <ToastProvider queue={toastQueue} placement="bottom" />
     </section>
   );
-}
-
-function fieldMessage(errors: NewSaleValidationErrors, field: NewSaleField): string | undefined {
-  const code = errors[field];
-  return code ? errorMessages[field][code] : undefined;
 }
 
 function visibleErrors(errors: NewSaleValidationErrors, touched: TouchedFields): NewSaleValidationErrors {
