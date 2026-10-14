@@ -15,9 +15,10 @@ import type {
   SaleCatalogOption,
 } from "@/domain/sales/newSale";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/forms/saleFormValues";
-import { useTexts } from "@/presentation/texts/useTexts";
+import type { Texts } from "@/presentation/texts/types";
 
 interface SaleFieldsProps {
+  readonly texts: Texts["newSale"];
   readonly values: SaleFormValues;
   readonly categories: SaleCatalogOption[];
   readonly paymentMethods: SaleCatalogOption[];
@@ -31,6 +32,7 @@ interface SaleFieldsProps {
 }
 
 export function SaleFields({
+  texts,
   values,
   categories,
   paymentMethods,
@@ -38,7 +40,6 @@ export function SaleFields({
   errors,
   onChange,
 }: SaleFieldsProps) {
-  const texts = useTexts().newSale;
   const errorMessages: Record<NewSaleField, Partial<Record<NewSaleFieldError, string>>> = {
     amount: { required: texts.amountRequired, invalid: texts.amountInvalid },
     categoryId: { required: texts.categoryRequired },

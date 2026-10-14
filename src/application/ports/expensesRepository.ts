@@ -5,12 +5,20 @@ import type {
   ExpenseDetail,
   ExpenseInput,
 } from "@/domain/expenses/expenseForm";
+import type {
+  ExpenseSearchFilters,
+  ExpenseSearchItem,
+} from "@/domain/expenses/expenseSearch";
 
 export interface ExpensesRepository {
   listForMonth(
     business: BusinessContext,
     monthStart: string,
   ): Promise<ExpenseListItem[]>;
+  search(
+    business: BusinessContext,
+    filters: ExpenseSearchFilters,
+  ): Promise<ExpenseSearchItem[]>;
   listCategories(): Promise<ExpenseCatalogOption[]>;
   listPaymentMethods(): Promise<ExpenseCatalogOption[]>;
   create(expense: ExpenseInput, userId: string): Promise<void>;

@@ -69,6 +69,7 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
 
       <Form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
         <SaleFields
+          texts={texts}
           values={values}
           categories={categories}
           paymentMethods={paymentMethods}

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Button, Spinner } from "@heroui/react";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
+import type { ExpenseCatalogOption } from "@/domain/expenses/expenseForm";
+import type { ExpenseSearchFilters, ExpenseSearchItem } from "@/domain/expenses/expenseSearch";
 import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";
 import { getDefaultSaleSearchFilters } from "@/domain/sales/saleSearch";
 import { SearchFilterFields, type SearchType } from "@/presentation/components/SearchFilterFields";
@@ -9,21 +11,34 @@ import { TransactionCard } from "@/presentation/components/TransactionCard";
 import { useSaleCatalogs } from "@/presentation/hooks/useSaleCatalogs";
 import { useTexts } from "@/presentation/texts/useTexts";
 
+export type SearchCatalogs = SalesCatalogs & {
+  expenseCategories: ExpenseCatalogOption[];
+};
+
 type ResultState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "success"; items: SaleSearchItem[] };
 
 interface SearchViewProps {
-  readonly loadCatalogs: () => Promise<SalesCatalogs>;
+  readonly loadCatalogs: () => Promise<SearchCatalogs>;
   readonly searchSales: (filters: SaleSearchFilters) => Promise<SaleSearchItem[]>;
+  readonly searchExpenses: (filters: ExpenseSearchFilters) => Promise<ExpenseSearchItem[]>;
   readonly timeZone: string;
   readonly onOpenSale: (saleId: string) => void;
+  readonly onOpenExpense: (expenseId: string) => void;
 }
 
-const EMPTY_OPTIONS: SalesCatalogs["categories"] = [];
+const EMPTY_OPTIONS: ExpenseCatalogOption[] = [];
 
-export function SearchView({ loadCatalogs, searchSales, timeZone, onOpenSale }: SearchViewProps) {
+export function SearchView({
+  loadCatalogs,
+  searchSales,
+  searchExpenses,
+  timeZone,
+  onOpenSale,
+  onOpenExpense,
+}: SearchViewProps) {
   const texts = useTexts().search;
   const [today] = useState(() => getTodayInTimeZone(timeZone));
   const [type, setType] = useState<SearchType>("sales");
@@ -34,11 +49,14 @@ export function SearchView({ loadCatalogs, searchSales, timeZone, onOpenSale }: 
   const { state: catalogState } = useSaleCatalogs(loadCatalogs);
 
   useEffect(() => {
-    if (type === "expenses") return;
-
     let isCurrent = true;
 
-    searchSales(applied)
+    const request =
+      type === "sales"
+        ? searchSales(applied)
+        : searchExpenses(toExpenseSearchFilters(applied));
+
+    request
       .then((items) => {
         if (isCurrent) setResults({ status: "success", items });
       })
@@ -49,17 +67,16 @@ export function SearchView({ loadCatalogs, searchSales, timeZone, onOpenSale }: 
     return () => {
       isCurrent = false;
     };
-  }, [type, applied, attempt, searchSales]);
+  }, [type, applied, attempt, searchSales, searchExpenses]);
 
   const isSales = type === "sales";
   const catalogs = catalogState.status === "success" ? catalogState.catalogs : null;
 
   const changeType = (nextType: SearchType) => {
     setType(nextType);
-    setDraft((current) =>
-      nextType === "expenses" ? { ...current, categoryId: null, paymentMethodId: null } : current,
-    );
-    if (nextType === "sales") setResults({ status: "loading" });
+    setDraft(clearTypeSpecificFilters);
+    setApplied(clearTypeSpecificFilters);
+    setResults({ status: "loading" });
   };
 
   const changeField = <Field extends keyof SaleSearchFilters>(
@@ -79,7 +96,9 @@ export function SearchView({ loadCatalogs, searchSales, timeZone, onOpenSale }: 
     setAttempt((current) => current + 1);
   };
 
-  const visibleResults: ResultState = isSales ? results : { status: "success", items: [] };
+  const categories = isSales
+    ? (catalogs?.categories ?? EMPTY_OPTIONS)
+    : (catalogs?.expenseCategories ?? EMPTY_OPTIONS);
 
   return (
     <section className="flex w-full flex-col gap-6">
@@ -89,7 +108,7 @@ export function SearchView({ loadCatalogs, searchSales, timeZone, onOpenSale }: 
         type={type}
         onTypeChange={changeType}
         filters={draft}
-        categories={isSales ? (catalogs?.categories ?? EMPTY_OPTIONS) : EMPTY_OPTIONS}
+        categories={categories}
         paymentMethods={catalogs?.paymentMethods ?? EMPTY_OPTIONS}
         isLoadingCatalogs={catalogState.status === "loading"}
         onChange={changeField}
@@ -99,13 +118,28 @@ export function SearchView({ loadCatalogs, searchSales, timeZone, onOpenSale }: 
 
       <SearchResults
         type={type}
-        state={visibleResults}
+        state={results}
         timeZone={timeZone}
         onRetry={retry}
-        onOpenSale={onOpenSale}
+        onOpen={isSales ? onOpenSale : onOpenExpense}
       />
     </section>
   );
+}
+
+// Sales-only filters (amounts, payment method) and the category must not leak across tabs,
+// because category ids belong to a different catalog per type.
+function clearTypeSpecificFilters(filters: SaleSearchFilters): SaleSearchFilters {
+  return { ...filters, minAmount: null, maxAmount: null, categoryId: null, paymentMethodId: null };
+}
+
+function toExpenseSearchFilters(filters: SaleSearchFilters): ExpenseSearchFilters {
+  return {
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+    detail: filters.detail,
+    categoryId: filters.categoryId,
+  };
 }
 
 function SearchResults({
@@ -113,13 +147,13 @@ function SearchResults({
   state,
   timeZone,
   onRetry,
-  onOpenSale,
+  onOpen,
 }: {
   readonly type: SearchType;
   readonly state: ResultState;
   readonly timeZone: string;
   readonly onRetry: () => void;
-  readonly onOpenSale: (saleId: string) => void;
+  readonly onOpen: (id: string) => void;
 }) {
   const { common, search: texts } = useTexts();
 
@@ -153,7 +187,7 @@ function SearchResults({
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {state.items.map((item) => (
             <li key={item.id}>
-              <TransactionCard item={item} timeZone={timeZone} onOpen={onOpenSale} />
+              <TransactionCard item={item} timeZone={timeZone} onOpen={onOpen} />
             </li>
           ))}
         </ul>

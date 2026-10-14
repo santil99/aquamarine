@@ -4,6 +4,8 @@ import { AuthService } from "@/application/services/authService";
 import { ExpensesService } from "@/application/services/expensesService";
 import { SalesService } from "@/application/services/salesService";
 import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { ExpenseCatalogs } from "@/domain/expenses/expenseForm";
+import type { ExpenseSearchFilters } from "@/domain/expenses/expenseSearch";
 import type { SaleSearchFilters } from "@/domain/sales/saleSearch";
 import { activeBusiness } from "@/infrastructure/business/mockBusinessContext";
 import { supabaseAuthRepository } from "@/infrastructure/supabase/supabaseAuthRepository";
@@ -14,12 +16,14 @@ import {
   type SaleFeedback,
   type SalesListNavigationState,
 } from "@/presentation/navigation/salesNavigation";
+import { ExpenseDetailView } from "@/presentation/views/ExpenseDetailView";
 import { ExpensesListView } from "@/presentation/views/ExpensesListView";
 import { LoginView } from "@/presentation/views/LoginView";
+import { NewExpenseView } from "@/presentation/views/NewExpenseView";
 import { NewSaleView } from "@/presentation/views/NewSaleView";
 import { SaleDetailView } from "@/presentation/views/SaleDetailView";
 import { SalesListView } from "@/presentation/views/SalesListView";
-import { SearchView } from "@/presentation/views/SearchView";
+import { SearchView, type SearchCatalogs } from "@/presentation/views/SearchView";
 
 const authService = new AuthService(supabaseAuthRepository);
 const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepository);
@@ -29,12 +33,34 @@ const loadUser = () => authService.getCurrentUser();
 const listSales = (date: string) => salesService.listForDate(activeBusiness, date);
 const listExpenses = (monthStart: string) => expensesService.listForMonth(activeBusiness, monthStart);
 const loadCatalogs = () => salesService.loadCatalogs();
+const loadSearchCatalogs = async (): Promise<SearchCatalogs> => {
+  const [catalogs, expenseCategories] = await Promise.all([
+    salesService.loadCatalogs(),
+    expensesService.listCategories(),
+  ]);
+
+  return { ...catalogs, expenseCategories };
+};
+const loadExpenseCatalogs = async (): Promise<ExpenseCatalogs> => {
+  const [categories, paymentMethods] = await Promise.all([
+    expensesService.listCategories(),
+    expensesService.listPaymentMethods(),
+  ]);
+
+  return { categories, paymentMethods };
+};
 const registerSale = (input: NewSaleInput) => salesService.registerSale(input);
+const registerExpense = (input: NewSaleInput) => expensesService.create(input);
+const loadExpense = (id: string) => expensesService.getById(id);
+const updateExpense = (id: string, input: NewSaleInput) => expensesService.update(id, input);
+const deleteExpense = (id: string) => expensesService.delete(id);
 const loadSale = (id: string) => salesService.getSale(id);
 const updateSale = (id: string, input: NewSaleInput) => salesService.updateSale(id, input);
 const deleteSale = (id: string) => salesService.deleteSale(id);
 const searchSales = (filters: SaleSearchFilters) =>
   salesService.searchSales(activeBusiness, filters);
+const searchExpenses = (filters: ExpenseSearchFilters) =>
+  expensesService.searchExpenses(activeBusiness, filters);
 
 export default function AppRoutes() {
   return (
@@ -46,6 +72,8 @@ export default function AppRoutes() {
         <Route path="/sales/:id" element={<SaleDetailRoute />} />
         <Route path="/search" element={<SearchRoute />} />
         <Route path="/expenses" element={<ExpensesRoute />} />
+        <Route path="/expenses/new" element={<NewExpenseRoute />} />
+        <Route path="/expenses/:id" element={<ExpenseDetailRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
@@ -57,10 +85,12 @@ function SearchRoute() {
 
   return (
     <SearchView
-      loadCatalogs={loadCatalogs}
+      loadCatalogs={loadSearchCatalogs}
       searchSales={searchSales}
+      searchExpenses={searchExpenses}
       timeZone={activeBusiness.timeZone}
       onOpenSale={(saleId) => navigate(`/sales/${saleId}`)}
+      onOpenExpense={(expenseId) => navigate(`/expenses/${expenseId}`)}
     />
   );
 }
@@ -73,6 +103,27 @@ function ExpensesRoute() {
       listExpenses={listExpenses}
       timeZone={activeBusiness.timeZone}
       onOpenExpense={(expenseId) => navigate(`/expenses/${expenseId}`)}
+    />
+  );
+}
+
+function NewExpenseRoute() {
+  return <NewExpenseView loadCatalogs={loadExpenseCatalogs} registerExpense={registerExpense} />;
+}
+
+function ExpenseDetailRoute() {
+  const { id = "" } = useParams();
+  const navigate = useNavigate();
+
+  return (
+    <ExpenseDetailView
+      expenseId={id}
+      timeZone={activeBusiness.timeZone}
+      loadExpense={loadExpense}
+      loadCatalogs={loadExpenseCatalogs}
+      updateExpense={updateExpense}
+      deleteExpense={deleteExpense}
+      onExit={() => navigate("/expenses")}
     />
   );
 }

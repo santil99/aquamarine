@@ -4,6 +4,7 @@ import type { SaleCatalogOption } from "@/domain/sales/newSale";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SaleSearchItem } from "@/domain/sales/saleSearch";
+import { escapeLikePattern } from "@/infrastructure/supabase/escapeLikePattern";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
 
 interface SaleRow {
@@ -191,10 +192,6 @@ function toSaleSearchItem(row: SaleSearchRow): SaleSearchItem {
     paymentMethod: row.payment_method?.name ?? null,
     detail: row.detail,
   };
-}
-
-function escapeLikePattern(value: string): string {
-  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
 function toCatalogOption(row: SaleCatalogRow): SaleCatalogOption {

@@ -3,11 +3,27 @@ import type { ExpensesRepository } from "@/application/ports/expensesRepository"
 import type { BusinessContext } from "@/domain/business/businessContext";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import {
-  validateExpense,
-  type ExpenseCatalogOption,
-  type ExpenseDetail,
-  type ExpenseInput,
+  normalizeSaleAmount,
+  normalizeSaleDetail,
+  validateNewSale,
+  type NewSaleInput,
+} from "@/domain/sales/newSale";
+import type {
+  ExpenseCatalogOption,
+  ExpenseDetail,
 } from "@/domain/expenses/expenseForm";
+import type {
+  ExpenseSearchFilters,
+  ExpenseSearchItem,
+} from "@/domain/expenses/expenseSearch";
+
+function toExpensePayload(input: NewSaleInput): NewSaleInput {
+  return {
+    ...input,
+    amount: normalizeSaleAmount(input.amount),
+    detail: normalizeSaleDetail(input.detail),
+  };
+}
 
 export class ExpensesService {
   private readonly expensesRepository: ExpensesRepository;
@@ -28,6 +44,14 @@ export class ExpensesService {
     return this.expensesRepository.listForMonth(business, monthStart);
   }
 
+  async searchExpenses(
+    business: BusinessContext,
+    filters: ExpenseSearchFilters,
+  ): Promise<ExpenseSearchItem[]> {
+    await this.requireAuthenticatedUser();
+    return this.expensesRepository.search(business, filters);
+  }
+
   listCategories(): Promise<ExpenseCatalogOption[]> {
     return this.expensesRepository.listCategories();
   }
@@ -36,14 +60,14 @@ export class ExpensesService {
     return this.expensesRepository.listPaymentMethods();
   }
 
-  async create(expense: ExpenseInput): Promise<void> {
-    if (Object.keys(validateExpense(expense)).length > 0) {
+  async create(expense: NewSaleInput): Promise<void> {
+    if (Object.keys(validateNewSale(expense)).length > 0) {
       throw new Error("Invalid expense");
     }
 
     const user = await this.requireAuthenticatedUser();
 
-    await this.expensesRepository.create(expense, user.id);
+    await this.expensesRepository.create(toExpensePayload(expense), user.id);
   }
 
   async getById(id: string): Promise<ExpenseDetail | null> {
@@ -51,13 +75,13 @@ export class ExpensesService {
     return this.expensesRepository.getById(id);
   }
 
-  async update(id: string, expense: ExpenseInput): Promise<void> {
-    if (Object.keys(validateExpense(expense)).length > 0) {
+  async update(id: string, expense: NewSaleInput): Promise<void> {
+    if (Object.keys(validateNewSale(expense)).length > 0) {
       throw new Error("Invalid expense");
     }
 
     await this.requireAuthenticatedUser();
-    const updated = await this.expensesRepository.update(id, expense);
+    const updated = await this.expensesRepository.update(id, toExpensePayload(expense));
 
     if (!updated) {
       throw new Error("Expense not found");

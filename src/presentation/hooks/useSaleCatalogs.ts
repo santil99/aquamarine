@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 
-export type CatalogState =
+export type CatalogState<T> =
   | { status: "loading" }
   | { status: "error" }
-  | { status: "success"; catalogs: SalesCatalogs };
+  | { status: "success"; catalogs: T };
 
-export function useSaleCatalogs(loadCatalogs: () => Promise<SalesCatalogs>) {
-  const [state, setState] = useState<CatalogState>({ status: "loading" });
+export function useSaleCatalogs<T = SalesCatalogs>(loadCatalogs: () => Promise<T>) {
+  const [state, setState] = useState<CatalogState<T>>({ status: "loading" });
+
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {

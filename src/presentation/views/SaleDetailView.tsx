@@ -130,7 +130,7 @@ function SaleDetailForm({
   deleteSale,
   onExit,
 }: SaleDetailFormProps) {
-  const { common, saleDetail: texts } = useTexts();
+  const { common, saleDetail: texts, newSale } = useTexts();
   const { values, input, errors, handleChange, validateAll } = useSaleForm(toFormValues(sale));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -185,6 +185,7 @@ function SaleDetailForm({
 
       <Form onSubmit={handleSave} className="flex w-full flex-col gap-4">
         <SaleFields
+          texts={newSale}
           values={values}
           categories={categories}
           paymentMethods={paymentMethods}
