@@ -41,7 +41,7 @@ describe("AppLayout", () => {
       </AppLayout>,
     );
 
-    expect(screen.getByRole("heading", { name: "Mi negocio" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Aquamarine" })).toBeTruthy();
     expect(screen.getByText("Contenido")).toBeTruthy();
 
     await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));

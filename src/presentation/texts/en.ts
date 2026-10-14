@@ -24,10 +24,14 @@ export const en: Texts = {
     language: "Language",
     profileUnavailable: "Profile unavailable",
     navigation: {
+      groups: {
+        sales: "Sales",
+        expenses: "Expenses",
+      },
       newSale: "New sale",
       salesToday: "Today's sales",
       search: "Search",
-      expenses: "Expenses",
+      expenses: "Monthly expenses",
       newExpense: "New expense",
       summary: "Summary",
     },

@@ -22,10 +22,14 @@ export const es = {
     language: "Idioma",
     profileUnavailable: "Perfil no disponible",
     navigation: {
+      groups: {
+        sales: "Ventas",
+        expenses: "Gastos",
+      },
       newSale: "Nueva venta",
       salesToday: "Ventas del día",
       search: "Consultas",
-      expenses: "Gastos",
+      expenses: "Gastos del mes",
       newExpense: "Nuevo gasto",
       summary: "Resumen",
     },

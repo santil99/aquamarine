@@ -1,11 +1,16 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Button, Drawer, Spinner, Switch } from "@heroui/react";
-import { ChartColumn, List, LogOut, Menu, Plus, Receipt, ReceiptText, Search, Sun } from "lucide-react";
+import { Accordion, Button, Drawer, Spinner, Switch } from "@heroui/react";
+import { LogOut, Menu, Sun } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import type { AuthenticatedUser } from "@/application/ports/authRepository";
 import { applyThemeMode, getCurrentThemeMode, type ThemeMode } from "@/presentation/theme/themeMode";
 import { useLanguage, useTexts } from "@/presentation/texts/useTexts";
 import type { Language } from "@/presentation/texts/languages";
+import {
+  createNavigationMenu,
+  type NavigationEntry,
+  type NavigationItem,
+} from "@/presentation/layout/navigationMenu";
 
 const languageOptions: { language: Language; label: string }[] = [
   { language: "es", label: "Español" },
@@ -26,14 +31,7 @@ interface AppLayoutProps {
 export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
   const texts = useTexts().layout;
   const { language, setLanguage } = useLanguage();
-  const navigationItems = [
-    { path: "/resumen", label: texts.navigation.summary, Icon: ChartColumn },
-    { path: "/sales/new", label: texts.navigation.newSale, Icon: Plus },
-    { path: "/", label: texts.navigation.salesToday, Icon: List },
-    { path: "/expenses", label: texts.navigation.expenses, Icon: Receipt },
-    { path: "/expenses/new", label: texts.navigation.newExpense, Icon: ReceiptText },
-    { path: "/search", label: texts.navigation.search, Icon: Search },
-  ];
+  const navigationEntries = createNavigationMenu(texts.navigation);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState<ProfileState>({ status: "loading" });
   const [hasLogoutError, setHasLogoutError] = useState(false);
@@ -125,24 +123,11 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
 
               {/* Cuerpo del menú con navegación flexible y controles abajo */}
               <Drawer.Body className="flex flex-1 flex-col justify-between gap-6 py-4">
-                <nav className="flex flex-col gap-2">
-                  {navigationItems.map(({ path, label, Icon }) => {
-                    const isActive = location.pathname === path;
-
-                    return (
-                      <Button
-                        key={path}
-                        variant={isActive ? "secondary" : "ghost"}
-                        aria-current={isActive ? "page" : undefined}
-                        className="w-full justify-start gap-3"
-                        onPress={() => navigateTo(path)}
-                      >
-                        <Icon size={20} />
-                        {label}
-                      </Button>
-                    );
-                  })}
-                </nav>
+                <NavigationMenu
+                  entries={navigationEntries}
+                  pathname={location.pathname}
+                  onNavigate={navigateTo}
+                />
 
                 {/* Controles inferiores: Tema, Idioma y Marca */}
                 <div className="flex flex-col gap-4 border-t pt-4">
@@ -200,6 +185,91 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
         </Drawer.Backdrop>
       </Drawer>
     </>
+  );
+}
+
+function NavigationMenu({
+  entries,
+  pathname,
+  onNavigate,
+}: {
+  readonly entries: NavigationEntry[];
+  readonly pathname: string;
+  readonly onNavigate: (path: string) => void;
+}) {
+  return (
+    <nav className="flex flex-col gap-2">
+      {entries.map((entry) => {
+        if (entry.kind === "item") {
+          return (
+            <NavigationLink
+              key={entry.path}
+              item={entry}
+              isActive={pathname === entry.path}
+              onPress={() => onNavigate(entry.path)}
+            />
+          );
+        }
+
+        const hasActiveItem = entry.items.some((item) => item.path === pathname);
+
+        return (
+          <Accordion
+            key={entry.id}
+            defaultExpandedKeys={hasActiveItem ? [entry.id] : []}
+          >
+            <Accordion.Item id={entry.id}>
+              <Accordion.Heading>
+                <Accordion.Trigger className="flex w-full items-center justify-start gap-3 px-4 py-2 text-sm font-medium">
+                  <entry.Icon size={20} />
+                  {entry.label}
+                  <Accordion.Indicator className="ml-auto" />
+                </Accordion.Trigger>
+              </Accordion.Heading>
+              <Accordion.Panel>
+                <Accordion.Body className="flex flex-col gap-2 pt-2">
+                  {entry.items.map((item) => (
+                    <NavigationLink
+                      key={item.path}
+                      item={item}
+                      isActive={pathname === item.path}
+                      isNested
+                      onPress={() => onNavigate(item.path)}
+                    />
+                  ))}
+                </Accordion.Body>
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
+        );
+      })}
+    </nav>
+  );
+}
+
+function NavigationLink({
+  item,
+  isActive,
+  isNested = false,
+  onPress,
+}: {
+  readonly item: NavigationItem;
+  readonly isActive: boolean;
+  readonly isNested?: boolean;
+  readonly onPress: () => void;
+}) {
+  const { Icon, label } = item;
+
+  return (
+    <Button
+      variant={isActive ? "secondary" : "ghost"}
+      aria-current={isActive ? "page" : undefined}
+      className={`w-full justify-start gap-3 ${isNested ? "pl-6" : ""}`}
+      onPress={onPress}
+    >
+      <Icon size={20} />
+      {label}
+    </Button>
   );
 }
 
