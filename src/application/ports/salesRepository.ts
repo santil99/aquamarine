@@ -1,4 +1,5 @@
 import type { BusinessContext } from "@/domain/business/businessContext";
+import type { CategoryAmount } from "@/domain/business/categoryTotal";
 import type { SaleCatalogOption } from "@/domain/sales/newSale";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
@@ -29,6 +30,10 @@ export interface SalesRepository {
     business: BusinessContext,
     selectedDate: string,
   ): Promise<SaleListItem[]>;
+  listAmountsForMonth(
+    business: BusinessContext,
+    monthStart: string,
+  ): Promise<CategoryAmount[]>;
   search(
     business: BusinessContext,
     filters: SaleSearchFilters,

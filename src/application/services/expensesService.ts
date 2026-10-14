@@ -1,6 +1,7 @@
 import type { AuthRepository } from "@/application/ports/authRepository";
 import type { ExpensesRepository } from "@/application/ports/expensesRepository";
 import type { BusinessContext } from "@/domain/business/businessContext";
+import { groupByCategory, type CategoryTotal } from "@/domain/business/categoryTotal";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import {
   normalizeSaleAmount,
@@ -50,6 +51,17 @@ export class ExpensesService {
   ): Promise<ExpenseSearchItem[]> {
     await this.requireAuthenticatedUser();
     return this.expensesRepository.search(business, filters);
+  }
+
+  async getCategoryTotalsForMonth(
+    business: BusinessContext,
+    monthStart: string,
+  ): Promise<CategoryTotal[]> {
+    await this.requireAuthenticatedUser();
+
+    return groupByCategory(
+      await this.expensesRepository.listAmountsForMonth(business, monthStart),
+    );
   }
 
   listCategories(): Promise<ExpenseCatalogOption[]> {

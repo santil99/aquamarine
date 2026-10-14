@@ -13,7 +13,7 @@ interface MonthPickerProps {
 }
 
 export function MonthPicker({ selectedMonth, locale, onSelect }: MonthPickerProps) {
-  const texts = useTexts().expensesList.monthNavigator;
+  const texts = useTexts().common.monthNavigator;
   const [year, setYear] = useState(() => Number(selectedMonth.slice(0, 4)));
 
   return (

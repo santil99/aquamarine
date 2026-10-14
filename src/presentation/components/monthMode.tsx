@@ -1,14 +1,12 @@
 import { addMonths } from "@/domain/business/businessDay";
 import { MonthPicker } from "@/presentation/components/MonthPicker";
-import { formatMonthLabel } from "@/presentation/formatters/monthLabel";
 import type { DateNavigatorMode } from "@/presentation/components/dateNavigatorMode";
+import { formatMonthLabel } from "@/presentation/formatters/monthLabel";
 import type { Texts } from "@/presentation/texts/types";
-
-type MonthModeTexts = Texts["expensesList"]["monthNavigator"];
 
 interface MonthModeOptions {
   readonly locale: string;
-  readonly texts: MonthModeTexts;
+  readonly texts: Texts["common"]["monthNavigator"];
 }
 
 export function createMonthMode({ locale, texts }: MonthModeOptions): DateNavigatorMode {

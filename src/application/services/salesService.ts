@@ -1,6 +1,7 @@
 import type { AuthRepository } from "@/application/ports/authRepository";
 import type { SalesCatalogs, SalesRepository } from "@/application/ports/salesRepository";
 import type { BusinessContext } from "@/domain/business/businessContext";
+import { groupByCategory, type CategoryTotal } from "@/domain/business/categoryTotal";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import {
   normalizeSaleAmount,
@@ -47,6 +48,17 @@ export class SalesService {
       minAmount: filters.minAmount ? normalizeSaleAmount(filters.minAmount) : null,
       maxAmount: filters.maxAmount ? normalizeSaleAmount(filters.maxAmount) : null,
     });
+  }
+
+  async getCategoryTotalsForMonth(
+    business: BusinessContext,
+    monthStart: string,
+  ): Promise<CategoryTotal[]> {
+    await this.requireAuthenticatedUser();
+
+    return groupByCategory(
+      await this.salesRepository.listAmountsForMonth(business, monthStart),
+    );
   }
 
   async loadCatalogs(): Promise<SalesCatalogs> {

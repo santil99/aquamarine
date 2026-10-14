@@ -6,6 +6,11 @@ import type { ExpenseSearchItem } from "@/domain/expenses/expenseSearch";
 import { escapeLikePattern } from "@/infrastructure/supabase/escapeLikePattern";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
 
+interface ExpenseCategoryAmountRow {
+  amount: string;
+  category: { name: string } | null;
+}
+
 interface ExpenseRow {
   id: string;
   amount: string;
@@ -55,6 +60,25 @@ export const supabaseExpensesRepository: ExpensesRepository = {
     }
 
     return data.map(toExpenseListItem);
+  },
+
+  async listAmountsForMonth(business, monthStart) {
+    const from = getDayRangeInTimeZone(monthStart, business.timeZone).start;
+    const to = getDayRangeInTimeZone(addMonths(monthStart, 1), business.timeZone).start;
+
+    // Amount is cast to text so the decimal value is not parsed as a JS number.
+    const { data, error } = await supabase
+      .from("expenses")
+      .select("amount::text, category:expense_categories(name)")
+      .gte("created_at", from.toISOString())
+      .lt("created_at", to.toISOString())
+      .returns<ExpenseCategoryAmountRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map((row) => ({ category: row.category?.name ?? "", amount: row.amount }));
   },
 
   async search(business, filters) {

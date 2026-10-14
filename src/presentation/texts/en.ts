@@ -4,6 +4,13 @@ export const en: Texts = {
   common: {
     loading: "Loading",
     locale: "en-US",
+    monthNavigator: {
+      previousMonth: "Previous month",
+      nextMonth: "Next month",
+      pickMonth: "Pick a month",
+      previousYear: "Previous year",
+      nextYear: "Next year",
+    },
   },
   layout: {
     title: "My business",
@@ -22,6 +29,7 @@ export const en: Texts = {
       search: "Search",
       expenses: "Expenses",
       newExpense: "New expense",
+      summary: "Summary",
     },
   },
   salesList: {
@@ -64,13 +72,20 @@ export const en: Texts = {
       paymentMethod: "Payment method",
       action: "Action",
     },
-    monthNavigator: {
-      previousMonth: "Previous month",
-      nextMonth: "Next month",
-      pickMonth: "Pick a month",
-      previousYear: "Previous year",
-      nextYear: "Next year",
-    },
+  },
+  summary: {
+    netBalance: "Net balance",
+    collected: "Collected",
+    expenses: "Expenses",
+    salesByCategory: "Sales by category",
+    expensesByCategory: "Expenses by category",
+    emptySales: "There are no sales this month.",
+    emptyExpenses: "There are no expenses this month.",
+    error: "We could not load the summary.",
+    retry: "Retry",
+    saleCount: (count: number) => (count === 1 ? "1 sale" : `${count} sales`),
+    expenseCount: (count: number) => (count === 1 ? "1 expense" : `${count} expenses`),
+    recordCount: (count: number) => (count === 1 ? "1 record" : `${count} records`),
   },
   newSale: {
     title: "New sale",

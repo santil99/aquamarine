@@ -1,11 +1,16 @@
 import type { SalesRepository } from "@/application/ports/salesRepository";
-import { getDayRangeInTimeZone } from "@/domain/business/businessDay";
+import { addMonths, getDayRangeInTimeZone } from "@/domain/business/businessDay";
 import type { SaleCatalogOption } from "@/domain/sales/newSale";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SaleSearchItem } from "@/domain/sales/saleSearch";
 import { escapeLikePattern } from "@/infrastructure/supabase/escapeLikePattern";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
+
+interface SaleCategoryAmountRow {
+  amount: string;
+  category: { name: string } | null;
+}
 
 interface SaleRow {
   id: string;
@@ -40,6 +45,25 @@ interface SaleDetailRow {
 }
 
 export const supabaseSalesRepository: SalesRepository = {
+  async listAmountsForMonth(business, monthStart) {
+    const from = getDayRangeInTimeZone(monthStart, business.timeZone).start;
+    const to = getDayRangeInTimeZone(addMonths(monthStart, 1), business.timeZone).start;
+
+    // Amount is cast to text so the decimal value is not parsed as a JS number.
+    const { data, error } = await supabase
+      .from("sales")
+      .select("amount::text, category:categories(name)")
+      .gte("created_at", from.toISOString())
+      .lt("created_at", to.toISOString())
+      .returns<SaleCategoryAmountRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map((row) => ({ category: row.category?.name ?? "", amount: row.amount }));
+  },
+
   async search(business, filters) {
     const from = getDayRangeInTimeZone(filters.dateFrom, business.timeZone).start;
     const to = getDayRangeInTimeZone(filters.dateTo, business.timeZone).end;

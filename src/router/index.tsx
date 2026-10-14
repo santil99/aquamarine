@@ -24,6 +24,7 @@ import { NewSaleView } from "@/presentation/features/sales/views/NewSaleView";
 import { SaleDetailView } from "@/presentation/features/sales/views/SaleDetailView";
 import { SalesListView } from "@/presentation/features/sales/views/SalesListView";
 import { SearchView, type SearchCatalogs } from "@/presentation/features/search/views/SearchView";
+import { SummaryView } from "@/presentation/features/dashboard/views/SummaryView";
 
 const authService = new AuthService(supabaseAuthRepository);
 const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepository);
@@ -61,6 +62,10 @@ const searchSales = (filters: SaleSearchFilters) =>
   salesService.searchSales(activeBusiness, filters);
 const searchExpenses = (filters: ExpenseSearchFilters) =>
   expensesService.searchExpenses(activeBusiness, filters);
+const loadMonthlySalesTotals = (monthStart: string) =>
+  salesService.getCategoryTotalsForMonth(activeBusiness, monthStart);
+const loadMonthlyExpenseTotals = (monthStart: string) =>
+  expensesService.getCategoryTotalsForMonth(activeBusiness, monthStart);
 
 export default function AppRoutes() {
   return (
@@ -71,6 +76,7 @@ export default function AppRoutes() {
         <Route path="/sales/new" element={<NewSaleRoute />} />
         <Route path="/sales/:id" element={<SaleDetailRoute />} />
         <Route path="/search" element={<SearchRoute />} />
+        <Route path="/resumen" element={<SummaryRoute />} />
         <Route path="/expenses" element={<ExpensesRoute />} />
         <Route path="/expenses/new" element={<NewExpenseRoute />} />
         <Route path="/expenses/:id" element={<ExpenseDetailRoute />} />
@@ -91,6 +97,16 @@ function SearchRoute() {
       timeZone={activeBusiness.timeZone}
       onOpenSale={(saleId) => navigate(`/sales/${saleId}`)}
       onOpenExpense={(expenseId) => navigate(`/expenses/${expenseId}`)}
+    />
+  );
+}
+
+function SummaryRoute() {
+  return (
+    <SummaryView
+      loadSales={loadMonthlySalesTotals}
+      loadExpenses={loadMonthlyExpenseTotals}
+      timeZone={activeBusiness.timeZone}
     />
   );
 }

@@ -6,7 +6,7 @@ import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
 import { formatShortDate } from "@/presentation/formatters/shortDate";
-import { createMonthMode } from "@/presentation/features/expenses/navigation/monthMode";
+import { createMonthMode } from "@/presentation/components/monthMode";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 type LoadState =
@@ -24,8 +24,8 @@ export function ExpensesListView({ listExpenses, timeZone, onOpenExpense }: Expe
   const [selectedMonth, setSelectedMonth] = useState(() =>
     getMonthStart(getTodayInTimeZone(timeZone)),
   );
-  const { common, expensesList } = useTexts();
-  const monthMode = createMonthMode({ locale: common.locale, texts: expensesList.monthNavigator });
+  const { common } = useTexts();
+  const monthMode = createMonthMode({ locale: common.locale, texts: common.monthNavigator });
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
 

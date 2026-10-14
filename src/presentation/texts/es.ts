@@ -2,6 +2,13 @@ export const es = {
   common: {
     loading: "Cargando",
     locale: "es-AR",
+    monthNavigator: {
+      previousMonth: "Mes anterior",
+      nextMonth: "Mes siguiente",
+      pickMonth: "Elegir mes",
+      previousYear: "Año anterior",
+      nextYear: "Año siguiente",
+    },
   },
   layout: {
     title: "Aquamarine",
@@ -20,6 +27,7 @@ export const es = {
       search: "Consultas",
       expenses: "Gastos",
       newExpense: "Nuevo gasto",
+      summary: "Resumen",
     },
   },
   salesList: {
@@ -62,13 +70,20 @@ export const es = {
       paymentMethod: "Medio de pago",
       action: "Acción",
     },
-    monthNavigator: {
-      previousMonth: "Mes anterior",
-      nextMonth: "Mes siguiente",
-      pickMonth: "Elegir mes",
-      previousYear: "Año anterior",
-      nextYear: "Año siguiente",
-    },
+  },
+  summary: {
+    netBalance: "Balance neto",
+    collected: "Recaudado",
+    expenses: "Gastos",
+    salesByCategory: "Ventas por categoría",
+    expensesByCategory: "Gastos por categoría",
+    emptySales: "No hay ventas en este mes.",
+    emptyExpenses: "No hay gastos en este mes.",
+    error: "No se pudo cargar el resumen.",
+    retry: "Reintentar",
+    saleCount: (count: number) => (count === 1 ? "1 venta" : `${count} ventas`),
+    expenseCount: (count: number) => (count === 1 ? "1 egreso" : `${count} egresos`),
+    recordCount: (count: number) => (count === 1 ? "1 registro" : `${count} registros`),
   },
   newSale: {
     title: "Nueva venta",

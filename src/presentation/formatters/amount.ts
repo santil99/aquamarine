@@ -19,5 +19,8 @@ export function formatAmount(amount: string, locale: string): string {
 
 /** Prefixes the amount with the peso sign; the amount itself follows `formatAmount`. */
 export function formatArsAmount(amount: string, locale: string): string {
-  return `$ ${formatAmount(amount, locale)}`;
+  const isNegative = amount.startsWith("-");
+  const sign = isNegative ? "-" : "";
+
+  return `${sign}$ ${formatAmount(isNegative ? amount.slice(1) : amount, locale)}`;
 }

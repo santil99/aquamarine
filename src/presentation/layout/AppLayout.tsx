@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Button, Drawer, Spinner, Switch } from "@heroui/react";
-import { List, LogOut, Menu, Plus, Receipt, ReceiptText, Search, Sun } from "lucide-react";
+import { ChartColumn, List, LogOut, Menu, Plus, Receipt, ReceiptText, Search, Sun } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import type { AuthenticatedUser } from "@/application/ports/authRepository";
 import { applyThemeMode, getCurrentThemeMode, type ThemeMode } from "@/presentation/theme/themeMode";
@@ -27,6 +27,7 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
   const texts = useTexts().layout;
   const { language, setLanguage } = useLanguage();
   const navigationItems = [
+    { path: "/resumen", label: texts.navigation.summary, Icon: ChartColumn },
     { path: "/sales/new", label: texts.navigation.newSale, Icon: Plus },
     { path: "/", label: texts.navigation.salesToday, Icon: List },
     { path: "/expenses", label: texts.navigation.expenses, Icon: Receipt },

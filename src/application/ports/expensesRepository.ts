@@ -1,4 +1,5 @@
 import type { BusinessContext } from "@/domain/business/businessContext";
+import type { CategoryAmount } from "@/domain/business/categoryTotal";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import type {
   ExpenseCatalogOption,
@@ -15,6 +16,10 @@ export interface ExpensesRepository {
     business: BusinessContext,
     monthStart: string,
   ): Promise<ExpenseListItem[]>;
+  listAmountsForMonth(
+    business: BusinessContext,
+    monthStart: string,
+  ): Promise<CategoryAmount[]>;
   search(
     business: BusinessContext,
     filters: ExpenseSearchFilters,
