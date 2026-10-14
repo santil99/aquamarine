@@ -14,3 +14,16 @@ export interface SaleSearchItem extends SaleListItem {
   createdAt: string;
   detail: string | null;
 }
+
+/** Date range starts on the first day of the month of `today` (YYYY-MM-DD). */
+export function getDefaultSaleSearchFilters(today: string): SaleSearchFilters {
+  return {
+    dateFrom: `${today.slice(0, 8)}01`,
+    dateTo: today,
+    minAmount: null,
+    maxAmount: null,
+    detail: null,
+    categoryId: null,
+    paymentMethodId: null,
+  };
+}

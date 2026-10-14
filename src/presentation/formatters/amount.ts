@@ -16,3 +16,8 @@ export function formatAmount(amount: string, locale: string): string {
 
   return `${groupedUnits}${decimalSeparator}${fraction.padEnd(2, "0")}`;
 }
+
+/** Prefixes the amount with the peso sign; the amount itself follows `formatAmount`. */
+export function formatArsAmount(amount: string, locale: string): string {
+  return `$ ${formatAmount(amount, locale)}`;
+}

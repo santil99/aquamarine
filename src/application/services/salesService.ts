@@ -10,6 +10,7 @@ import {
   type NewSaleValidationErrors,
 } from "@/domain/sales/newSale";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
+import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";
 
 export class NewSaleValidationError extends Error {
   readonly errors: NewSaleValidationErrors;
@@ -33,6 +34,19 @@ export class SalesService {
     await this.requireAuthenticatedUser();
 
     return this.salesRepository.listForDate(business, date);
+  }
+
+  async searchSales(
+    business: BusinessContext,
+    filters: SaleSearchFilters,
+  ): Promise<SaleSearchItem[]> {
+    await this.requireAuthenticatedUser();
+
+    return this.salesRepository.search(business, {
+      ...filters,
+      minAmount: filters.minAmount ? normalizeSaleAmount(filters.minAmount) : null,
+      maxAmount: filters.maxAmount ? normalizeSaleAmount(filters.maxAmount) : null,
+    });
   }
 
   async loadCatalogs(): Promise<SalesCatalogs> {

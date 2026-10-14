@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Button, Drawer, Spinner, Switch } from "@heroui/react";
-import { List, LogOut, Menu, Plus, Sun } from "lucide-react";
+import { List, LogOut, Menu, Plus, Search, Sun } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import type { AuthenticatedUser } from "@/application/ports/authRepository";
 import { applyThemeMode, getCurrentThemeMode, type ThemeMode } from "@/presentation/theme/themeMode";
@@ -29,6 +29,7 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
   const navigationItems = [
     { path: "/sales/new", label: texts.navigation.newSale, Icon: Plus },
     { path: "/", label: texts.navigation.salesToday, Icon: List },
+    { path: "/search", label: texts.navigation.search, Icon: Search },
   ];
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState<ProfileState>({ status: "loading" });

@@ -3,6 +3,7 @@ import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } 
 import { AuthService } from "@/application/services/authService";
 import { SalesService } from "@/application/services/salesService";
 import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { SaleSearchFilters } from "@/domain/sales/saleSearch";
 import { activeBusiness } from "@/infrastructure/business/mockBusinessContext";
 import { supabaseAuthRepository } from "@/infrastructure/supabase/supabaseAuthRepository";
 import { supabaseSalesRepository } from "@/infrastructure/supabase/supabaseSalesRepository";
@@ -15,6 +16,7 @@ import { LoginView } from "@/presentation/views/LoginView";
 import { NewSaleView } from "@/presentation/views/NewSaleView";
 import { SaleDetailView } from "@/presentation/views/SaleDetailView";
 import { SalesListView } from "@/presentation/views/SalesListView";
+import { SearchView } from "@/presentation/views/SearchView";
 
 const authService = new AuthService(supabaseAuthRepository);
 const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepository);
@@ -26,6 +28,8 @@ const registerSale = (input: NewSaleInput) => salesService.registerSale(input);
 const loadSale = (id: string) => salesService.getSale(id);
 const updateSale = (id: string, input: NewSaleInput) => salesService.updateSale(id, input);
 const deleteSale = (id: string) => salesService.deleteSale(id);
+const searchSales = (filters: SaleSearchFilters) =>
+  salesService.searchSales(activeBusiness, filters);
 
 export default function AppRoutes() {
   return (
@@ -35,9 +39,23 @@ export default function AppRoutes() {
         <Route path="/" element={<SalesListRoute />} />
         <Route path="/sales/new" element={<NewSaleRoute />} />
         <Route path="/sales/:id" element={<SaleDetailRoute />} />
+        <Route path="/search" element={<SearchRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+  );
+}
+
+function SearchRoute() {
+  const navigate = useNavigate();
+
+  return (
+    <SearchView
+      loadCatalogs={loadCatalogs}
+      searchSales={searchSales}
+      timeZone={activeBusiness.timeZone}
+      onOpenSale={(saleId) => navigate(`/sales/${saleId}`)}
+    />
   );
 }
 

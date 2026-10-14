@@ -3,11 +3,21 @@ import { getDayRangeInTimeZone } from "@/domain/business/businessDay";
 import type { SaleCatalogOption } from "@/domain/sales/newSale";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
+import type { SaleSearchItem } from "@/domain/sales/saleSearch";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
 
 interface SaleRow {
   id: string;
   amount: string;
+  category: { name: string } | null;
+  payment_method: { name: string } | null;
+}
+
+interface SaleSearchRow {
+  id: string;
+  amount: string;
+  created_at: string;
+  detail: string | null;
   category: { name: string } | null;
   payment_method: { name: string } | null;
 }
@@ -29,6 +39,35 @@ interface SaleDetailRow {
 }
 
 export const supabaseSalesRepository: SalesRepository = {
+  async search(business, filters) {
+    const from = getDayRangeInTimeZone(filters.dateFrom, business.timeZone).start;
+    const to = getDayRangeInTimeZone(filters.dateTo, business.timeZone).end;
+
+    let query = supabase
+      .from("sales")
+      .select(
+        "id, amount::text, created_at, detail, category:categories(name), payment_method:payment_methods(name)",
+      )
+      .gte("created_at", from.toISOString())
+      .lt("created_at", to.toISOString());
+
+    if (filters.minAmount) query = query.gte("amount", filters.minAmount);
+    if (filters.maxAmount) query = query.lte("amount", filters.maxAmount);
+    if (filters.detail) query = query.ilike("detail", `%${escapeLikePattern(filters.detail)}%`);
+    if (filters.categoryId) query = query.eq("category_id", filters.categoryId);
+    if (filters.paymentMethodId) query = query.eq("payment_method_id", filters.paymentMethodId);
+
+    const { data, error } = await query
+      .order("created_at", { ascending: false })
+      .returns<SaleSearchRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map(toSaleSearchItem);
+  },
+
   async listCatalogs() {
     const [categories, paymentMethods] = await Promise.all([
       supabase.from("categories").select("id, name").order("name").returns<SaleCatalogRow[]>(),
@@ -141,6 +180,21 @@ function toSaleDetail(row: SaleDetailRow): SaleDetail {
     category: row.category?.name ?? "",
     paymentMethod: row.payment_method?.name ?? null,
   };
+}
+
+function toSaleSearchItem(row: SaleSearchRow): SaleSearchItem {
+  return {
+    id: row.id,
+    amount: row.amount,
+    createdAt: row.created_at,
+    category: row.category?.name ?? "",
+    paymentMethod: row.payment_method?.name ?? null,
+    detail: row.detail,
+  };
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
 function toCatalogOption(row: SaleCatalogRow): SaleCatalogOption {
