@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type SyntheticEvent } from "react";
 import { Button, FieldError, Form, Input, Label, TextField } from "@heroui/react";
 import { AuthCredentialsError } from "@/application/ports/authRepository";
 import {
@@ -10,8 +10,8 @@ import {
 import { useTexts } from "@/presentation/texts/useTexts";
 
 interface LoginViewProps {
-  signIn: (email: string, password: string) => Promise<void>;
-  onSignedIn: () => void;
+  readonly signIn: (email: string, password: string) => Promise<void>;
+  readonly onSignedIn: () => void;
 }
 
 export function LoginView({ signIn, onSignedIn }: LoginViewProps) {
@@ -27,7 +27,7 @@ export function LoginView({ signIn, onSignedIn }: LoginViewProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (isSubmitting) return;

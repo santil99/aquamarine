@@ -37,7 +37,7 @@ describe("SalesListView", () => {
 
   it("shows a loading spinner while sales are being fetched", () => {
     render(
-      <SalesListView listSales={() => new Promise(() => {})} timeZone={TIME_ZONE} />,
+      <SalesListView listSales={() => new Promise(() => {})} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />,
     );
 
     expect(screen.getByRole("status")).toBeTruthy();
@@ -46,7 +46,7 @@ describe("SalesListView", () => {
 
   it("renders sales with formatted amounts and the exact daily total", async () => {
     render(
-      <SalesListView listSales={() => Promise.resolve(sales)} timeZone={TIME_ZONE} />,
+      <SalesListView listSales={() => Promise.resolve(sales)} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />,
     );
 
     expect(await screen.findByText("1.234,50")).toBeTruthy();
@@ -58,7 +58,7 @@ describe("SalesListView", () => {
   });
 
   it("shows an empty state when there are no sales", async () => {
-    render(<SalesListView listSales={() => Promise.resolve([])} timeZone={TIME_ZONE} />);
+    render(<SalesListView listSales={() => Promise.resolve([])} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />);
 
     expect(
       await screen.findByText("No hay ventas registradas para este día."),
@@ -72,7 +72,7 @@ describe("SalesListView", () => {
       .mockResolvedValueOnce(sales);
     const user = userEvent.setup();
 
-    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} />);
+    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />);
 
     expect(
       await screen.findByText("No se pudieron cargar las ventas."),
@@ -87,7 +87,7 @@ describe("SalesListView", () => {
   it("loads today's sales and labels the navigator with Hoy on first render", async () => {
     const listSales = vi.fn(() => Promise.resolve(sales));
 
-    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} />);
+    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />);
 
     expect(await screen.findByText("Hoy")).toBeTruthy();
     expect(listSales).toHaveBeenCalledWith(getTodayInTimeZone(TIME_ZONE));
@@ -98,7 +98,7 @@ describe("SalesListView", () => {
     const listSales = vi.fn(() => Promise.resolve(sales));
     const user = userEvent.setup();
 
-    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} />);
+    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />);
     await screen.findByText("Hoy");
 
     await user.click(screen.getByRole("button", { name: "Día anterior" }));
@@ -120,7 +120,7 @@ describe("SalesListView", () => {
     const listSales = vi.fn(() => Promise.resolve(sales));
     const user = userEvent.setup();
 
-    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} />);
+    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />);
     await user.click(await screen.findByText("Hoy"));
 
     const calendar = await screen.findByRole("grid");

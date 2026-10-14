@@ -14,6 +14,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Mantener las reglas de aplicación y negocio (incluidas las validaciones de autenticación) en SERVICE/dominio, nunca en el REPOSITORY. El REPOSITORY traduce el puerto a consultas y mapeos de persistencia; el aislamiento de filas se delega a mecanismos de persistencia como RLS.
 - Para problemas comunes, preferir APIs estándar y bibliotecas conocidas, seguras y mantenidas antes que formatos o mecanismos propios. Si una regla específica exige lógica propia, extraerla a una utilidad reutilizable fuera del componente.
 - Mantener la UI mínima con HeroUI. Para esta tabla no implementar sorting, filtros ni helpers propios de ordenamiento; quedan fuera del alcance acordado.
+- Para iconos usar siempre `lucide-react`. Nunca crear iconos a mano con `<svg>` ni `<path>`.
 - Diseñar mobile-first. Mantener cada pantalla en `src/presentation/views/`; los archivos de ruta deben ser adaptadores delgados que renderizan una vista, no contener toda su UI.
 - Los estados de carga muestran solo el `Spinner` de HeroUI, sin texto visible, en todas las pantallas. Su `aria-label` usa `es.common.loading`.
 - Validar formularios en tiempo real: los errores de un campo aparecen al editarlo y se mantienen hasta corregirlo; al enviar se validan todos los campos.

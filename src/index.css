@@ -1,17 +1,28 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
+/* Paleta de la app. Fuente única: --color-primary y --color-secondary.
+   HeroUI toma --accent para botones, foco y enlaces; lo alineamos con el primario. */
 @theme {
-  --color-primary: var(--color-indigo-600);
+  --color-primary: oklch(42% 0.19452 277.065);
   --color-secondary: var(--color-teal-600);
 }
 
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  --accent: var(--color-indigo-600);
+  --accent: var(--color-primary);
+  --color-primary-subtle: color-mix(in oklab, var(--color-primary) 8%, var(--surface));
+  --surface-secondary: var(--color-primary-subtle);
 }
 
+/* Modo oscuro: primario más claro para contrastar con el fondo y superficies algo más claras. */
 .dark {
-  --background: oklch(20% 0.005 285.823);
+  --color-primary: oklch(67.3% 0.182 276.935);
+  --accent: var(--color-primary);
+  --background: oklch(26% 0.006 285.823);
+  --surface: oklch(30% 0.006 285.823);
+  --color-primary-subtle: color-mix(in oklab, var(--color-primary) 12%, var(--surface));
+  --surface-secondary: var(--color-primary-subtle);
+  --field-background: oklch(32% 0.006 285.823);
 }

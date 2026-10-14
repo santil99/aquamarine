@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button, Spinner, Table } from "@heroui/react";
+import { Eye } from "lucide-react";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import { sumSaleAmounts } from "@/domain/sales/saleTotal";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
+import type { SaleFeedback } from "@/presentation/navigation/salesNavigation";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 type LoadState =
@@ -15,12 +17,21 @@ type LoadState =
 interface SalesListViewProps {
   readonly listSales: (date: string) => Promise<SaleListItem[]>;
   readonly timeZone: string;
+  readonly initialDate?: string;
+  readonly feedback?: SaleFeedback;
+  readonly onOpenSale: (saleId: string, date: string) => void;
 }
 
-export function SalesListView({ listSales, timeZone }: SalesListViewProps) {
+export function SalesListView({
+  listSales,
+  timeZone,
+  initialDate,
+  feedback,
+  onOpenSale,
+}: SalesListViewProps) {
   const texts = useTexts().salesList;
   const [today] = useState(() => getTodayInTimeZone(timeZone));
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(initialDate ?? today);
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
 
@@ -51,10 +62,18 @@ export function SalesListView({ listSales, timeZone }: SalesListViewProps) {
   };
 
   return (
-    <section className="flex w-full max-w-3xl flex-col gap-4">
-      <h2 className="text-xl font-bold">{texts.title}</h2>
+    <section className="flex w-full max-w-none flex-col gap-4">
+      {feedback ? (
+        <p role="status" className="rounded-lg bg-success/10 p-3 text-sm text-success">
+          {texts.feedback[feedback]}
+        </p>
+      ) : null}
       <DateNavigator date={selectedDate} today={today} onDateChange={changeDate} />
-      <SalesListContent state={state} onRetry={retry} />
+      <SalesListContent
+        state={state}
+        onRetry={retry}
+        onOpenSale={(saleId) => onOpenSale(saleId, selectedDate)}
+      />
     </section>
   );
 }
@@ -62,15 +81,21 @@ export function SalesListView({ listSales, timeZone }: SalesListViewProps) {
 function SalesListContent({
   state,
   onRetry,
+  onOpenSale,
 }: {
   readonly state: LoadState;
   readonly onRetry: () => void;
+  readonly onOpenSale: (saleId: string) => void;
 }) {
   const { common, salesList: texts } = useTexts();
   const locale = common.locale;
 
   if (state.status === "loading") {
-    return <Spinner size="sm" aria-label={common.loading} />;
+    return (
+      <div className="flex justify-center">
+        <Spinner size="sm" aria-label={common.loading} />
+      </div>
+    );
   }
 
   if (state.status === "error") {
@@ -85,12 +110,16 @@ function SalesListContent({
   }
 
   if (state.sales.length === 0) {
-    return <p>{texts.empty}</p>;
+    return (
+      <div className="flex justify-center">
+        <p>{texts.empty}</p>
+      </div>
+    );
   }
 
   return (
     <>
-      <Table.Root>
+      <Table.Root variant="secondary">
         <Table.ScrollContainer>
           <Table.Content aria-label={texts.title}>
             <Table.Header>
@@ -110,8 +139,14 @@ function SalesListContent({
                     {sale.paymentMethod ?? texts.noPaymentMethod}
                   </Table.Cell>
                   <Table.Cell>
-                    <Button size="sm" variant="ghost">
-                      {texts.detail}
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="ghost"
+                      aria-label={texts.detail}
+                      onPress={() => onOpenSale(sale.id)}
+                    >
+                      <Eye size={18} />
                     </Button>
                   </Table.Cell>
                 </Table.Row>

@@ -1,6 +1,7 @@
 import type { AuthRepository } from "@/application/ports/authRepository";
 import type { SalesCatalogs, SalesRepository } from "@/application/ports/salesRepository";
 import type { BusinessContext } from "@/domain/business/businessContext";
+import type { SaleDetail } from "@/domain/sales/saleDetail";
 import {
   normalizeSaleAmount,
   normalizeSaleDetail,
@@ -55,6 +56,34 @@ export class SalesService {
       paymentMethodId: input.paymentMethodId,
       detail: normalizeSaleDetail(input.detail),
     });
+  }
+
+  async getSale(id: string): Promise<SaleDetail | null> {
+    await this.requireAuthenticatedUser();
+
+    return this.salesRepository.getById(id);
+  }
+
+  async updateSale(id: string, input: NewSaleInput): Promise<void> {
+    await this.requireAuthenticatedUser();
+    const errors = validateNewSale(input);
+
+    if (Object.keys(errors).length > 0) {
+      throw new NewSaleValidationError(errors);
+    }
+
+    await this.salesRepository.update(id, {
+      amount: normalizeSaleAmount(input.amount),
+      categoryId: input.categoryId,
+      paymentMethodId: input.paymentMethodId,
+      detail: normalizeSaleDetail(input.detail),
+    });
+  }
+
+  async deleteSale(id: string): Promise<void> {
+    await this.requireAuthenticatedUser();
+
+    return this.salesRepository.delete(id);
   }
 
   private async requireAuthenticatedUser() {

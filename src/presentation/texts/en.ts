@@ -13,6 +13,7 @@ export const en: Texts = {
     logout: "Log out",
     logoutError: "We could not log you out. Please try again.",
     darkMode: "Dark mode",
+    lightMode: "Light mode",
     language: "Language",
     profileUnavailable: "Profile unavailable",
     navigation: {
@@ -26,6 +27,10 @@ export const en: Texts = {
     error: "We could not load the sales.",
     retry: "Retry",
     detail: "View details",
+    feedback: {
+      saved: "Sale updated.",
+      deleted: "Sale deleted.",
+    },
     dailyTotal: "Daily total",
     noPaymentMethod: "—",
     columns: {
@@ -61,6 +66,23 @@ export const en: Texts = {
     submitting: "Saving...",
     saved: "Sale saved.",
     saveError: "We could not save the sale. Check your connection and try again.",
+  },
+  saleDetail: {
+    title: "Sale details",
+    loadError: "We could not load the sale.",
+    notFound: "The sale does not exist or was already deleted.",
+    retry: "Retry",
+    dateTimeLabel: "Date and time",
+    save: "Save",
+    saving: "Saving...",
+    saveError: "We could not save the changes. Check your connection and try again.",
+    cancel: "Cancel",
+    delete: "Delete sale",
+    deleting: "Deleting...",
+    deleteError: "We could not delete the sale. Check your connection and try again.",
+    deleteConfirmTitle: "Delete this sale?",
+    deleteConfirmDescription: "The sale will be permanently deleted. This action cannot be undone.",
+    deleteConfirm: "Yes, delete",
   },
   login: {
     title: "Log in",

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Calendar, I18nProvider, Popover } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { addDays } from "@/domain/business/businessDay";
 import { formatDayLabel } from "@/presentation/formatters/dayLabel";
 import { useTexts } from "@/presentation/texts/useTexts";
@@ -79,21 +80,5 @@ export function DateNavigator({ date, today, onDateChange }: DateNavigatorProps)
 }
 
 function ChevronIcon({ direction }: { readonly direction: "left" | "right" }) {
-  const points = direction === "left" ? "15 18 9 12 15 6" : "9 18 15 12 9 6";
-
-  return (
-    <svg
-      aria-hidden="true"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points={points} />
-    </svg>
-  );
+  return direction === "left" ? <ChevronLeft size={20} /> : <ChevronRight size={20} />;
 }
