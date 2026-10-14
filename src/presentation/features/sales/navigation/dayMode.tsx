@@ -1,7 +1,7 @@
 import { Calendar, I18nProvider } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { addDays } from "@/domain/business/businessDay";
-import type { DateNavigatorMode } from "@/presentation/navigation/dateNavigatorMode";
+import type { DateNavigatorMode } from "@/presentation/components/dateNavigatorMode";
 import { formatDayLabel } from "@/presentation/formatters/dayLabel";
 import type { Texts } from "@/presentation/texts/types";
 

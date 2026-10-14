@@ -4,7 +4,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { ExpenseSearchFilters, ExpenseSearchItem } from "@/domain/expenses/expenseSearch";
 import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";
-import { SearchView } from "@/presentation/views/SearchView";
+import { SearchView } from "@/presentation/features/search/views/SearchView";
 
 const TIME_ZONE = "America/Argentina/Buenos_Aires";
 

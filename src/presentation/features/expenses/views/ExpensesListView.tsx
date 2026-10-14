@@ -6,7 +6,7 @@ import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
 import { formatShortDate } from "@/presentation/formatters/shortDate";
-import { createMonthMode } from "@/presentation/navigation/monthMode";
+import { createMonthMode } from "@/presentation/features/expenses/navigation/monthMode";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 type LoadState =

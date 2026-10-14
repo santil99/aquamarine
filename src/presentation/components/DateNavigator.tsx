@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Popover } from "@heroui/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { DateNavigatorMode } from "@/presentation/navigation/dateNavigatorMode";
+import type { DateNavigatorMode } from "@/presentation/components/dateNavigatorMode";
 
 interface DateNavigatorProps {
   readonly mode: DateNavigatorMode;

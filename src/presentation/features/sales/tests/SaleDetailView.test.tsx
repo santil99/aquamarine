@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
-import { SaleDetailView } from "@/presentation/views/SaleDetailView";
+import { SaleDetailView } from "@/presentation/features/sales/views/SaleDetailView";
 
 const sale: SaleDetail = {
   id: "sale-1",

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 import type { NewSaleInput } from "@/domain/sales/newSale";
-import { NewSaleView } from "@/presentation/views/NewSaleView";
+import { NewSaleView } from "@/presentation/features/sales/views/NewSaleView";
 
 const catalogs: SalesCatalogs = {
   categories: [{ id: "cat-1", name: "Comida" }],

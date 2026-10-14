@@ -2,10 +2,10 @@ import { useState, type SyntheticEvent } from "react";
 import { Button, Form, ToastProvider, ToastQueue } from "@heroui/react";
 import type { ExpenseCatalogs } from "@/domain/expenses/expenseForm";
 import type { NewSaleInput } from "@/domain/sales/newSale";
-import { SaleFields } from "@/presentation/components/SaleFields";
-import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/forms/saleFormValues";
-import { useSaleCatalogs } from "@/presentation/hooks/useSaleCatalogs";
-import { useSaleForm } from "@/presentation/hooks/useSaleForm";
+import { SaleFields } from "@/presentation/features/shared/SaleFields";
+import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
+import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
+import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 const EMPTY_FORM: SaleFormValues = {

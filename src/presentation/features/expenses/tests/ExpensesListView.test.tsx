@@ -4,7 +4,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { addMonths, getMonthStart, getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import { formatMonthLabel, formatMonthName } from "@/presentation/formatters/monthLabel";
-import { ExpensesListView } from "@/presentation/views/ExpensesListView";
+import { ExpensesListView } from "@/presentation/features/expenses/views/ExpensesListView";
 
 const TIME_ZONE = "America/Argentina/Buenos_Aires";
 

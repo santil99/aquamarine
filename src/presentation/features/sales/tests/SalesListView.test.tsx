@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { addDays, getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
-import { SalesListView } from "@/presentation/views/SalesListView";
+import { SalesListView } from "@/presentation/features/sales/views/SalesListView";
 
 const TIME_ZONE = "America/Argentina/Buenos_Aires";
 

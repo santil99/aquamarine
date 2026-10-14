@@ -6,9 +6,9 @@ import type { ExpenseCatalogOption } from "@/domain/expenses/expenseForm";
 import type { ExpenseSearchFilters, ExpenseSearchItem } from "@/domain/expenses/expenseSearch";
 import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";
 import { getDefaultSaleSearchFilters } from "@/domain/sales/saleSearch";
-import { SearchFilterFields, type SearchType } from "@/presentation/components/SearchFilterFields";
-import { TransactionCard } from "@/presentation/components/TransactionCard";
-import { useSaleCatalogs } from "@/presentation/hooks/useSaleCatalogs";
+import { SearchFilterFields, type SearchType } from "@/presentation/features/search/components/SearchFilterFields";
+import { TransactionCard } from "@/presentation/features/search/components/TransactionCard";
+import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 export type SearchCatalogs = SalesCatalogs & {

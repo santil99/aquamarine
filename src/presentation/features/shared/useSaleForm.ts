@@ -5,7 +5,7 @@ import {
   type NewSaleInput,
   type NewSaleValidationErrors,
 } from "@/domain/sales/newSale";
-import { toNewSaleInput, type SaleFormValues } from "@/presentation/forms/saleFormValues";
+import { toNewSaleInput, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 
 type TouchedFields = Partial<Record<NewSaleField, boolean>>;
 

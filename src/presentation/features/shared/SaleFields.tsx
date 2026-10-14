@@ -1,4 +1,4 @@
-﻿import {
+import {
   FieldError,
   Input,
   Label,
@@ -14,7 +14,7 @@ import type {
   NewSaleValidationErrors,
   SaleCatalogOption,
 } from "@/domain/sales/newSale";
-import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/forms/saleFormValues";
+import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import type { Texts } from "@/presentation/texts/types";
 
 interface SaleFieldsProps {

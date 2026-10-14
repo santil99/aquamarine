@@ -1,7 +1,7 @@
 import { addMonths } from "@/domain/business/businessDay";
 import { MonthPicker } from "@/presentation/components/MonthPicker";
 import { formatMonthLabel } from "@/presentation/formatters/monthLabel";
-import type { DateNavigatorMode } from "@/presentation/navigation/dateNavigatorMode";
+import type { DateNavigatorMode } from "@/presentation/components/dateNavigatorMode";
 import type { Texts } from "@/presentation/texts/types";
 
 type MonthModeTexts = Texts["expensesList"]["monthNavigator"];

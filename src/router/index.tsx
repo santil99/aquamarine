@@ -15,15 +15,15 @@ import { AppLayout } from "@/presentation/layout/AppLayout";
 import {
   type SaleFeedback,
   type SalesListNavigationState,
-} from "@/presentation/navigation/salesNavigation";
-import { ExpenseDetailView } from "@/presentation/views/ExpenseDetailView";
-import { ExpensesListView } from "@/presentation/views/ExpensesListView";
-import { LoginView } from "@/presentation/views/LoginView";
-import { NewExpenseView } from "@/presentation/views/NewExpenseView";
-import { NewSaleView } from "@/presentation/views/NewSaleView";
-import { SaleDetailView } from "@/presentation/views/SaleDetailView";
-import { SalesListView } from "@/presentation/views/SalesListView";
-import { SearchView, type SearchCatalogs } from "@/presentation/views/SearchView";
+} from "@/presentation/features/sales/navigation/salesNavigation";
+import { ExpenseDetailView } from "@/presentation/features/expenses/views/ExpenseDetailView";
+import { ExpensesListView } from "@/presentation/features/expenses/views/ExpensesListView";
+import { LoginView } from "@/presentation/features/auth/views/LoginView";
+import { NewExpenseView } from "@/presentation/features/expenses/views/NewExpenseView";
+import { NewSaleView } from "@/presentation/features/sales/views/NewSaleView";
+import { SaleDetailView } from "@/presentation/features/sales/views/SaleDetailView";
+import { SalesListView } from "@/presentation/features/sales/views/SalesListView";
+import { SearchView, type SearchCatalogs } from "@/presentation/features/search/views/SearchView";
 
 const authService = new AuthService(supabaseAuthRepository);
 const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepository);

@@ -6,8 +6,8 @@ import type { SaleListItem } from "@/domain/sales/saleListItem";
 import { sumSaleAmounts } from "@/domain/sales/saleTotal";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
-import { createDayMode } from "@/presentation/navigation/dayMode";
-import type { SaleFeedback } from "@/presentation/navigation/salesNavigation";
+import { createDayMode } from "@/presentation/features/sales/navigation/dayMode";
+import type { SaleFeedback } from "@/presentation/features/sales/navigation/salesNavigation";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 type LoadState =

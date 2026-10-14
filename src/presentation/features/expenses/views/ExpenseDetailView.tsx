@@ -1,70 +1,63 @@
 import { useEffect, useState, type SyntheticEvent } from "react";
-import {
-  AlertDialog,
-  Button,
-  Form,
-  Spinner,
-} from "@heroui/react";
+import { AlertDialog, Button, Form, Spinner } from "@heroui/react";
 import { CalendarDays } from "lucide-react";
-import type { SalesCatalogs } from "@/application/ports/salesRepository";
+import type { ExpenseCatalogs, ExpenseDetail } from "@/domain/expenses/expenseForm";
 import type { NewSaleInput } from "@/domain/sales/newSale";
-import type { SaleDetail } from "@/domain/sales/saleDetail";
-import { SaleFields } from "@/presentation/components/SaleFields";
-import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/forms/saleFormValues";
+import { SaleFields } from "@/presentation/features/shared/SaleFields";
+import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import { formatSaleDateTime } from "@/presentation/formatters/saleDateTime";
-import { useSaleCatalogs } from "@/presentation/hooks/useSaleCatalogs";
-import { useSaleForm } from "@/presentation/hooks/useSaleForm";
-import type { SaleFeedback } from "@/presentation/navigation/salesNavigation";
+import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
+import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
 import { useTexts } from "@/presentation/texts/useTexts";
 
-type SaleState =
+type ExpenseState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "notFound" }
-  | { status: "success"; sale: SaleDetail };
+  | { status: "success"; expense: ExpenseDetail };
 
-interface SaleDetailViewProps {
-  readonly saleId: string;
+interface ExpenseDetailViewProps {
+  readonly expenseId: string;
   readonly timeZone: string;
-  readonly loadSale: (id: string) => Promise<SaleDetail | null>;
-  readonly loadCatalogs: () => Promise<SalesCatalogs>;
-  readonly updateSale: (id: string, input: NewSaleInput) => Promise<void>;
-  readonly deleteSale: (id: string) => Promise<void>;
-  readonly onExit: (feedback?: SaleFeedback) => void;
+  readonly loadExpense: (id: string) => Promise<ExpenseDetail | null>;
+  readonly loadCatalogs: () => Promise<ExpenseCatalogs>;
+  readonly updateExpense: (id: string, input: NewSaleInput) => Promise<void>;
+  readonly deleteExpense: (id: string) => Promise<void>;
+  readonly onExit: () => void;
 }
 
-export function SaleDetailView({
-  saleId,
+export function ExpenseDetailView({
+  expenseId,
   timeZone,
-  loadSale,
+  loadExpense,
   loadCatalogs,
-  updateSale,
-  deleteSale,
+  updateExpense,
+  deleteExpense,
   onExit,
-}: SaleDetailViewProps) {
-  const { common, saleDetail: texts, newSale } = useTexts();
-  const [sale, setSale] = useState<SaleState>({ status: "loading" });
+}: ExpenseDetailViewProps) {
+  const { common, expenseDetail: texts, newExpense } = useTexts();
+  const [expense, setExpense] = useState<ExpenseState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const { state: catalogs, retry: retryCatalogs } = useSaleCatalogs(loadCatalogs);
 
   useEffect(() => {
     let isCurrent = true;
 
-    loadSale(saleId)
+    loadExpense(expenseId)
       .then((loaded) => {
         if (!isCurrent) return;
-        setSale(loaded ? { status: "success", sale: loaded } : { status: "notFound" });
+        setExpense(loaded ? { status: "success", expense: loaded } : { status: "notFound" });
       })
       .catch(() => {
-        if (isCurrent) setSale({ status: "error" });
+        if (isCurrent) setExpense({ status: "error" });
       });
 
     return () => {
       isCurrent = false;
     };
-  }, [loadSale, saleId, attempt]);
+  }, [loadExpense, expenseId, attempt]);
 
-  if (sale.status === "loading" || catalogs.status === "loading") {
+  if (expense.status === "loading" || catalogs.status === "loading") {
     return (
       <div className="flex justify-center">
         <Spinner size="sm" aria-label={common.loading} />
@@ -72,11 +65,11 @@ export function SaleDetailView({
     );
   }
 
-  if (sale.status === "notFound") {
+  if (expense.status === "notFound") {
     return <p role="alert">{texts.notFound}</p>;
   }
 
-  if (sale.status === "error") {
+  if (expense.status === "error") {
     return (
       <div className="flex flex-col items-start gap-3">
         <p role="alert" className="text-danger">{texts.loadError}</p>
@@ -90,48 +83,48 @@ export function SaleDetailView({
   if (catalogs.status === "error") {
     return (
       <div className="flex flex-col items-start gap-3">
-        <p role="alert" className="text-danger">{newSale.catalogsError}</p>
+        <p role="alert" className="text-danger">{newExpense.catalogsError}</p>
         <Button variant="outline" onPress={retryCatalogs}>
-          {newSale.retry}
+          {newExpense.retry}
         </Button>
       </div>
     );
   }
 
   return (
-    <SaleDetailForm
-      sale={sale.sale}
+    <ExpenseDetailForm
+      expense={expense.expense}
       timeZone={timeZone}
       categories={catalogs.catalogs.categories}
       paymentMethods={catalogs.catalogs.paymentMethods}
-      updateSale={updateSale}
-      deleteSale={deleteSale}
+      updateExpense={updateExpense}
+      deleteExpense={deleteExpense}
       onExit={onExit}
     />
   );
 }
 
-interface SaleDetailFormProps {
-  readonly sale: SaleDetail;
+interface ExpenseDetailFormProps {
+  readonly expense: ExpenseDetail;
   readonly timeZone: string;
-  readonly categories: SalesCatalogs["categories"];
-  readonly paymentMethods: SalesCatalogs["paymentMethods"];
-  readonly updateSale: (id: string, input: NewSaleInput) => Promise<void>;
-  readonly deleteSale: (id: string) => Promise<void>;
-  readonly onExit: (feedback?: SaleFeedback) => void;
+  readonly categories: ExpenseCatalogs["categories"];
+  readonly paymentMethods: ExpenseCatalogs["paymentMethods"];
+  readonly updateExpense: (id: string, input: NewSaleInput) => Promise<void>;
+  readonly deleteExpense: (id: string) => Promise<void>;
+  readonly onExit: () => void;
 }
 
-function SaleDetailForm({
-  sale,
+function ExpenseDetailForm({
+  expense,
   timeZone,
   categories,
   paymentMethods,
-  updateSale,
-  deleteSale,
+  updateExpense,
+  deleteExpense,
   onExit,
-}: SaleDetailFormProps) {
-  const { common, saleDetail: texts, newSale } = useTexts();
-  const { values, input, errors, handleChange, validateAll } = useSaleForm(toFormValues(sale));
+}: ExpenseDetailFormProps) {
+  const { common, expenseDetail: texts, newExpense } = useTexts();
+  const { values, input, errors, handleChange, validateAll } = useSaleForm(toFormValues(expense));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -150,8 +143,8 @@ function SaleDetailForm({
     setIsSaving(true);
 
     try {
-      await updateSale(sale.id, input);
-      onExit("saved");
+      await updateExpense(expense.id, input);
+      onExit();
     } catch {
       setSaveError(texts.saveError);
     } finally {
@@ -164,8 +157,8 @@ function SaleDetailForm({
     setIsDeleting(true);
 
     try {
-      await deleteSale(sale.id);
-      onExit("deleted");
+      await deleteExpense(expense.id);
+      onExit();
     } catch {
       setDeleteError(texts.deleteError);
     } finally {
@@ -180,12 +173,12 @@ function SaleDetailForm({
       <p className="flex items-center gap-2 text-sm">
         <CalendarDays size={18} aria-hidden="true" />
         <span className="font-medium">{texts.dateTimeLabel}:</span>
-        <span>{formatSaleDateTime(sale.createdAt, common.locale, timeZone)}</span>
+        <span>{formatSaleDateTime(expense.createdAt, common.locale, timeZone)}</span>
       </p>
 
       <Form onSubmit={handleSave} className="flex w-full flex-col gap-4">
         <SaleFields
-          texts={newSale}
+          texts={newExpense}
           values={values}
           categories={categories}
           paymentMethods={paymentMethods}
@@ -203,7 +196,7 @@ function SaleDetailForm({
         <Button type="submit" isDisabled={isBusy} className="w-full">
           {isSaving ? texts.saving : texts.save}
         </Button>
-        <Button type="button" variant="outline" isDisabled={isBusy} className="w-full" onPress={() => onExit()}>
+        <Button type="button" variant="outline" isDisabled={isBusy} className="w-full" onPress={onExit}>
           {texts.cancel}
         </Button>
       </Form>
@@ -243,11 +236,11 @@ function SaleDetailForm({
   );
 }
 
-function toFormValues(sale: SaleDetail): SaleFormValues {
+function toFormValues(expense: ExpenseDetail): SaleFormValues {
   return {
-    amount: sale.amount.replace(".", ","),
-    categoryId: sale.categoryId,
-    paymentMethodId: sale.paymentMethodId ?? NO_PAYMENT_METHOD,
-    detail: sale.detail ?? "",
+    amount: expense.amount.replace(".", ","),
+    categoryId: expense.categoryId,
+    paymentMethodId: expense.paymentMethodId ?? NO_PAYMENT_METHOD,
+    detail: expense.detail ?? "",
   };
 }

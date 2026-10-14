@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { ExpenseCatalogs, ExpenseDetail } from "@/domain/expenses/expenseForm";
-import { ExpenseDetailView } from "@/presentation/views/ExpenseDetailView";
+import { ExpenseDetailView } from "@/presentation/features/expenses/views/ExpenseDetailView";
 
 const TIME_ZONE = "America/Argentina/Buenos_Aires";
 

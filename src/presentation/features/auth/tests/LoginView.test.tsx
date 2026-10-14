@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AuthConnectionError, AuthCredentialsError } from "@/application/ports/authRepository";
-import { LoginView } from "@/presentation/views/LoginView";
+import { LoginView } from "@/presentation/features/auth/views/LoginView";
 
 describe("LoginView", () => {
   afterEach(cleanup);

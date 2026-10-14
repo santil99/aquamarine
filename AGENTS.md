@@ -6,6 +6,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 
 ## Principios
 
+- Organizar `src/presentation` por features. Lo exclusivo de un módulo va en `features/<módulo>/` (vistas, componentes, hooks, navegación y tests). Lo compartido entre módulos va en `features/shared/`. Solo lo global y reutilizable va en `components/`. Consultar esta regla antes de crear o mover archivos de presentación.
 - Aplicar KISS/YAGNI. Antes de crear una capa, interfaz o patrón, confirmar que resuelve una necesidad concreta.
 - Priorizar código declarativo, nombres claros que expresen intención y funciones pequeñas. Extraer lógica a funciones externas cuando mejore la legibilidad o permita reutilizarla; evitar abstracciones que no aporten claridad ni reutilización concreta.
 - En React, considerar custom hooks para desacoplar lógica de estado cuando se comparta o cuando la extracción mejore claramente la legibilidad. Seguir las Rules of Hooks y evitar hooks de un solo uso que solo agreguen indirección.
@@ -15,7 +16,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Para problemas comunes, preferir APIs estándar y bibliotecas conocidas, seguras y mantenidas antes que formatos o mecanismos propios. Si una regla específica exige lógica propia, extraerla a una utilidad reutilizable fuera del componente.
 - Mantener la UI mínima con HeroUI. Para esta tabla no implementar sorting, filtros ni helpers propios de ordenamiento; quedan fuera del alcance acordado.
 - Para iconos usar siempre `lucide-react`. Nunca crear iconos a mano con `<svg>` ni `<path>`.
-- Diseñar mobile-first. Mantener cada pantalla en `src/presentation/views/`; los archivos de ruta deben ser adaptadores delgados que renderizan una vista, no contener toda su UI.
+- Diseñar mobile-first. Mantener cada pantalla en `src/presentation/features/<módulo>/views/`; los archivos de ruta deben ser adaptadores delgados que renderizan una vista, no contener toda su UI.
 - Los estados de carga muestran solo el `Spinner` de HeroUI, sin texto visible, en todas las pantallas. Su `aria-label` usa `es.common.loading`.
 - Validar formularios en tiempo real: los errores de un campo aparecen al editarlo y se mantienen hasta corregirlo; al enviar se validan todos los campos.
 - No introducir DDD avanzado, servicios de dominio ni value objects para envolver datos sin comportamiento.
@@ -29,7 +30,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Ser moderado con la cantidad de Tests, no hacer sobreingenieria en testing. Se debe testear lo importante.
 - No agregar tests para SERVICES ni REPOSITORIES. Tampoco testear getters/setters, adaptadores triviales, formato trivial ni comportamiento que ya proporcione HeroUI.
 - Para cambios de UI, validar con los tests de presentación y los checks disponibles. No realizar test funcionales ni e2e. No levantar servidores de desarrollo para comprobar nada.
-- Los archivos de tests deben ir todos en su carpeta propia. Por ejemplo en presentation/tests/sales para los que son especificos de ventas.
+- Los archivos de tests van dentro de la feature a la que pertenecen, en `features/<módulo>/tests/`. Por ejemplo `features/sales/tests/` para los de ventas.
 
 ## Comandos
 
