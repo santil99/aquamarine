@@ -6,6 +6,7 @@ import type { SaleListItem } from "@/domain/sales/saleListItem";
 import { sumSaleAmounts } from "@/domain/sales/saleTotal";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
+import { createDayMode } from "@/presentation/navigation/dayMode";
 import type { SaleFeedback } from "@/presentation/navigation/salesNavigation";
 import { useTexts } from "@/presentation/texts/useTexts";
 
@@ -29,8 +30,9 @@ export function SalesListView({
   feedback,
   onOpenSale,
 }: SalesListViewProps) {
-  const texts = useTexts().salesList;
+  const { common, salesList: texts } = useTexts();
   const [today] = useState(() => getTodayInTimeZone(timeZone));
+  const dayMode = createDayMode({ locale: common.locale, today, texts: texts.dateNavigator });
   const [selectedDate, setSelectedDate] = useState(initialDate ?? today);
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
@@ -68,7 +70,7 @@ export function SalesListView({
           {texts.feedback[feedback]}
         </p>
       ) : null}
-      <DateNavigator date={selectedDate} today={today} onDateChange={changeDate} />
+      <DateNavigator mode={dayMode} date={selectedDate} onDateChange={changeDate} />
       <SalesListContent
         state={state}
         onRetry={retry}
