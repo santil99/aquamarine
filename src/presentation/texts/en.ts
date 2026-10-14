@@ -20,6 +20,7 @@ export const en: Texts = {
       newSale: "New sale",
       salesToday: "Today's sales",
       search: "Search",
+      expenses: "Expenses",
     },
   },
   salesList: {
@@ -46,6 +47,28 @@ export const en: Texts = {
       calendar: "Calendar",
       today: "Today",
       yesterday: "Yesterday",
+    },
+  },
+  expensesList: {
+    title: "Expenses",
+    empty: "There are no expenses recorded for this month.",
+    error: "We could not load the expenses.",
+    retry: "Retry",
+    detail: "View details",
+    noPaymentMethod: "—",
+    columns: {
+      date: "Date",
+      amount: "Amount",
+      category: "Category",
+      paymentMethod: "Payment method",
+      action: "Action",
+    },
+    monthNavigator: {
+      previousMonth: "Previous month",
+      nextMonth: "Next month",
+      pickMonth: "Pick a month",
+      previousYear: "Previous year",
+      nextYear: "Next year",
     },
   },
   newSale: {

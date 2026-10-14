@@ -18,6 +18,7 @@ export const es = {
       newSale: "Nueva venta",
       salesToday: "Ventas del día",
       search: "Consultas",
+      expenses: "Gastos",
     },
   },
   salesList: {
@@ -44,6 +45,28 @@ export const es = {
       calendar: "Calendario",
       today: "Hoy",
       yesterday: "Ayer",
+    },
+  },
+  expensesList: {
+    title: "Gastos",
+    empty: "No hay gastos registrados para este mes.",
+    error: "No se pudieron cargar los gastos.",
+    retry: "Reintentar",
+    detail: "Ver detalle",
+    noPaymentMethod: "—",
+    columns: {
+      date: "Fecha",
+      amount: "Monto",
+      category: "Categoría",
+      paymentMethod: "Medio de pago",
+      action: "Acción",
+    },
+    monthNavigator: {
+      previousMonth: "Mes anterior",
+      nextMonth: "Mes siguiente",
+      pickMonth: "Elegir mes",
+      previousYear: "Año anterior",
+      nextYear: "Año siguiente",
     },
   },
   newSale: {

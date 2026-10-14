@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router";
 import { AuthService } from "@/application/services/authService";
+import { ExpensesService } from "@/application/services/expensesService";
 import { SalesService } from "@/application/services/salesService";
 import type { NewSaleInput } from "@/domain/sales/newSale";
 import type { SaleSearchFilters } from "@/domain/sales/saleSearch";
 import { activeBusiness } from "@/infrastructure/business/mockBusinessContext";
 import { supabaseAuthRepository } from "@/infrastructure/supabase/supabaseAuthRepository";
+import { supabaseExpensesRepository } from "@/infrastructure/supabase/supabaseExpensesRepository";
 import { supabaseSalesRepository } from "@/infrastructure/supabase/supabaseSalesRepository";
 import { AppLayout } from "@/presentation/layout/AppLayout";
 import {
   type SaleFeedback,
   type SalesListNavigationState,
 } from "@/presentation/navigation/salesNavigation";
+import { ExpensesListView } from "@/presentation/views/ExpensesListView";
 import { LoginView } from "@/presentation/views/LoginView";
 import { NewSaleView } from "@/presentation/views/NewSaleView";
 import { SaleDetailView } from "@/presentation/views/SaleDetailView";
@@ -20,9 +23,11 @@ import { SearchView } from "@/presentation/views/SearchView";
 
 const authService = new AuthService(supabaseAuthRepository);
 const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepository);
+const expensesService = new ExpensesService(supabaseExpensesRepository, supabaseAuthRepository);
 
 const loadUser = () => authService.getCurrentUser();
 const listSales = (date: string) => salesService.listForDate(activeBusiness, date);
+const listExpenses = (monthStart: string) => expensesService.listForMonth(activeBusiness, monthStart);
 const loadCatalogs = () => salesService.loadCatalogs();
 const registerSale = (input: NewSaleInput) => salesService.registerSale(input);
 const loadSale = (id: string) => salesService.getSale(id);
@@ -40,6 +45,7 @@ export default function AppRoutes() {
         <Route path="/sales/new" element={<NewSaleRoute />} />
         <Route path="/sales/:id" element={<SaleDetailRoute />} />
         <Route path="/search" element={<SearchRoute />} />
+        <Route path="/expenses" element={<ExpensesRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
@@ -55,6 +61,18 @@ function SearchRoute() {
       searchSales={searchSales}
       timeZone={activeBusiness.timeZone}
       onOpenSale={(saleId) => navigate(`/sales/${saleId}`)}
+    />
+  );
+}
+
+function ExpensesRoute() {
+  const navigate = useNavigate();
+
+  return (
+    <ExpensesListView
+      listExpenses={listExpenses}
+      timeZone={activeBusiness.timeZone}
+      onOpenExpense={(expenseId) => navigate(`/expenses/${expenseId}`)}
     />
   );
 }

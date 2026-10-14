@@ -2,83 +2,101 @@ import { useState } from "react";
 import { Button, Calendar, I18nProvider, Popover } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { addDays } from "@/domain/business/businessDay";
+import { addDays, addMonths } from "@/domain/business/businessDay";
+import { MonthPicker } from "@/presentation/components/MonthPicker";
 import { formatDayLabel } from "@/presentation/formatters/dayLabel";
+import { formatMonthLabel } from "@/presentation/formatters/monthLabel";
 import { useTexts } from "@/presentation/texts/useTexts";
 
-interface DateNavigatorProps {
+interface DayNavigatorProps {
+  readonly mode?: "day";
   readonly date: string;
   readonly today: string;
   readonly onDateChange: (date: string) => void;
 }
 
-export function DateNavigator({ date, today, onDateChange }: DateNavigatorProps) {
-  const { common, salesList } = useTexts();
-  const texts = salesList.dateNavigator;
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+interface MonthNavigatorProps {
+  readonly mode: "month";
+  readonly date: string;
+  readonly onDateChange: (monthStart: string) => void;
+}
 
-  const selectFromCalendar = (value: { toString(): string }) => {
-    onDateChange(value.toString());
+export type DateNavigatorProps = DayNavigatorProps | MonthNavigatorProps;
+
+export function DateNavigator(props: DateNavigatorProps) {
+  const { date, onDateChange } = props;
+  const { common, salesList, expensesList } = useTexts();
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const isMonth = props.mode === "month";
+
+  const texts = isMonth
+    ? {
+        previous: expensesList.monthNavigator.previousMonth,
+        next: expensesList.monthNavigator.nextMonth,
+      }
+    : {
+        previous: salesList.dateNavigator.previousDay,
+        next: salesList.dateNavigator.nextDay,
+      };
+  const label = isMonth
+    ? formatMonthLabel(date, common.locale)
+    : formatDayLabel(date, props.today, common.locale, salesList.dateNavigator);
+
+  const shift = (step: number) =>
+    onDateChange(isMonth ? addMonths(date, step) : addDays(date, step));
+
+  const selectDate = (value: string) => {
+    onDateChange(value);
     setIsCalendarOpen(false);
   };
 
   return (
     <div className="flex items-center justify-between gap-2">
-      <Button
-        isIconOnly
-        variant="ghost"
-        aria-label={texts.previousDay}
-        onPress={() => onDateChange(addDays(date, -1))}
-      >
-        <ChevronIcon direction="left" />
+      <Button isIconOnly variant="ghost" aria-label={texts.previous} onPress={() => shift(-1)}>
+        <ChevronLeft size={20} />
       </Button>
 
       <Popover isOpen={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
         <Popover.Trigger>
           <Button variant="ghost" className="font-semibold">
-            {formatDayLabel(date, today, common.locale, texts)}
+            {label}
           </Button>
         </Popover.Trigger>
         <Popover.Content placement="bottom">
           <Popover.Dialog>
-            <I18nProvider locale={common.locale}>
-              <Calendar
-                aria-label={texts.calendar}
-                value={parseDate(date)}
-                firstDayOfWeek="mon"
-                onChange={selectFromCalendar}
-              >
-                <Calendar.Header>
-                  <Calendar.NavButton slot="previous" />
-                  <Calendar.Heading />
-                  <Calendar.NavButton slot="next" />
-                </Calendar.Header>
-                <Calendar.Grid>
-                  <Calendar.GridHeader>
-                    {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-                  </Calendar.GridHeader>
-                  <Calendar.GridBody>
-                    {(calendarDate) => <Calendar.Cell date={calendarDate} />}
-                  </Calendar.GridBody>
-                </Calendar.Grid>
-              </Calendar>
-            </I18nProvider>
+            {isMonth ? (
+              <MonthPicker selectedMonth={date} locale={common.locale} onSelect={selectDate} />
+            ) : (
+              <I18nProvider locale={common.locale}>
+                <Calendar
+                  aria-label={salesList.dateNavigator.calendar}
+                  value={parseDate(date)}
+                  firstDayOfWeek="mon"
+                  onChange={(value) => selectDate(value.toString())}
+                >
+                  <Calendar.Header>
+                    <Calendar.NavButton slot="previous" />
+                    <Calendar.Heading />
+                    <Calendar.NavButton slot="next" />
+                  </Calendar.Header>
+                  <Calendar.Grid>
+                    <Calendar.GridHeader>
+                      {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+                    </Calendar.GridHeader>
+                    <Calendar.GridBody>
+                      {(calendarDate) => <Calendar.Cell date={calendarDate} />}
+                    </Calendar.GridBody>
+                  </Calendar.Grid>
+                </Calendar>
+              </I18nProvider>
+            )}
           </Popover.Dialog>
         </Popover.Content>
       </Popover>
 
-      <Button
-        isIconOnly
-        variant="ghost"
-        aria-label={texts.nextDay}
-        onPress={() => onDateChange(addDays(date, 1))}
-      >
-        <ChevronIcon direction="right" />
+      <Button isIconOnly variant="ghost" aria-label={texts.next} onPress={() => shift(1)}>
+        <ChevronRight size={20} />
       </Button>
     </div>
   );
-}
-
-function ChevronIcon({ direction }: { readonly direction: "left" | "right" }) {
-  return direction === "left" ? <ChevronLeft size={20} /> : <ChevronRight size={20} />;
 }

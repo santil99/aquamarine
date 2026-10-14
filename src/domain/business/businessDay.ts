@@ -69,3 +69,14 @@ export function addDays(date: string, days: number): string {
     .toISOString()
     .slice(0, 10);
 }
+
+export function getMonthStart(date: string): string {
+  return `${date.slice(0, 8)}01`;
+}
+
+export function addMonths(monthStart: string, months: number): string {
+  const [year, month] = monthStart.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1 + months, 1))
+    .toISOString()
+    .slice(0, 10);
+}
