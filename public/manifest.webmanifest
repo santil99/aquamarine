@@ -1,0 +1,21 @@
+{
+  "name": "Aquamarine",
+  "short_name": "Aquamarine",
+  "description": "Gestión comercial de ventas y gastos",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#4338ca",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
