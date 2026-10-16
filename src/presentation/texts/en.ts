@@ -82,6 +82,8 @@ export const en: Texts = {
     collected: "Collected",
     expenses: "Expenses",
     salesByCategory: "Sales by category",
+    dailySales: "Daily sales",
+    averageTicket: "Average ticket",
     expensesByCategory: "Expenses by category",
     emptySales: "There are no sales this month.",
     emptyExpenses: "There are no expenses this month.",

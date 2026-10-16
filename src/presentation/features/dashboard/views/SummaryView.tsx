@@ -2,15 +2,19 @@ import { useEffect, useState } from "react";
 import { Button, Card, Spinner } from "@heroui/react";
 import { getMonthStart, getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { CategoryTotal } from "@/domain/business/categoryTotal";
+import type { DailySalesPoint } from "@/domain/business/dailySales";
 import { summarizeMonth } from "@/domain/business/monthSummary";
+import { averageSaleAmounts } from "@/domain/sales/saleTotal";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatArsAmount } from "@/presentation/formatters/amount";
 import { createMonthMode } from "@/presentation/components/monthMode";
+import { DailySalesChart } from "@/presentation/features/dashboard/components/DailySalesChart";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 interface MonthData {
   readonly sales: CategoryTotal[];
   readonly expenses: CategoryTotal[];
+  readonly dailySales: DailySalesPoint[];
 }
 
 type LoadState =
@@ -21,10 +25,11 @@ type LoadState =
 interface SummaryViewProps {
   readonly loadSales: (monthStart: string) => Promise<CategoryTotal[]>;
   readonly loadExpenses: (monthStart: string) => Promise<CategoryTotal[]>;
+  readonly loadDailySales: (monthStart: string) => Promise<DailySalesPoint[]>;
   readonly timeZone: string;
 }
 
-export function SummaryView({ loadSales, loadExpenses, timeZone }: SummaryViewProps) {
+export function SummaryView({ loadSales, loadExpenses, loadDailySales, timeZone }: SummaryViewProps) {
   const [selectedMonth, setSelectedMonth] = useState(() =>
     getMonthStart(getTodayInTimeZone(timeZone)),
   );
@@ -36,9 +41,9 @@ export function SummaryView({ loadSales, loadExpenses, timeZone }: SummaryViewPr
   useEffect(() => {
     let isCurrent = true;
 
-    Promise.all([loadSales(selectedMonth), loadExpenses(selectedMonth)])
-      .then(([sales, expenses]) => {
-        if (isCurrent) setState({ status: "success", data: { sales, expenses } });
+    Promise.all([loadSales(selectedMonth), loadExpenses(selectedMonth), loadDailySales(selectedMonth)])
+      .then(([sales, expenses, dailySales]) => {
+        if (isCurrent) setState({ status: "success", data: { sales, expenses, dailySales } });
       })
       .catch(() => {
         if (isCurrent) setState({ status: "error" });
@@ -47,7 +52,7 @@ export function SummaryView({ loadSales, loadExpenses, timeZone }: SummaryViewPr
     return () => {
       isCurrent = false;
     };
-  }, [loadSales, loadExpenses, selectedMonth, attempt]);
+  }, [loadSales, loadExpenses, loadDailySales, selectedMonth, attempt]);
 
   const changeMonth = (monthStart: string) => {
     setSelectedMonth(monthStart);
@@ -91,9 +96,15 @@ function SummaryContent({ state, onRetry }: { readonly state: LoadState; readonl
 
   const monthSummary = summarizeMonth(state.data.sales, state.data.expenses);
   const isNegativeBalance = monthSummary.balance.startsWith("-");
+  const averageDailySale = averageSaleAmounts(state.data.dailySales.map((point) => point.total));
 
   return (
     <div className="flex flex-col gap-4">
+      <Card className="flex flex-col gap-3 p-4">
+        <p className="text-sm text-default-500">{texts.dailySales}</p>
+        <DailySalesChart points={state.data.dailySales} locale={common.locale} />
+      </Card>
+
       <Card className="flex flex-col gap-1 p-5">
         <p className="text-sm text-default-500">{texts.netBalance}</p>
         <p
@@ -119,6 +130,13 @@ function SummaryContent({ state, onRetry }: { readonly state: LoadState; readonl
           <p className="text-sm text-default-500">{texts.expenseCount(monthSummary.expensesCount)}</p>
         </Card>
       </div>
+
+      <Card className="flex flex-col gap-1 p-4">
+        <p className="text-sm text-default-500">{texts.averageTicket}</p>
+        <p className="text-lg font-semibold tabular-nums">
+          {formatArsAmount(averageDailySale, common.locale)}
+        </p>
+      </Card>
 
       <CategorySection
         title={texts.salesByCategory}

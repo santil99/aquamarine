@@ -66,6 +66,8 @@ const loadMonthlySalesTotals = (monthStart: string) =>
   salesService.getCategoryTotalsForMonth(activeBusiness, monthStart);
 const loadMonthlyExpenseTotals = (monthStart: string) =>
   expensesService.getCategoryTotalsForMonth(activeBusiness, monthStart);
+const loadMonthlyDailySales = (monthStart: string) =>
+  salesService.getDailyTotalsForMonth(activeBusiness, monthStart);
 
 export default function AppRoutes() {
   return (
@@ -106,6 +108,7 @@ function SummaryRoute() {
     <SummaryView
       loadSales={loadMonthlySalesTotals}
       loadExpenses={loadMonthlyExpenseTotals}
+      loadDailySales={loadMonthlyDailySales}
       timeZone={activeBusiness.timeZone}
     />
   );

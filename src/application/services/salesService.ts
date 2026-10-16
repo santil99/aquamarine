@@ -1,7 +1,9 @@
 import type { AuthRepository } from "@/application/ports/authRepository";
 import type { SalesCatalogs, SalesRepository } from "@/application/ports/salesRepository";
 import type { BusinessContext } from "@/domain/business/businessContext";
+import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import { groupByCategory, type CategoryTotal } from "@/domain/business/categoryTotal";
+import { buildDailySalesSeries, type DailySalesPoint } from "@/domain/business/dailySales";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import {
   normalizeSaleAmount,
@@ -58,6 +60,20 @@ export class SalesService {
 
     return groupByCategory(
       await this.salesRepository.listAmountsForMonth(business, monthStart),
+    );
+  }
+
+  async getDailyTotalsForMonth(
+    business: BusinessContext,
+    monthStart: string,
+  ): Promise<DailySalesPoint[]> {
+    await this.requireAuthenticatedUser();
+
+    return buildDailySalesSeries(
+      await this.salesRepository.listDailyAmountsForMonth(business, monthStart),
+      monthStart,
+      getTodayInTimeZone(business.timeZone),
+      business.timeZone,
     );
   }
 

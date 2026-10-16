@@ -13,13 +13,17 @@ export interface DayRange {
   end: Date;
 }
 
-export function getTodayInTimeZone(timeZone: string, now = new Date()): string {
+export function getDateInTimeZone(timeZone: string, instant = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(now);
+  }).format(instant);
+}
+
+export function getTodayInTimeZone(timeZone: string, now = new Date()): string {
+  return getDateInTimeZone(timeZone, now);
 }
 
 /**

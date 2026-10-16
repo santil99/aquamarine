@@ -7,6 +7,15 @@ export function sumSaleAmounts(amounts: string[]): string {
   return formatCents(amounts.reduce((sum, amount) => sum + toCents(amount), 0n));
 }
 
+/** Average rounded half-up to cents. Returns "0.00" for an empty list. */
+export function averageSaleAmounts(amounts: string[]): string {
+  if (amounts.length === 0) return formatCents(0n);
+
+  const count = BigInt(amounts.length);
+  const totalCents = amounts.reduce((sum, amount) => sum + toCents(amount), 0n);
+  return formatCents((totalCents * 2n + count) / (count * 2n));
+}
+
 export function subtractSaleAmounts(minuend: string, subtrahend: string): string {
   return formatCents(toCents(minuend) - toCents(subtrahend));
 }

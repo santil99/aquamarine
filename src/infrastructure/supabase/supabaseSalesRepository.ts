@@ -12,6 +12,11 @@ interface SaleCategoryAmountRow {
   category: { name: string } | null;
 }
 
+interface SaleDailyAmountRow {
+  amount: string;
+  created_at: string;
+}
+
 interface SaleRow {
   id: string;
   amount: string;
@@ -46,15 +51,14 @@ interface SaleDetailRow {
 
 export const supabaseSalesRepository: SalesRepository = {
   async listAmountsForMonth(business, monthStart) {
-    const from = getDayRangeInTimeZone(monthStart, business.timeZone).start;
-    const to = getDayRangeInTimeZone(addMonths(monthStart, 1), business.timeZone).start;
+    const { from, to } = getMonthRange(monthStart, business.timeZone);
 
     // Amount is cast to text so the decimal value is not parsed as a JS number.
     const { data, error } = await supabase
       .from("sales")
       .select("amount::text, category:categories(name)")
-      .gte("created_at", from.toISOString())
-      .lt("created_at", to.toISOString())
+      .gte("created_at", from)
+      .lt("created_at", to)
       .returns<SaleCategoryAmountRow[]>();
 
     if (error) {
@@ -62,6 +66,24 @@ export const supabaseSalesRepository: SalesRepository = {
     }
 
     return data.map((row) => ({ category: row.category?.name ?? "", amount: row.amount }));
+  },
+
+  async listDailyAmountsForMonth(business, monthStart) {
+    const { from, to } = getMonthRange(monthStart, business.timeZone);
+
+    // Amount is cast to text so the decimal value is not parsed as a JS number.
+    const { data, error } = await supabase
+      .from("sales")
+      .select("amount::text, created_at")
+      .gte("created_at", from)
+      .lt("created_at", to)
+      .returns<SaleDailyAmountRow[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map((row) => ({ createdAt: row.created_at, amount: row.amount }));
   },
 
   async search(business, filters) {
@@ -184,6 +206,13 @@ export const supabaseSalesRepository: SalesRepository = {
     }
   },
 };
+
+function getMonthRange(monthStart: string, timeZone: string) {
+  return {
+    from: getDayRangeInTimeZone(monthStart, timeZone).start.toISOString(),
+    to: getDayRangeInTimeZone(addMonths(monthStart, 1), timeZone).start.toISOString(),
+  };
+}
 
 function toSaleListItem(row: SaleRow): SaleListItem {
   return {

@@ -80,6 +80,8 @@ export const es = {
     collected: "Recaudado",
     expenses: "Gastos",
     salesByCategory: "Ventas por categoría",
+    dailySales: "Ventas diarias",
+    averageTicket: "Ticket promedio",
     expensesByCategory: "Gastos por categoría",
     emptySales: "No hay ventas en este mes.",
     emptyExpenses: "No hay gastos en este mes.",
