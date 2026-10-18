@@ -11,7 +11,7 @@ export interface SaleSearchFilters {
 }
 
 export interface SaleSearchItem extends SaleListItem {
-  createdAt: string;
+  transactionDate: string;
   detail: string | null;
 }
 

@@ -1,5 +1,5 @@
 import type { ExpensesRepository } from "@/application/ports/expensesRepository";
-import { addMonths, getDayRangeInTimeZone } from "@/domain/business/businessDay";
+import { addMonths } from "@/domain/business/businessDay";
 import type { ExpenseCatalogOption, ExpenseDetail } from "@/domain/expenses/expenseForm";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import type { ExpenseSearchItem } from "@/domain/expenses/expenseSearch";
@@ -14,7 +14,7 @@ interface ExpenseCategoryAmountRow {
 interface ExpenseRow {
   id: string;
   amount: string;
-  created_at: string;
+  expense_date: string;
   category: { name: string } | null;
   payment_method: { name: string } | null;
 }
@@ -26,7 +26,7 @@ interface ExpenseSearchRow extends ExpenseRow {
 interface ExpenseDetailRow {
   id: string;
   amount: string;
-  created_at: string;
+  expense_date: string;
   detail: string | null;
   category_id: string | number;
   payment_method_id: string | number | null;
@@ -40,18 +40,16 @@ interface ExpenseCatalogRow {
 }
 
 export const supabaseExpensesRepository: ExpensesRepository = {
-  async listForMonth(business, monthStart) {
-    const from = getDayRangeInTimeZone(monthStart, business.timeZone).start;
-    const to = getDayRangeInTimeZone(addMonths(monthStart, 1), business.timeZone).start;
-
+  async listForMonth(_business, monthStart) {
     // Amount is cast to text so the decimal value is not parsed as a JS number.
     const { data, error } = await supabase
       .from("expenses")
       .select(
-        "id, amount::text, created_at, category:expense_categories(name), payment_method:payment_methods(name)",
+        "id, amount::text, expense_date, category:expense_categories(name), payment_method:payment_methods(name)",
       )
-      .gte("created_at", from.toISOString())
-      .lt("created_at", to.toISOString())
+      .gte("expense_date", monthStart)
+      .lt("expense_date", addMonths(monthStart, 1))
+      .order("expense_date", { ascending: true })
       .order("created_at", { ascending: true })
       .returns<ExpenseRow[]>();
 
@@ -62,16 +60,13 @@ export const supabaseExpensesRepository: ExpensesRepository = {
     return data.map(toExpenseListItem);
   },
 
-  async listAmountsForMonth(business, monthStart) {
-    const from = getDayRangeInTimeZone(monthStart, business.timeZone).start;
-    const to = getDayRangeInTimeZone(addMonths(monthStart, 1), business.timeZone).start;
-
+  async listAmountsForMonth(_business, monthStart) {
     // Amount is cast to text so the decimal value is not parsed as a JS number.
     const { data, error } = await supabase
       .from("expenses")
       .select("amount::text, category:expense_categories(name)")
-      .gte("created_at", from.toISOString())
-      .lt("created_at", to.toISOString())
+      .gte("expense_date", monthStart)
+      .lt("expense_date", addMonths(monthStart, 1))
       .returns<ExpenseCategoryAmountRow[]>();
 
     if (error) {
@@ -81,22 +76,20 @@ export const supabaseExpensesRepository: ExpensesRepository = {
     return data.map((row) => ({ category: row.category?.name ?? "", amount: row.amount }));
   },
 
-  async search(business, filters) {
-    const from = getDayRangeInTimeZone(filters.dateFrom, business.timeZone).start;
-    const to = getDayRangeInTimeZone(filters.dateTo, business.timeZone).end;
-
+  async search(_business, filters) {
     let query = supabase
       .from("expenses")
       .select(
-        "id, amount::text, created_at, detail, category:expense_categories(name), payment_method:payment_methods(name)",
+        "id, amount::text, expense_date, detail, category:expense_categories(name), payment_method:payment_methods(name)",
       )
-      .gte("created_at", from.toISOString())
-      .lt("created_at", to.toISOString());
+      .gte("expense_date", filters.dateFrom)
+      .lte("expense_date", filters.dateTo);
 
     if (filters.detail) query = query.ilike("detail", `%${escapeLikePattern(filters.detail)}%`);
     if (filters.categoryId) query = query.eq("category_id", filters.categoryId);
 
     const { data, error } = await query
+      .order("expense_date", { ascending: false })
       .order("created_at", { ascending: false })
       .returns<ExpenseSearchRow[]>();
 
@@ -135,13 +128,14 @@ export const supabaseExpensesRepository: ExpensesRepository = {
     return data.map(toCatalogOption);
   },
 
-  async create(expense, userId) {
+  async create(record) {
     const { error } = await supabase.from("expenses").insert({
-      user_id: userId,
-      amount: expense.amount,
-      category_id: expense.categoryId,
-      payment_method_id: expense.paymentMethodId,
-      detail: expense.detail,
+      user_id: record.userId,
+      amount: record.amount,
+      category_id: record.categoryId,
+      payment_method_id: record.paymentMethodId,
+      detail: record.detail,
+      expense_date: record.transactionDate,
     });
 
     if (error) {
@@ -154,7 +148,7 @@ export const supabaseExpensesRepository: ExpensesRepository = {
     const { data, error } = await supabase
       .from("expenses")
       .select(
-        "id, amount::text, created_at, detail, category_id, payment_method_id, category:expense_categories(name), payment_method:payment_methods(name)",
+        "id, amount::text, expense_date, detail, category_id, payment_method_id, category:expense_categories(name), payment_method:payment_methods(name)",
       )
       .eq("id", id)
       .maybeSingle<ExpenseDetailRow>();
@@ -200,7 +194,7 @@ function toExpenseDetail(row: ExpenseDetailRow): ExpenseDetail {
   return {
     id: row.id,
     amount: row.amount,
-    createdAt: row.created_at,
+    transactionDate: row.expense_date,
     categoryId: String(row.category_id),
     paymentMethodId: row.payment_method_id === null ? null : String(row.payment_method_id),
     detail: row.detail,
@@ -212,7 +206,7 @@ function toExpenseDetail(row: ExpenseDetailRow): ExpenseDetail {
 function toExpenseListItem(row: ExpenseRow): ExpenseListItem {
   return {
     id: row.id,
-    createdAt: row.created_at,
+    transactionDate: row.expense_date,
     amount: row.amount,
     category: row.category?.name ?? "",
     paymentMethod: row.payment_method?.name ?? null,

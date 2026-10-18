@@ -73,7 +73,6 @@ export class SalesService {
       await this.salesRepository.listDailyAmountsForMonth(business, monthStart),
       monthStart,
       getTodayInTimeZone(business.timeZone),
-      business.timeZone,
     );
   }
 
@@ -83,7 +82,7 @@ export class SalesService {
     return this.salesRepository.listCatalogs();
   }
 
-  async registerSale(input: NewSaleInput): Promise<void> {
+  async registerSale(input: NewSaleInput, transactionDate: string): Promise<void> {
     const user = await this.requireAuthenticatedUser();
     const errors = validateNewSale(input);
 
@@ -97,6 +96,7 @@ export class SalesService {
       categoryId: input.categoryId,
       paymentMethodId: input.paymentMethodId,
       detail: normalizeSaleDetail(input.detail),
+      transactionDate,
     });
   }
 

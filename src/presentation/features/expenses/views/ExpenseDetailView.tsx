@@ -5,7 +5,7 @@ import type { ExpenseCatalogs, ExpenseDetail } from "@/domain/expenses/expenseFo
 import type { NewSaleInput } from "@/domain/sales/newSale";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
-import { formatSaleDateTime } from "@/presentation/formatters/saleDateTime";
+import { formatTransactionDate } from "@/presentation/formatters/transactionDate";
 import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
 import { useTexts } from "@/presentation/texts/useTexts";
@@ -18,7 +18,6 @@ type ExpenseState =
 
 interface ExpenseDetailViewProps {
   readonly expenseId: string;
-  readonly timeZone: string;
   readonly loadExpense: (id: string) => Promise<ExpenseDetail | null>;
   readonly loadCatalogs: () => Promise<ExpenseCatalogs>;
   readonly updateExpense: (id: string, input: NewSaleInput) => Promise<void>;
@@ -28,7 +27,6 @@ interface ExpenseDetailViewProps {
 
 export function ExpenseDetailView({
   expenseId,
-  timeZone,
   loadExpense,
   loadCatalogs,
   updateExpense,
@@ -94,7 +92,6 @@ export function ExpenseDetailView({
   return (
     <ExpenseDetailForm
       expense={expense.expense}
-      timeZone={timeZone}
       categories={catalogs.catalogs.categories}
       paymentMethods={catalogs.catalogs.paymentMethods}
       updateExpense={updateExpense}
@@ -106,7 +103,6 @@ export function ExpenseDetailView({
 
 interface ExpenseDetailFormProps {
   readonly expense: ExpenseDetail;
-  readonly timeZone: string;
   readonly categories: ExpenseCatalogs["categories"];
   readonly paymentMethods: ExpenseCatalogs["paymentMethods"];
   readonly updateExpense: (id: string, input: NewSaleInput) => Promise<void>;
@@ -116,7 +112,6 @@ interface ExpenseDetailFormProps {
 
 function ExpenseDetailForm({
   expense,
-  timeZone,
   categories,
   paymentMethods,
   updateExpense,
@@ -172,8 +167,8 @@ function ExpenseDetailForm({
 
       <p className="flex items-center gap-2 text-sm">
         <CalendarDays size={18} aria-hidden="true" />
-        <span className="font-medium">{texts.dateTimeLabel}:</span>
-        <span>{formatSaleDateTime(expense.createdAt, common.locale, timeZone)}</span>
+        <span className="font-medium">{texts.dateLabel}:</span>
+        <span>{formatTransactionDate(expense.transactionDate, common.locale)}</span>
       </p>
 
       <Form onSubmit={handleSave} className="flex w-full flex-col gap-4">

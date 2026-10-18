@@ -1,8 +1,7 @@
-import { getDateInTimeZone } from "@/domain/business/businessDay";
 import { compareSaleAmounts, sumSaleAmounts } from "@/domain/sales/saleTotal";
 
 export interface DailySaleAmount {
-  createdAt: string;
+  transactionDate: string;
   amount: string;
 }
 
@@ -21,13 +20,11 @@ export function buildDailySalesSeries(
   amounts: DailySaleAmount[],
   monthStart: string,
   today: string,
-  timeZone: string,
 ): DailySalesPoint[] {
   const amountsByDate = new Map<string, string[]>();
 
-  for (const { createdAt, amount } of amounts) {
-    const date = getDateInTimeZone(timeZone, new Date(createdAt));
-    amountsByDate.set(date, [...(amountsByDate.get(date) ?? []), amount]);
+  for (const { transactionDate, amount } of amounts) {
+    amountsByDate.set(transactionDate, [...(amountsByDate.get(transactionDate) ?? []), amount]);
   }
 
   return listDatesUntil(monthStart, today)

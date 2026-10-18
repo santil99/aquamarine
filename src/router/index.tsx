@@ -50,8 +50,10 @@ const loadExpenseCatalogs = async (): Promise<ExpenseCatalogs> => {
 
   return { categories, paymentMethods };
 };
-const registerSale = (input: NewSaleInput) => salesService.registerSale(input);
-const registerExpense = (input: NewSaleInput) => expensesService.create(input);
+const registerSale = (input: NewSaleInput, transactionDate: string) =>
+  salesService.registerSale(input, transactionDate);
+const registerExpense = (input: NewSaleInput, transactionDate: string) =>
+  expensesService.create(input, transactionDate);
 const loadExpense = (id: string) => expensesService.getById(id);
 const updateExpense = (id: string, input: NewSaleInput) => expensesService.update(id, input);
 const deleteExpense = (id: string) => expensesService.delete(id);
@@ -127,7 +129,13 @@ function ExpensesRoute() {
 }
 
 function NewExpenseRoute() {
-  return <NewExpenseView loadCatalogs={loadExpenseCatalogs} registerExpense={registerExpense} />;
+  return (
+    <NewExpenseView
+      timeZone={activeBusiness.timeZone}
+      loadCatalogs={loadExpenseCatalogs}
+      registerExpense={registerExpense}
+    />
+  );
 }
 
 function ExpenseDetailRoute() {
@@ -137,7 +145,6 @@ function ExpenseDetailRoute() {
   return (
     <ExpenseDetailView
       expenseId={id}
-      timeZone={activeBusiness.timeZone}
       loadExpense={loadExpense}
       loadCatalogs={loadExpenseCatalogs}
       updateExpense={updateExpense}
@@ -169,7 +176,13 @@ function SalesListRoute() {
 }
 
 function NewSaleRoute() {
-  return <NewSaleView loadCatalogs={loadCatalogs} registerSale={registerSale} />;
+  return (
+    <NewSaleView
+      timeZone={activeBusiness.timeZone}
+      loadCatalogs={loadCatalogs}
+      registerSale={registerSale}
+    />
+  );
 }
 
 function SaleDetailRoute() {
@@ -183,7 +196,6 @@ function SaleDetailRoute() {
   return (
     <SaleDetailView
       saleId={id}
-      timeZone={activeBusiness.timeZone}
       loadSale={loadSale}
       loadCatalogs={loadCatalogs}
       updateSale={updateSale}

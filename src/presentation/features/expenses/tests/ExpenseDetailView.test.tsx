@@ -13,7 +13,7 @@ const catalogs: ExpenseCatalogs = {
 
 const expense: ExpenseDetail = {
   id: "10",
-  createdAt: "2026-03-05T15:00:00Z",
+  transactionDate: "2026-03-05",
   amount: "1234.5",
   categoryId: "cat-1",
   category: "Alquiler",

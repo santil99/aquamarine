@@ -1,6 +1,6 @@
 export interface ExpenseListItem {
   id: string;
-  createdAt: string;
+  transactionDate: string;
   amount: string;
   category: string;
   paymentMethod: string | null;

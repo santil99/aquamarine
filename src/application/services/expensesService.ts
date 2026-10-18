@@ -72,14 +72,18 @@ export class ExpensesService {
     return this.expensesRepository.listPaymentMethods();
   }
 
-  async create(expense: NewSaleInput): Promise<void> {
+  async create(expense: NewSaleInput, transactionDate: string): Promise<void> {
     if (Object.keys(validateNewSale(expense)).length > 0) {
       throw new Error("Invalid expense");
     }
 
     const user = await this.requireAuthenticatedUser();
 
-    await this.expensesRepository.create(toExpensePayload(expense), user.id);
+    await this.expensesRepository.create({
+      ...toExpensePayload(expense),
+      userId: user.id,
+      transactionDate,
+    });
   }
 
   async getById(id: string): Promise<ExpenseDetail | null> {

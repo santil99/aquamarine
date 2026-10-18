@@ -1,9 +1,11 @@
 import { useState, type SyntheticEvent } from "react";
 import { Button, Form, ToastProvider, ToastQueue } from "@heroui/react";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
+import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { NewSaleInput } from "@/domain/sales/newSale";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
+import { TransactionDateField } from "@/presentation/features/shared/TransactionDateField";
 import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
 import { useTexts } from "@/presentation/texts/useTexts";
@@ -16,14 +18,17 @@ const EMPTY_FORM: SaleFormValues = {
 };
 
 interface NewSaleViewProps {
+  readonly timeZone: string;
   readonly loadCatalogs: () => Promise<SalesCatalogs>;
-  readonly registerSale: (input: NewSaleInput) => Promise<void>;
+  readonly registerSale: (input: NewSaleInput, transactionDate: string) => Promise<void>;
 }
 
-export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
+export function NewSaleView({ timeZone, loadCatalogs, registerSale }: NewSaleViewProps) {
   const texts = useTexts().newSale;
   const { state: catalogs, retry } = useSaleCatalogs(loadCatalogs);
   const { values, input, errors, handleChange, validateAll, reset } = useSaleForm(EMPTY_FORM);
+  const [today] = useState(() => getTodayInTimeZone(timeZone));
+  const [transactionDate, setTransactionDate] = useState(today);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastQueue] = useState(() => new ToastQueue());
@@ -40,8 +45,9 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
     setIsSubmitting(true);
 
     try {
-      await registerSale(input);
+      await registerSale(input, transactionDate);
       reset();
+      setTransactionDate(today);
       toastQueue.add({ title: texts.saved });
     } catch {
       setSaveError(texts.saveError);
@@ -68,6 +74,7 @@ export function NewSaleView({ loadCatalogs, registerSale }: NewSaleViewProps) {
       ) : null}
 
       <Form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
+        <TransactionDateField value={transactionDate} today={today} onChange={setTransactionDate} />
         <SaleFields
           texts={texts}
           values={values}

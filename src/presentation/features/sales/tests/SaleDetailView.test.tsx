@@ -13,7 +13,7 @@ const sale: SaleDetail = {
   paymentMethodId: "pay-1",
   paymentMethod: "Efectivo",
   detail: "Mesa 4",
-  createdAt: "2024-05-10T15:30:00Z",
+  transactionDate: "2024-05-10",
 };
 
 const catalogs: SalesCatalogs = {

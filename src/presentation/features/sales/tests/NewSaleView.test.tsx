@@ -3,7 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 import type { NewSaleInput } from "@/domain/sales/newSale";
+import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import { NewSaleView } from "@/presentation/features/sales/views/NewSaleView";
+
+const TIME_ZONE = "UTC";
 
 const catalogs: SalesCatalogs = {
   categories: [{ id: "cat-1", name: "Comida" }],
@@ -34,7 +37,7 @@ describe("NewSaleView", () => {
   it("shows required field errors and does not register an empty sale", async () => {
     const interaction = userEvent.setup();
     const registerSale = vi.fn(() => Promise.resolve());
-    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} />);
+    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} timeZone={TIME_ZONE} />);
 
     await interaction.click(await screen.findByRole("button", { name: "Registrar venta" }));
 
@@ -43,9 +46,9 @@ describe("NewSaleView", () => {
     expect(registerSale).not.toHaveBeenCalled();
   });
 
-  it("shows the amount error while typing, before submitting", async () => {
+    it("shows the amount error while typing, before submitting", async () => {
     const interaction = userEvent.setup();
-    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={() => Promise.resolve()} />);
+    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={() => Promise.resolve()} timeZone={TIME_ZONE} />);
 
     const amount = (await screen.findByRole("textbox", { name: "Monto" })) as HTMLInputElement;
     await interaction.type(amount, "12a");
@@ -55,7 +58,7 @@ describe("NewSaleView", () => {
 
   it("shows the selected category and no placeholder after selecting it", async () => {
     const interaction = userEvent.setup();
-    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={() => Promise.resolve()} />);
+    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={() => Promise.resolve()} timeZone={TIME_ZONE} />);
 
     await interaction.click(await screen.findByRole("button", { name: /Categoría/ }));
     await interaction.click(await screen.findByRole("option", { name: "Comida" }));
@@ -66,8 +69,8 @@ describe("NewSaleView", () => {
 
   it("registers a valid sale, shows feedback and clears the form", async () => {
     const interaction = userEvent.setup();
-    const registerSale = vi.fn<(input: NewSaleInput) => Promise<void>>(() => Promise.resolve());
-    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} />);
+    const registerSale = vi.fn<(input: NewSaleInput, transactionDate: string) => Promise<void>>(() => Promise.resolve());
+    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} timeZone={TIME_ZONE} />);
 
     const amount = (await screen.findByRole("textbox", { name: "Monto" })) as HTMLInputElement;
     await interaction.type(amount, "150,50");
@@ -76,19 +79,22 @@ describe("NewSaleView", () => {
     await interaction.click(screen.getByRole("button", { name: "Registrar venta" }));
 
     expect(await screen.findByText("Venta registrada.")).toBeTruthy();
-    expect(registerSale).toHaveBeenCalledWith({
-      amount: "150,50",
-      categoryId: "cat-1",
-      paymentMethodId: null,
-      detail: null,
-    });
+    expect(registerSale).toHaveBeenCalledWith(
+      {
+        amount: "150,50",
+        categoryId: "cat-1",
+        paymentMethodId: null,
+        detail: null,
+      },
+      getTodayInTimeZone(TIME_ZONE),
+    );
     expect(amount.value).toBe("");
   });
 
   it("keeps the entered data and shows an error when saving fails", async () => {
     const interaction = userEvent.setup();
     const registerSale = vi.fn(() => Promise.reject(new Error("network")));
-    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} />);
+    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} timeZone={TIME_ZONE} />);
 
     const amount = (await screen.findByRole("textbox", { name: "Monto" })) as HTMLInputElement;
     await interaction.type(amount, "80");

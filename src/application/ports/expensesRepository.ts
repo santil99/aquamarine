@@ -11,6 +11,11 @@ import type {
   ExpenseSearchItem,
 } from "@/domain/expenses/expenseSearch";
 
+export type NewExpenseRecord = ExpenseInput & {
+  userId: string;
+  transactionDate: string;
+};
+
 export interface ExpensesRepository {
   listForMonth(
     business: BusinessContext,
@@ -26,7 +31,7 @@ export interface ExpensesRepository {
   ): Promise<ExpenseSearchItem[]>;
   listCategories(): Promise<ExpenseCatalogOption[]>;
   listPaymentMethods(): Promise<ExpenseCatalogOption[]>;
-  create(expense: ExpenseInput, userId: string): Promise<void>;
+  create(record: NewExpenseRecord): Promise<void>;
   getById(id: string): Promise<ExpenseDetail | null>;
   update(id: string, expense: ExpenseInput): Promise<boolean>;
   delete(id: string): Promise<boolean>;

@@ -11,7 +11,7 @@ import type { NewSaleInput } from "@/domain/sales/newSale";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
-import { formatSaleDateTime } from "@/presentation/formatters/saleDateTime";
+import { formatTransactionDate } from "@/presentation/formatters/transactionDate";
 import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
 import type { SaleFeedback } from "@/presentation/features/sales/navigation/salesNavigation";
@@ -25,7 +25,6 @@ type SaleState =
 
 interface SaleDetailViewProps {
   readonly saleId: string;
-  readonly timeZone: string;
   readonly loadSale: (id: string) => Promise<SaleDetail | null>;
   readonly loadCatalogs: () => Promise<SalesCatalogs>;
   readonly updateSale: (id: string, input: NewSaleInput) => Promise<void>;
@@ -35,7 +34,6 @@ interface SaleDetailViewProps {
 
 export function SaleDetailView({
   saleId,
-  timeZone,
   loadSale,
   loadCatalogs,
   updateSale,
@@ -101,7 +99,6 @@ export function SaleDetailView({
   return (
     <SaleDetailForm
       sale={sale.sale}
-      timeZone={timeZone}
       categories={catalogs.catalogs.categories}
       paymentMethods={catalogs.catalogs.paymentMethods}
       updateSale={updateSale}
@@ -113,7 +110,6 @@ export function SaleDetailView({
 
 interface SaleDetailFormProps {
   readonly sale: SaleDetail;
-  readonly timeZone: string;
   readonly categories: SalesCatalogs["categories"];
   readonly paymentMethods: SalesCatalogs["paymentMethods"];
   readonly updateSale: (id: string, input: NewSaleInput) => Promise<void>;
@@ -123,7 +119,6 @@ interface SaleDetailFormProps {
 
 function SaleDetailForm({
   sale,
-  timeZone,
   categories,
   paymentMethods,
   updateSale,
@@ -179,8 +174,8 @@ function SaleDetailForm({
 
       <p className="flex items-center gap-2 text-sm">
         <CalendarDays size={18} aria-hidden="true" />
-        <span className="font-medium">{texts.dateTimeLabel}:</span>
-        <span>{formatSaleDateTime(sale.createdAt, common.locale, timeZone)}</span>
+        <span className="font-medium">{texts.dateLabel}:</span>
+        <span>{formatTransactionDate(sale.transactionDate, common.locale)}</span>
       </p>
 
       <Form onSubmit={handleSave} className="flex w-full flex-col gap-4">

@@ -17,7 +17,7 @@ export interface ExpenseInput {
 
 export interface ExpenseDetail extends ExpenseInput {
   id: string;
-  createdAt: string;
+  transactionDate: string;
   category: string;
   paymentMethod: string | null;
 }

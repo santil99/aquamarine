@@ -34,7 +34,11 @@ export function SummaryView({ loadSales, loadExpenses, loadDailySales, timeZone 
     getMonthStart(getTodayInTimeZone(timeZone)),
   );
   const { common } = useTexts();
-  const monthMode = createMonthMode({ locale: common.locale, texts: common.monthNavigator });
+  const monthMode = createMonthMode({
+    locale: common.locale,
+    today: getTodayInTimeZone(timeZone),
+    texts: common.monthNavigator,
+  });
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
 

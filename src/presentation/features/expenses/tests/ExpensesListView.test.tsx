@@ -11,12 +11,12 @@ const TIME_ZONE = "America/Argentina/Buenos_Aires";
 const expenses: ExpenseListItem[] = [
   {
     id: "10",
-    createdAt: "2026-03-05T15:00:00Z",
+    transactionDate: "2026-03-05",
     amount: "1234.5",
     category: "Alquiler",
     paymentMethod: "Transferencia",
   },
-  { id: "11", createdAt: "2026-03-09T15:00:00Z", amount: "80", category: "Limpieza", paymentMethod: null },
+  { id: "11", transactionDate: "2026-03-09", amount: "80", category: "Limpieza", paymentMethod: null },
 ];
 
 describe("ExpensesListView", () => {
@@ -65,9 +65,9 @@ describe("ExpensesListView", () => {
     expect(listExpenses).toHaveBeenLastCalledWith(addMonths(currentMonth, -1));
 
     await user.click(screen.getByRole("button", { name: "Mes siguiente" }));
-    await user.click(screen.getByRole("button", { name: "Mes siguiente" }));
 
-    expect(listExpenses).toHaveBeenLastCalledWith(addMonths(currentMonth, 1));
+    expect(listExpenses).toHaveBeenLastCalledWith(currentMonth);
+    expect((screen.getByRole("button", { name: "Mes siguiente" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("loads the expenses of the month picked in the month picker", async () => {

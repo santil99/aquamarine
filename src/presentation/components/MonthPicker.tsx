@@ -8,13 +8,15 @@ const MONTH_NUMBERS = Array.from({ length: 12 }, (_, index) => index + 1);
 
 interface MonthPickerProps {
   readonly selectedMonth: string;
+  readonly maxMonth: string;
   readonly locale: string;
   readonly onSelect: (monthStart: string) => void;
 }
 
-export function MonthPicker({ selectedMonth, locale, onSelect }: MonthPickerProps) {
+export function MonthPicker({ selectedMonth, maxMonth, locale, onSelect }: MonthPickerProps) {
   const texts = useTexts().common.monthNavigator;
   const [year, setYear] = useState(() => Number(selectedMonth.slice(0, 4)));
+  const maxYear = Number(maxMonth.slice(0, 4));
 
   return (
     <div role="group" aria-label={texts.pickMonth} className="flex flex-col gap-3 p-2">
@@ -32,6 +34,7 @@ export function MonthPicker({ selectedMonth, locale, onSelect }: MonthPickerProp
           isIconOnly
           variant="ghost"
           aria-label={texts.nextYear}
+          isDisabled={year >= maxYear}
           onPress={() => setYear((current) => current + 1)}
         >
           <ChevronRight size={20} />
@@ -47,6 +50,7 @@ export function MonthPicker({ selectedMonth, locale, onSelect }: MonthPickerProp
               key={monthStart}
               variant={isSelected ? "primary" : "ghost"}
               aria-current={isSelected ? "date" : undefined}
+              isDisabled={monthStart > maxMonth}
               onPress={() => onSelect(monthStart)}
             >
               {formatMonthName(monthStart, locale)}

@@ -5,7 +5,7 @@ import { getMonthStart, getTodayInTimeZone } from "@/domain/business/businessDay
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
-import { formatShortDate } from "@/presentation/formatters/shortDate";
+import { formatTransactionDayMonth } from "@/presentation/formatters/transactionDate";
 import { createMonthMode } from "@/presentation/components/monthMode";
 import { useTexts } from "@/presentation/texts/useTexts";
 
@@ -25,7 +25,11 @@ export function ExpensesListView({ listExpenses, timeZone, onOpenExpense }: Expe
     getMonthStart(getTodayInTimeZone(timeZone)),
   );
   const { common } = useTexts();
-  const monthMode = createMonthMode({ locale: common.locale, texts: common.monthNavigator });
+  const monthMode = createMonthMode({
+    locale: common.locale,
+    today: getTodayInTimeZone(timeZone),
+    texts: common.monthNavigator,
+  });
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
 
@@ -58,19 +62,17 @@ export function ExpensesListView({ listExpenses, timeZone, onOpenExpense }: Expe
   return (
     <section className="flex w-full max-w-none flex-col gap-4">
       <DateNavigator mode={monthMode} date={selectedMonth} onDateChange={changeMonth} />
-      <ExpensesListContent state={state} timeZone={timeZone} onRetry={retry} onOpenExpense={onOpenExpense} />
+      <ExpensesListContent state={state} onRetry={retry} onOpenExpense={onOpenExpense} />
     </section>
   );
 }
 
 function ExpensesListContent({
   state,
-  timeZone,
   onRetry,
   onOpenExpense,
 }: {
   readonly state: LoadState;
-  readonly timeZone: string;
   readonly onRetry: () => void;
   readonly onOpenExpense: (expenseId: string) => void;
 }) {
@@ -119,7 +121,7 @@ function ExpensesListContent({
             {(expense) => (
               <Table.Row id={expense.id}>
                 <Table.Cell className="whitespace-nowrap">
-                  {formatShortDate(expense.createdAt, timeZone)}
+                  {formatTransactionDayMonth(expense.transactionDate, locale)}
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap text-right">
                   {formatAmount(expense.amount, locale)}

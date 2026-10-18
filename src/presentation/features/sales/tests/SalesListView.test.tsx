@@ -93,6 +93,14 @@ describe("SalesListView", () => {
     expect(listSales).toHaveBeenCalledWith(getTodayInTimeZone(TIME_ZONE));
   });
 
+  it("does not allow navigating to future days", async () => {
+    render(<SalesListView listSales={() => Promise.resolve(sales)} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />);
+    await screen.findByText("Hoy");
+
+    const nextButton = screen.getByRole("button", { name: "Día siguiente" }) as HTMLButtonElement;
+    expect(nextButton.disabled).toBe(true);
+  });
+
   it("moves one day back and forth with the arrow buttons", async () => {
     const today = getTodayInTimeZone(TIME_ZONE);
     const listSales = vi.fn(() => Promise.resolve(sales));
@@ -106,11 +114,14 @@ describe("SalesListView", () => {
     expect(await screen.findByText("Ayer")).toBeTruthy();
     expect(listSales).toHaveBeenLastCalledWith(addDays(today, -1));
 
-    await user.click(screen.getByRole("button", { name: "Día siguiente" }));
+    await user.click(screen.getByRole("button", { name: "Día anterior" }));
+
+    await waitFor(() => expect(listSales).toHaveBeenLastCalledWith(addDays(today, -2)));
+
     await user.click(screen.getByRole("button", { name: "Día siguiente" }));
 
-    expect(listSales).toHaveBeenLastCalledWith(addDays(today, 1));
-    expect(screen.queryByText("Hoy")).toBeNull();
+    expect(listSales).toHaveBeenLastCalledWith(addDays(today, -1));
+    expect(await screen.findByText("Ayer")).toBeTruthy();
   });
 
   it("loads the sales of the day picked in the calendar", async () => {

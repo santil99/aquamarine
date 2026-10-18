@@ -16,6 +16,7 @@ export type SearchCatalogs = SalesCatalogs & {
 };
 
 type ResultState =
+  | { status: "idle" }
   | { status: "loading" }
   | { status: "error" }
   | { status: "success"; items: SaleSearchItem[] };
@@ -43,12 +44,14 @@ export function SearchView({
   const [today] = useState(() => getTodayInTimeZone(timeZone));
   const [type, setType] = useState<SearchType>("sales");
   const [draft, setDraft] = useState<SaleSearchFilters>(() => getDefaultSaleSearchFilters(today));
-  const [applied, setApplied] = useState<SaleSearchFilters>(draft);
-  const [results, setResults] = useState<ResultState>({ status: "loading" });
+  const [applied, setApplied] = useState<SaleSearchFilters | null>(null);
+  const [results, setResults] = useState<ResultState>({ status: "idle" });
   const [attempt, setAttempt] = useState(0);
   const { state: catalogState } = useSaleCatalogs(loadCatalogs);
 
   useEffect(() => {
+    if (!applied) return;
+
     let isCurrent = true;
 
     const request =
@@ -75,8 +78,8 @@ export function SearchView({
   const changeType = (nextType: SearchType) => {
     setType(nextType);
     setDraft(clearTypeSpecificFilters);
-    setApplied(clearTypeSpecificFilters);
-    setResults({ status: "loading" });
+    setApplied(null);
+    setResults({ status: "idle" });
   };
 
   const changeField = <Field extends keyof SaleSearchFilters>(
@@ -119,7 +122,6 @@ export function SearchView({
       <SearchResults
         type={type}
         state={results}
-        timeZone={timeZone}
         onRetry={retry}
         onOpen={isSales ? onOpenSale : onOpenExpense}
       />
@@ -145,17 +147,19 @@ function toExpenseSearchFilters(filters: SaleSearchFilters): ExpenseSearchFilter
 function SearchResults({
   type,
   state,
-  timeZone,
   onRetry,
   onOpen,
 }: {
   readonly type: SearchType;
   readonly state: ResultState;
-  readonly timeZone: string;
   readonly onRetry: () => void;
   readonly onOpen: (id: string) => void;
 }) {
   const { common, search: texts } = useTexts();
+
+  if (state.status === "idle") {
+    return null;
+  }
 
   if (state.status === "loading") {
     return (
@@ -187,7 +191,7 @@ function SearchResults({
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {state.items.map((item) => (
             <li key={item.id}>
-              <TransactionCard item={item} timeZone={timeZone} onOpen={onOpen} />
+              <TransactionCard item={item} onOpen={onOpen} />
             </li>
           ))}
         </ul>

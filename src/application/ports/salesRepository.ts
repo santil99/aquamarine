@@ -17,6 +17,7 @@ export interface NewSaleRecord {
   categoryId: string;
   paymentMethodId: string | null;
   detail: string | null;
+  transactionDate: string;
 }
 
 export interface SaleChanges {

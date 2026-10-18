@@ -2,16 +2,15 @@ import { Button, Card } from "@heroui/react";
 import { Eye } from "lucide-react";
 import type { SaleSearchItem } from "@/domain/sales/saleSearch";
 import { formatArsAmount } from "@/presentation/formatters/amount";
-import { formatShortDate } from "@/presentation/formatters/shortDate";
+import { formatTransactionDate } from "@/presentation/formatters/transactionDate";
 import { useTexts } from "@/presentation/texts/useTexts";
 
 interface TransactionCardProps {
   readonly item: SaleSearchItem;
-  readonly timeZone: string;
   readonly onOpen: (saleId: string) => void;
 }
 
-export function TransactionCard({ item, timeZone, onOpen }: TransactionCardProps) {
+export function TransactionCard({ item, onOpen }: TransactionCardProps) {
   const { common, search: texts } = useTexts();
 
   return (
@@ -24,7 +23,7 @@ export function TransactionCard({ item, timeZone, onOpen }: TransactionCardProps
             {item.detail ?? texts.noDetail}
           </p>
           <div className="flex gap-2 text-xs text-default-400 mt-1">
-            <span>{formatShortDate(item.createdAt, timeZone)}</span>
+            <span>{formatTransactionDate(item.transactionDate, common.locale)}</span>
             <span>•</span>
             <span>{item.paymentMethod ?? texts.noPaymentMethod}</span>
           </div>

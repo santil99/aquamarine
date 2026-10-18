@@ -1,5 +1,5 @@
 import type { SalesRepository } from "@/application/ports/salesRepository";
-import { addMonths, getDayRangeInTimeZone } from "@/domain/business/businessDay";
+import { addMonths } from "@/domain/business/businessDay";
 import type { SaleCatalogOption } from "@/domain/sales/newSale";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
@@ -14,7 +14,7 @@ interface SaleCategoryAmountRow {
 
 interface SaleDailyAmountRow {
   amount: string;
-  created_at: string;
+  sale_date: string;
 }
 
 interface SaleRow {
@@ -27,7 +27,7 @@ interface SaleRow {
 interface SaleSearchRow {
   id: string;
   amount: string;
-  created_at: string;
+  sale_date: string;
   detail: string | null;
   category: { name: string } | null;
   payment_method: { name: string } | null;
@@ -41,7 +41,7 @@ interface SaleCatalogRow {
 interface SaleDetailRow {
   id: string;
   amount: string;
-  created_at: string;
+  sale_date: string;
   detail: string | null;
   category_id: string | number;
   payment_method_id: string | number | null;
@@ -50,15 +50,13 @@ interface SaleDetailRow {
 }
 
 export const supabaseSalesRepository: SalesRepository = {
-  async listAmountsForMonth(business, monthStart) {
-    const { from, to } = getMonthRange(monthStart, business.timeZone);
-
+  async listAmountsForMonth(_business, monthStart) {
     // Amount is cast to text so the decimal value is not parsed as a JS number.
     const { data, error } = await supabase
       .from("sales")
       .select("amount::text, category:categories(name)")
-      .gte("created_at", from)
-      .lt("created_at", to)
+      .gte("sale_date", monthStart)
+      .lt("sale_date", addMonths(monthStart, 1))
       .returns<SaleCategoryAmountRow[]>();
 
     if (error) {
@@ -68,35 +66,30 @@ export const supabaseSalesRepository: SalesRepository = {
     return data.map((row) => ({ category: row.category?.name ?? "", amount: row.amount }));
   },
 
-  async listDailyAmountsForMonth(business, monthStart) {
-    const { from, to } = getMonthRange(monthStart, business.timeZone);
-
+  async listDailyAmountsForMonth(_business, monthStart) {
     // Amount is cast to text so the decimal value is not parsed as a JS number.
     const { data, error } = await supabase
       .from("sales")
-      .select("amount::text, created_at")
-      .gte("created_at", from)
-      .lt("created_at", to)
+      .select("amount::text, sale_date")
+      .gte("sale_date", monthStart)
+      .lt("sale_date", addMonths(monthStart, 1))
       .returns<SaleDailyAmountRow[]>();
 
     if (error) {
       throw error;
     }
 
-    return data.map((row) => ({ createdAt: row.created_at, amount: row.amount }));
+    return data.map((row) => ({ transactionDate: row.sale_date, amount: row.amount }));
   },
 
-  async search(business, filters) {
-    const from = getDayRangeInTimeZone(filters.dateFrom, business.timeZone).start;
-    const to = getDayRangeInTimeZone(filters.dateTo, business.timeZone).end;
-
+  async search(_business, filters) {
     let query = supabase
       .from("sales")
       .select(
-        "id, amount::text, created_at, detail, category:categories(name), payment_method:payment_methods(name)",
+        "id, amount::text, sale_date, detail, category:categories(name), payment_method:payment_methods(name)",
       )
-      .gte("created_at", from.toISOString())
-      .lt("created_at", to.toISOString());
+      .gte("sale_date", filters.dateFrom)
+      .lte("sale_date", filters.dateTo);
 
     if (filters.minAmount) query = query.gte("amount", filters.minAmount);
     if (filters.maxAmount) query = query.lte("amount", filters.maxAmount);
@@ -105,6 +98,7 @@ export const supabaseSalesRepository: SalesRepository = {
     if (filters.paymentMethodId) query = query.eq("payment_method_id", filters.paymentMethodId);
 
     const { data, error } = await query
+      .order("sale_date", { ascending: false })
       .order("created_at", { ascending: false })
       .returns<SaleSearchRow[]>();
 
@@ -137,6 +131,7 @@ export const supabaseSalesRepository: SalesRepository = {
       category_id: record.categoryId,
       payment_method_id: record.paymentMethodId,
       detail: record.detail,
+      sale_date: record.transactionDate,
     });
 
     if (error) {
@@ -144,17 +139,14 @@ export const supabaseSalesRepository: SalesRepository = {
     }
   },
 
-  async listForDate(business, selectedDate) {
-    const { start, end } = getDayRangeInTimeZone(selectedDate, business.timeZone);
-
+  async listForDate(_business, selectedDate) {
     // Amount is cast to text so the decimal value is not parsed as a JS number.
     const { data, error } = await supabase
       .from("sales")
       .select(
         "id, amount::text, category:categories(name), payment_method:payment_methods(name)",
       )
-      .gte("created_at", start.toISOString())
-      .lt("created_at", end.toISOString())
+      .eq("sale_date", selectedDate)
       .order("created_at", { ascending: true })
       .returns<SaleRow[]>();
 
@@ -170,7 +162,7 @@ export const supabaseSalesRepository: SalesRepository = {
     const { data, error } = await supabase
       .from("sales")
       .select(
-        "id, amount::text, created_at, detail, category_id, payment_method_id, category:categories(name), payment_method:payment_methods(name)",
+        "id, amount::text, sale_date, detail, category_id, payment_method_id, category:categories(name), payment_method:payment_methods(name)",
       )
       .eq("id", id)
       .maybeSingle<SaleDetailRow>();
@@ -207,13 +199,6 @@ export const supabaseSalesRepository: SalesRepository = {
   },
 };
 
-function getMonthRange(monthStart: string, timeZone: string) {
-  return {
-    from: getDayRangeInTimeZone(monthStart, timeZone).start.toISOString(),
-    to: getDayRangeInTimeZone(addMonths(monthStart, 1), timeZone).start.toISOString(),
-  };
-}
-
 function toSaleListItem(row: SaleRow): SaleListItem {
   return {
     id: row.id,
@@ -227,7 +212,7 @@ function toSaleDetail(row: SaleDetailRow): SaleDetail {
   return {
     id: row.id,
     amount: row.amount,
-    createdAt: row.created_at,
+    transactionDate: row.sale_date,
     categoryId: String(row.category_id),
     paymentMethodId: row.payment_method_id === null ? null : String(row.payment_method_id),
     detail: row.detail,
@@ -240,7 +225,7 @@ function toSaleSearchItem(row: SaleSearchRow): SaleSearchItem {
   return {
     id: row.id,
     amount: row.amount,
-    createdAt: row.created_at,
+    transactionDate: row.sale_date,
     category: row.category?.name ?? "",
     paymentMethod: row.payment_method?.name ?? null,
     detail: row.detail,

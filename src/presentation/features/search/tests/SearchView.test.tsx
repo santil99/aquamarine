@@ -20,7 +20,7 @@ const results: SaleSearchItem[] = [
     amount: "1234.5",
     category: "Bebidas",
     paymentMethod: "Efectivo",
-    createdAt: "2024-05-10T15:00:00Z",
+    transactionDate: "2024-05-10",
     detail: "Gaseosas",
   },
   {
@@ -28,7 +28,7 @@ const results: SaleSearchItem[] = [
     amount: "100",
     category: "Comida",
     paymentMethod: null,
-    createdAt: "2024-05-11T15:00:00Z",
+    transactionDate: "2024-05-11",
     detail: null,
   },
 ];
@@ -39,7 +39,7 @@ const expenseResults: ExpenseSearchItem[] = [
     amount: "500.25",
     category: "Servicios",
     paymentMethod: null,
-    createdAt: "2024-05-12T15:00:00Z",
+    transactionDate: "2024-05-12",
     detail: "Luz",
   },
 ];
@@ -84,15 +84,21 @@ describe("SearchView", () => {
 
   afterEach(cleanup);
 
-  it("searches sales from the first day of the month to today on load", async () => {
+  it("does not search on load and searches the default range when Buscar is pressed", async () => {
+    const user = userEvent.setup();
     const searchSales = vi.fn(() => Promise.resolve(results));
     renderSearch(searchSales);
+
+    expect(searchSales).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Buscar" }));
 
     expect(await screen.findByText("Ventas encontradas (2)")).toBeTruthy();
     expect(screen.getByText("Gaseosas")).toBeTruthy();
     expect(screen.getByText("Sin descripción")).toBeTruthy();
 
     const today = getTodayInTimeZone(TIME_ZONE);
+    expect(searchSales).toHaveBeenCalledTimes(1);
     expect(searchSales).toHaveBeenCalledWith(
       expect.objectContaining({ dateFrom: `${today.slice(0, 8)}01`, dateTo: today }),
     );
@@ -102,7 +108,6 @@ describe("SearchView", () => {
     const user = userEvent.setup();
     const searchSales = vi.fn(() => Promise.resolve(results));
     renderSearch(searchSales);
-    await screen.findByText("Ventas encontradas (2)");
 
     await user.type(screen.getByLabelText("Monto mínimo"), "100");
     await user.click(screen.getByRole("button", { name: "Buscar" }));
@@ -116,24 +121,25 @@ describe("SearchView", () => {
     const user = userEvent.setup();
     const searchSales = vi.fn(() => Promise.resolve(results));
     renderSearch(searchSales);
-    await screen.findByText("Ventas encontradas (2)");
 
     await user.type(screen.getByLabelText("Descripción"), "agua");
     await user.click(screen.getByRole("button", { name: "Limpiar" }));
 
     expect(screen.getByLabelText("Descripción")).toHaveProperty("value", "");
-    expect(searchSales).toHaveBeenCalledTimes(1);
+    expect(searchSales).not.toHaveBeenCalled();
   });
 
-  it("searches expenses with the expense categories when the Gastos tab is selected", async () => {
+  it("searches expenses with the expense categories when the Gastos tab is searched", async () => {
     const user = userEvent.setup();
     const searchExpenses = vi.fn<(filters: ExpenseSearchFilters) => Promise<ExpenseSearchItem[]>>(
       () => Promise.resolve(expenseResults),
     );
     renderSearch(vi.fn(() => Promise.resolve(results)), searchExpenses);
-    await screen.findByText("Ventas encontradas (2)");
 
     await user.click(screen.getByRole("tab", { name: "Gastos" }));
+    expect(searchExpenses).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Buscar" }));
 
     expect(await screen.findByText("Gastos encontrados (1)")).toBeTruthy();
     expect(screen.getByText("Luz")).toBeTruthy();
@@ -147,7 +153,6 @@ describe("SearchView", () => {
   it("offers expense categories in the category filter for expenses", async () => {
     const user = userEvent.setup();
     renderSearch(vi.fn(() => Promise.resolve(results)));
-    await screen.findByText("Ventas encontradas (2)");
 
     await user.click(screen.getByRole("tab", { name: "Gastos" }));
     await user.click(screen.getByRole("button", { name: /Todas las categorías/ }));
@@ -164,6 +169,7 @@ describe("SearchView", () => {
       .mockResolvedValueOnce(results);
     renderSearch(searchSales);
 
+    await user.click(screen.getByRole("button", { name: "Buscar" }));
     expect(await screen.findByRole("alert")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "Reintentar" }));
 

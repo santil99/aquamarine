@@ -59,13 +59,13 @@ export function SearchFilterFields({
         </Tabs.ListContainer>
       </Tabs>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-4 gap-4">
         <TextField
           name="dateFrom"
           type="date"
           value={filters.dateFrom}
           onChange={(value) => onChange("dateFrom", value)}
-          className="w-full"
+          className="col-span-2 w-full"
         >
           <Label>{texts.dateFromLabel}</Label>
           <Input />
@@ -76,7 +76,7 @@ export function SearchFilterFields({
           type="date"
           value={filters.dateTo}
           onChange={(value) => onChange("dateTo", value)}
-          className="w-full"
+          className="col-span-2 w-full"
         >
           <Label>{texts.dateToLabel}</Label>
           <Input />
@@ -88,7 +88,7 @@ export function SearchFilterFields({
               name="minAmount"
               value={filters.minAmount ?? ""}
               onChange={(value) => onChange("minAmount", value || null)}
-              className="w-full"
+              className="col-span-2 w-full"
             >
               <Label>{texts.minAmountLabel}</Label>
               <Input inputMode="decimal" />
@@ -98,7 +98,7 @@ export function SearchFilterFields({
               name="maxAmount"
               value={filters.maxAmount ?? ""}
               onChange={(value) => onChange("maxAmount", value || null)}
-              className="w-full"
+              className="col-span-2 w-full"
             >
               <Label>{texts.maxAmountLabel}</Label>
               <Input inputMode="decimal" />
@@ -110,7 +110,7 @@ export function SearchFilterFields({
           name="detail"
           value={filters.detail ?? ""}
           onChange={(value) => onChange("detail", value || null)}
-          className="w-full sm:col-span-2"
+          className="col-span-4 w-full"
         >
           <Label>{texts.detailLabel}</Label>
           <Input />
@@ -121,7 +121,7 @@ export function SearchFilterFields({
           value={filters.categoryId ?? ALL_OPTIONS}
           onChange={(key) => onChange("categoryId", key && key !== ALL_OPTIONS ? String(key) : null)}
           isDisabled={isLoadingCatalogs}
-          className="w-full"
+          className="col-span-4 w-full"
         >
           <Label>{texts.categoryLabel}</Label>
           <Select.Trigger>
@@ -151,7 +151,7 @@ export function SearchFilterFields({
               onChange("paymentMethodId", key && key !== ALL_OPTIONS ? String(key) : null)
             }
             isDisabled={isLoadingCatalogs}
-            className="w-full"
+            className="col-span-4 w-full"
           >
             <Label>{texts.paymentMethodLabel}</Label>
             <Select.Trigger>

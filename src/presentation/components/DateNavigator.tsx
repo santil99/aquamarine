@@ -17,6 +17,9 @@ export function DateNavigator({ mode, date, onDateChange }: DateNavigatorProps) 
     setIsPickerOpen(false);
   };
 
+  // ISO dates (YYYY-MM-DD) compare correctly as strings.
+  const isNextDisabled = mode.shift(date, 1) > mode.maxDate;
+
   return (
     <div className="flex items-center justify-between gap-2">
       <Button
@@ -43,6 +46,7 @@ export function DateNavigator({ mode, date, onDateChange }: DateNavigatorProps) 
         isIconOnly
         variant="ghost"
         aria-label={mode.nextLabel}
+        isDisabled={isNextDisabled}
         onPress={() => onDateChange(mode.shift(date, 1))}
       >
         <ChevronRight size={20} />
