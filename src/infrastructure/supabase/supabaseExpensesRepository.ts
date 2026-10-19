@@ -1,4 +1,5 @@
 import type { ExpensesRepository } from "@/application/ports/expensesRepository";
+import { NotFoundError } from "@/application/errors";
 import { addMonths } from "@/domain/business/businessDay";
 import type { ExpenseCatalogOption, ExpenseDetail } from "@/domain/expenses/expenseForm";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
@@ -176,7 +177,9 @@ export const supabaseExpensesRepository: ExpensesRepository = {
       throw error;
     }
 
-    return data.length > 0;
+    if (data.length === 0) {
+      throw new NotFoundError("Expense not found");
+    }
   },
 
   async delete(id) {
@@ -186,7 +189,9 @@ export const supabaseExpensesRepository: ExpensesRepository = {
       throw error;
     }
 
-    return data.length > 0;
+    if (data.length === 0) {
+      throw new NotFoundError("Expense not found");
+    }
   },
 };
 

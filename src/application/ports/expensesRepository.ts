@@ -33,6 +33,6 @@ export interface ExpensesRepository {
   listPaymentMethods(): Promise<ExpenseCatalogOption[]>;
   create(record: NewExpenseRecord): Promise<void>;
   getById(id: string): Promise<ExpenseDetail | null>;
-  update(id: string, expense: ExpenseInput): Promise<boolean>;
-  delete(id: string): Promise<boolean>;
+  update(id: string, expense: ExpenseInput): Promise<void>;
+  delete(id: string): Promise<void>;
 }

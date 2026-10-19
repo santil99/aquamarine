@@ -1,35 +1,37 @@
 import { useState } from "react";
 import {
-  validateNewSale,
-  type NewSaleField,
-  type NewSaleInput,
-  type NewSaleValidationErrors,
-} from "@/domain/sales/newSale";
-import { toNewSaleInput, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
+  validateTransactionInput,
+  type TransactionField,
+  type TransactionInput,
+  type TransactionValidationErrors,
+} from "@/domain/shared/transactionInput";
+import { toTransactionInput, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 
-type TouchedFields = Partial<Record<NewSaleField, boolean>>;
+type TouchedFields = Partial<Record<TransactionField, boolean>>;
+
+const VALIDATED_FIELDS: readonly TransactionField[] = ["amount", "categoryId", "detail"];
 
 export function useSaleForm(initialValues: SaleFormValues) {
   const [values, setValues] = useState(initialValues);
   const [touched, setTouched] = useState<TouchedFields>({});
 
-  const input: NewSaleInput = toNewSaleInput(values);
-  const errors = visibleErrors(validateNewSale(input), touched);
+  const input: TransactionInput = toTransactionInput(values);
+  const errors = visibleErrors(validateTransactionInput(input), touched);
 
   function handleChange<Field extends keyof SaleFormValues>(
     field: Field,
     value: SaleFormValues[Field],
   ) {
     setValues((current) => ({ ...current, [field]: value }));
-    if (isNewSaleField(field)) {
+    if (isValidatedField(field)) {
       setTouched((current) => ({ ...current, [field]: true }));
     }
   }
 
   /** Shows every field error and returns whether the form is valid. */
   function validateAll(): boolean {
-    setTouched({ amount: true, categoryId: true, detail: true });
-    return Object.keys(validateNewSale(input)).length === 0;
+    setTouched(Object.fromEntries(VALIDATED_FIELDS.map((field) => [field, true])));
+    return Object.keys(validateTransactionInput(input)).length === 0;
   }
 
   function reset() {
@@ -40,15 +42,15 @@ export function useSaleForm(initialValues: SaleFormValues) {
   return { values, input, errors, handleChange, validateAll, reset };
 }
 
-function isNewSaleField(field: keyof SaleFormValues): field is NewSaleField {
-  return field === "amount" || field === "categoryId" || field === "detail";
+function isValidatedField(field: keyof SaleFormValues): field is TransactionField {
+  return VALIDATED_FIELDS.some((validated) => validated === field);
 }
 
 function visibleErrors(
-  errors: NewSaleValidationErrors,
+  errors: TransactionValidationErrors,
   touched: TouchedFields,
-): NewSaleValidationErrors {
+): TransactionValidationErrors {
   return Object.fromEntries(
-    Object.entries(errors).filter(([field]) => touched[field as NewSaleField]),
-  ) as NewSaleValidationErrors;
+    Object.entries(errors).filter(([field]) => touched[field as TransactionField]),
+  ) as TransactionValidationErrors;
 }

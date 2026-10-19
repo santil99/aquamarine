@@ -1,3 +1,5 @@
+import type { TransactionInput } from "@/domain/shared/transactionInput";
+
 export interface ExpenseCatalogOption {
   id: string;
   name: string;
@@ -8,12 +10,7 @@ export interface ExpenseCatalogs {
   paymentMethods: ExpenseCatalogOption[];
 }
 
-export interface ExpenseInput {
-  amount: string;
-  categoryId: string;
-  paymentMethodId: string | null;
-  detail: string | null;
-}
+export type ExpenseInput = TransactionInput;
 
 export interface ExpenseDetail extends ExpenseInput {
   id: string;

@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import { NewSaleView } from "@/presentation/features/sales/views/NewSaleView";
 
@@ -69,7 +69,7 @@ describe("NewSaleView", () => {
 
   it("registers a valid sale, shows feedback and clears the form", async () => {
     const interaction = userEvent.setup();
-    const registerSale = vi.fn<(input: NewSaleInput, transactionDate: string, newImages: Blob[]) => Promise<void>>(() => Promise.resolve());
+    const registerSale = vi.fn<(input: TransactionInput, transactionDate: string, newImages: Blob[]) => Promise<void>>(() => Promise.resolve());
     render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} timeZone={TIME_ZONE} />);
 
     const amount = (await screen.findByRole("textbox", { name: "Monto" })) as HTMLInputElement;

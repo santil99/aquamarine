@@ -1,4 +1,4 @@
-import { compareSaleAmounts, sumSaleAmounts } from "@/domain/sales/saleTotal";
+import { compareAmounts, sumAmounts } from "@/domain/shared/amount";
 
 export interface DailySaleAmount {
   transactionDate: string;
@@ -31,9 +31,9 @@ export function buildDailySalesSeries(
     .map((date, index) => ({
       day: index + 1,
       date,
-      total: sumSaleAmounts(amountsByDate.get(date) ?? []),
+      total: sumAmounts(amountsByDate.get(date) ?? []),
     }))
-    .filter((point) => compareSaleAmounts(point.total, "0") > 0);
+    .filter((point) => compareAmounts(point.total, "0") > 0);
 }
 
 function listDatesUntil(monthStart: string, today: string): string[] {

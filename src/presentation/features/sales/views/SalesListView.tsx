@@ -3,7 +3,7 @@ import { Button, Spinner, Table } from "@heroui/react";
 import { Eye } from "lucide-react";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
-import { sumSaleAmounts } from "@/domain/sales/saleTotal";
+import { sumAmounts } from "@/domain/shared/amount";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatAmount } from "@/presentation/formatters/amount";
 import { createDayMode } from "@/presentation/features/sales/navigation/dayMode";
@@ -159,7 +159,7 @@ function SalesListContent({
       </Table.Root>
       <div className="flex justify-between gap-2 border-t pt-3 font-semibold">
         <span>{texts.dailyTotal}</span>
-        <span>{formatAmount(sumSaleAmounts(state.sales.map((sale) => sale.amount)), locale)}</span>
+        <span>{formatAmount(sumAmounts(state.sales.map((sale) => sale.amount)), locale)}</span>
       </div>
     </>
   );

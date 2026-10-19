@@ -1,4 +1,4 @@
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
 
 export const NO_PAYMENT_METHOD = "none";
 
@@ -9,7 +9,7 @@ export interface SaleFormValues {
   detail: string;
 }
 
-export function toNewSaleInput(values: SaleFormValues): NewSaleInput {
+export function toTransactionInput(values: SaleFormValues): TransactionInput {
   return {
     amount: values.amount,
     categoryId: values.categoryId ?? "",

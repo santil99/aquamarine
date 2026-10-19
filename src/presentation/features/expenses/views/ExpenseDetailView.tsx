@@ -1,26 +1,22 @@
-import { useEffect, useState, type SyntheticEvent } from "react";
-import { AlertDialog, Button, Form, Spinner } from "@heroui/react";
+import { useState, type SyntheticEvent } from "react";
+import { AlertDialog, Button, Form } from "@heroui/react";
 import { CalendarDays } from "lucide-react";
 import type { ExpenseCatalogs, ExpenseDetail } from "@/domain/expenses/expenseForm";
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
+import { DetailStatus } from "@/presentation/features/shared/DetailStatus";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import { formatTransactionDate } from "@/presentation/formatters/transactionDate";
+import { useDetailLoader } from "@/presentation/features/shared/useDetailLoader";
 import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
 import { useTexts } from "@/presentation/texts/useTexts";
-
-type ExpenseState =
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "notFound" }
-  | { status: "success"; expense: ExpenseDetail };
 
 interface ExpenseDetailViewProps {
   readonly expenseId: string;
   readonly loadExpense: (id: string) => Promise<ExpenseDetail | null>;
   readonly loadCatalogs: () => Promise<ExpenseCatalogs>;
-  readonly updateExpense: (id: string, input: NewSaleInput) => Promise<void>;
+  readonly updateExpense: (id: string, input: TransactionInput) => Promise<void>;
   readonly deleteExpense: (id: string) => Promise<void>;
   readonly onExit: () => void;
 }
@@ -33,65 +29,43 @@ export function ExpenseDetailView({
   deleteExpense,
   onExit,
 }: ExpenseDetailViewProps) {
-  const { common, expenseDetail: texts, newExpense } = useTexts();
-  const [expense, setExpense] = useState<ExpenseState>({ status: "loading" });
-  const [attempt, setAttempt] = useState(0);
+  const { expenseDetail: texts, newExpense } = useTexts();
+  const { state: expense, retry: retryExpense } = useDetailLoader(expenseId, loadExpense);
   const { state: catalogs, retry: retryCatalogs } = useSaleCatalogs(loadCatalogs);
 
-  useEffect(() => {
-    let isCurrent = true;
-
-    loadExpense(expenseId)
-      .then((loaded) => {
-        if (!isCurrent) return;
-        setExpense(loaded ? { status: "success", expense: loaded } : { status: "notFound" });
-      })
-      .catch(() => {
-        if (isCurrent) setExpense({ status: "error" });
-      });
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [loadExpense, expenseId, attempt]);
-
   if (expense.status === "loading" || catalogs.status === "loading") {
-    return (
-      <div className="flex justify-center">
-        <Spinner size="sm" aria-label={common.loading} />
-      </div>
-    );
+    return <DetailStatus kind="loading" />;
   }
 
   if (expense.status === "notFound") {
-    return <p role="alert">{texts.notFound}</p>;
+    return <DetailStatus kind="notFound" message={texts.notFound} />;
   }
 
   if (expense.status === "error") {
     return (
-      <div className="flex flex-col items-start gap-3">
-        <p role="alert" className="text-danger">{texts.loadError}</p>
-        <Button variant="outline" onPress={() => setAttempt((current) => current + 1)}>
-          {texts.retry}
-        </Button>
-      </div>
+      <DetailStatus
+        kind="error"
+        message={texts.loadError}
+        retryLabel={texts.retry}
+        onRetry={retryExpense}
+      />
     );
   }
 
   if (catalogs.status === "error") {
     return (
-      <div className="flex flex-col items-start gap-3">
-        <p role="alert" className="text-danger">{newExpense.catalogsError}</p>
-        <Button variant="outline" onPress={retryCatalogs}>
-          {newExpense.retry}
-        </Button>
-      </div>
+      <DetailStatus
+        kind="error"
+        message={newExpense.catalogsError}
+        retryLabel={newExpense.retry}
+        onRetry={retryCatalogs}
+      />
     );
   }
 
   return (
     <ExpenseDetailForm
-      expense={expense.expense}
+      expense={expense.data}
       categories={catalogs.catalogs.categories}
       paymentMethods={catalogs.catalogs.paymentMethods}
       updateExpense={updateExpense}
@@ -105,7 +79,7 @@ interface ExpenseDetailFormProps {
   readonly expense: ExpenseDetail;
   readonly categories: ExpenseCatalogs["categories"];
   readonly paymentMethods: ExpenseCatalogs["paymentMethods"];
-  readonly updateExpense: (id: string, input: NewSaleInput) => Promise<void>;
+  readonly updateExpense: (id: string, input: TransactionInput) => Promise<void>;
   readonly deleteExpense: (id: string) => Promise<void>;
   readonly onExit: () => void;
 }

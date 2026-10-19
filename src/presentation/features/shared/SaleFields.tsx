@@ -9,11 +9,11 @@ import {
   TextField,
 } from "@heroui/react";
 import type {
-  NewSaleField,
-  NewSaleFieldError,
-  NewSaleValidationErrors,
-  SaleCatalogOption,
-} from "@/domain/sales/newSale";
+  TransactionField,
+  TransactionFieldError,
+  TransactionValidationErrors,
+} from "@/domain/shared/transactionInput";
+import type { SaleCatalogOption } from "@/domain/sales/saleCatalog";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import type { Texts } from "@/presentation/texts/types";
 
@@ -24,7 +24,7 @@ interface SaleFieldsProps {
   readonly paymentMethods: SaleCatalogOption[];
   readonly isLoadingCatalogs: boolean;
   /** Only the errors that should be shown; the parent decides visibility. */
-  readonly errors: NewSaleValidationErrors;
+  readonly errors: TransactionValidationErrors;
   readonly onChange: <Field extends keyof SaleFormValues>(
     field: Field,
     value: SaleFormValues[Field],
@@ -40,12 +40,12 @@ export function SaleFields({
   errors,
   onChange,
 }: SaleFieldsProps) {
-  const errorMessages: Record<NewSaleField, Partial<Record<NewSaleFieldError, string>>> = {
+  const errorMessages: Record<TransactionField, Partial<Record<TransactionFieldError, string>>> = {
     amount: { required: texts.amountRequired, invalid: texts.amountInvalid },
     categoryId: { required: texts.categoryRequired },
     detail: { tooLong: texts.detailTooLong },
   };
-  const fieldMessage = (field: NewSaleField): string | undefined => {
+  const fieldMessage = (field: TransactionField): string | undefined => {
     const code = errors[field];
     return code ? errorMessages[field][code] : undefined;
   };

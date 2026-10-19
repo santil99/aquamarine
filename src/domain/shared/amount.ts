@@ -1,14 +1,16 @@
 const CENTS_PER_UNIT = 100n;
 
-/**
- * Sums decimal amount strings (up to 2 decimals) exactly, using integer cents.
- */
-export function sumSaleAmounts(amounts: string[]): string {
+export function normalizeAmount(amount: string): string {
+  return amount.trim().replace(",", ".");
+}
+
+/** Sums decimal amount strings (up to 2 decimals) exactly, using integer cents. */
+export function sumAmounts(amounts: string[]): string {
   return formatCents(amounts.reduce((sum, amount) => sum + toCents(amount), 0n));
 }
 
 /** Average rounded half-up to cents. Returns "0.00" for an empty list. */
-export function averageSaleAmounts(amounts: string[]): string {
+export function averageAmounts(amounts: string[]): string {
   if (amounts.length === 0) return formatCents(0n);
 
   const count = BigInt(amounts.length);
@@ -16,11 +18,11 @@ export function averageSaleAmounts(amounts: string[]): string {
   return formatCents((totalCents * 2n + count) / (count * 2n));
 }
 
-export function subtractSaleAmounts(minuend: string, subtrahend: string): string {
+export function subtractAmounts(minuend: string, subtrahend: string): string {
   return formatCents(toCents(minuend) - toCents(subtrahend));
 }
 
-export function compareSaleAmounts(left: string, right: string): number {
+export function compareAmounts(left: string, right: string): number {
   const difference = toCents(left) - toCents(right);
 
   if (difference > 0n) return 1;

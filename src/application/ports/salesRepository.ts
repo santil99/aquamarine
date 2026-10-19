@@ -1,7 +1,7 @@
 import type { BusinessContext } from "@/domain/business/businessContext";
 import type { CategoryAmount } from "@/domain/business/categoryTotal";
 import type { DailySaleAmount } from "@/domain/business/dailySales";
-import type { SaleCatalogOption } from "@/domain/sales/newSale";
+import type { SaleCatalogOption } from "@/domain/sales/saleCatalog";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";

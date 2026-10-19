@@ -2,7 +2,7 @@ import { useState, type SyntheticEvent } from "react";
 import { Button, Form, ToastProvider, ToastQueue } from "@heroui/react";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import { SaleImagesField } from "@/presentation/features/sales/SaleImagesField";
@@ -22,7 +22,7 @@ const EMPTY_FORM: SaleFormValues = {
 interface NewSaleViewProps {
   readonly timeZone: string;
   readonly loadCatalogs: () => Promise<SalesCatalogs>;
-  readonly registerSale: (input: NewSaleInput, transactionDate: string, newImages: Blob[]) => Promise<void>;
+  readonly registerSale: (input: TransactionInput, transactionDate: string, newImages: Blob[]) => Promise<void>;
 }
 
 export function NewSaleView({ timeZone, loadCatalogs, registerSale }: NewSaleViewProps) {

@@ -2,7 +2,7 @@ import { useState, type SyntheticEvent } from "react";
 import { Button, Form, ToastProvider, ToastQueue } from "@heroui/react";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { ExpenseCatalogs } from "@/domain/expenses/expenseForm";
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import { TransactionDateField } from "@/presentation/features/shared/TransactionDateField";
@@ -20,7 +20,7 @@ const EMPTY_FORM: SaleFormValues = {
 interface NewExpenseViewProps {
   readonly timeZone: string;
   readonly loadCatalogs: () => Promise<ExpenseCatalogs>;
-  readonly registerExpense: (input: NewSaleInput, transactionDate: string) => Promise<void>;
+  readonly registerExpense: (input: TransactionInput, transactionDate: string) => Promise<void>;
 }
 
 export function NewExpenseView({ timeZone, loadCatalogs, registerExpense }: NewExpenseViewProps) {

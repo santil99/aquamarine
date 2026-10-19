@@ -1,6 +1,6 @@
 import type { SalesRepository } from "@/application/ports/salesRepository";
 import { addMonths } from "@/domain/business/businessDay";
-import type { SaleCatalogOption } from "@/domain/sales/newSale";
+import type { SaleCatalogOption } from "@/domain/sales/saleCatalog";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SaleSearchItem } from "@/domain/sales/saleSearch";

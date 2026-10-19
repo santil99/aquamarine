@@ -1,5 +1,5 @@
 import { Button, Input, Label, ListBox, Select, Spinner, Tabs, TextField } from "@heroui/react";
-import type { SaleCatalogOption } from "@/domain/sales/newSale";
+import type { SaleCatalogOption } from "@/domain/sales/saleCatalog";
 import type { SaleSearchFilters } from "@/domain/sales/saleSearch";
 import { useTexts } from "@/presentation/texts/useTexts";
 

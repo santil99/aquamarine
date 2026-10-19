@@ -4,7 +4,7 @@ import { getMonthStart, getTodayInTimeZone } from "@/domain/business/businessDay
 import type { CategoryTotal } from "@/domain/business/categoryTotal";
 import type { DailySalesPoint } from "@/domain/business/dailySales";
 import { summarizeMonth } from "@/domain/business/monthSummary";
-import { averageSaleAmounts } from "@/domain/sales/saleTotal";
+import { averageAmounts } from "@/domain/shared/amount";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
 import { formatArsAmount } from "@/presentation/formatters/amount";
 import { createMonthMode } from "@/presentation/components/monthMode";
@@ -100,7 +100,7 @@ function SummaryContent({ state, onRetry }: { readonly state: LoadState; readonl
 
   const monthSummary = summarizeMonth(state.data.sales, state.data.expenses);
   const isNegativeBalance = monthSummary.balance.startsWith("-");
-  const averageDailySale = averageSaleAmounts(state.data.dailySales.map((point) => point.total));
+  const averageDailySale = averageAmounts(state.data.dailySales.map((point) => point.total));
 
   return (
     <div className="flex flex-col gap-4">

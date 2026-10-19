@@ -1,6 +1,6 @@
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
 
-export interface SaleDetail extends NewSaleInput {
+export interface SaleDetail extends TransactionInput {
   id: string;
   transactionDate: string;
   category: string;

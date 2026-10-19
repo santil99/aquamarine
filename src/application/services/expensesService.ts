@@ -1,29 +1,39 @@
 import type { AuthRepository } from "@/application/ports/authRepository";
 import type { ExpensesRepository } from "@/application/ports/expensesRepository";
+import { InputValidationError } from "@/application/errors";
+import { requireAuthenticatedUser } from "@/application/services/requireAuthenticatedUser";
 import type { BusinessContext } from "@/domain/business/businessContext";
 import { groupByCategory, type CategoryTotal } from "@/domain/business/categoryTotal";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
+import { normalizeAmount } from "@/domain/shared/amount";
 import {
-  normalizeSaleAmount,
-  normalizeSaleDetail,
-  validateNewSale,
-  type NewSaleInput,
-} from "@/domain/sales/newSale";
+  normalizeDetail,
+  validateTransactionInput,
+} from "@/domain/shared/transactionInput";
 import type {
   ExpenseCatalogOption,
   ExpenseDetail,
+  ExpenseInput,
 } from "@/domain/expenses/expenseForm";
 import type {
   ExpenseSearchFilters,
   ExpenseSearchItem,
 } from "@/domain/expenses/expenseSearch";
 
-function toExpensePayload(input: NewSaleInput): NewSaleInput {
+function toExpensePayload(input: ExpenseInput): ExpenseInput {
   return {
     ...input,
-    amount: normalizeSaleAmount(input.amount),
-    detail: normalizeSaleDetail(input.detail),
+    amount: normalizeAmount(input.amount),
+    detail: normalizeDetail(input.detail),
   };
+}
+
+function assertValidExpense(expense: ExpenseInput): void {
+  const errors = validateTransactionInput(expense);
+
+  if (Object.keys(errors).length > 0) {
+    throw new InputValidationError(errors);
+  }
 }
 
 export class ExpensesService {
@@ -38,10 +48,11 @@ export class ExpensesService {
     this.authRepository = authRepository;
   }
 
-  listForMonth(
+  async listForMonth(
     business: BusinessContext,
     monthStart: string,
   ): Promise<ExpenseListItem[]> {
+    await requireAuthenticatedUser(this.authRepository);
     return this.expensesRepository.listForMonth(business, monthStart);
   }
 
@@ -49,7 +60,7 @@ export class ExpensesService {
     business: BusinessContext,
     filters: ExpenseSearchFilters,
   ): Promise<ExpenseSearchItem[]> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
     return this.expensesRepository.search(business, filters);
   }
 
@@ -57,27 +68,27 @@ export class ExpensesService {
     business: BusinessContext,
     monthStart: string,
   ): Promise<CategoryTotal[]> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
 
     return groupByCategory(
       await this.expensesRepository.listAmountsForMonth(business, monthStart),
     );
   }
 
-  listCategories(): Promise<ExpenseCatalogOption[]> {
+  async listCategories(): Promise<ExpenseCatalogOption[]> {
+    await requireAuthenticatedUser(this.authRepository);
     return this.expensesRepository.listCategories();
   }
 
-  listPaymentMethods(): Promise<ExpenseCatalogOption[]> {
+  async listPaymentMethods(): Promise<ExpenseCatalogOption[]> {
+    await requireAuthenticatedUser(this.authRepository);
     return this.expensesRepository.listPaymentMethods();
   }
 
-  async create(expense: NewSaleInput, transactionDate: string): Promise<void> {
-    if (Object.keys(validateNewSale(expense)).length > 0) {
-      throw new Error("Invalid expense");
-    }
+  async create(expense: ExpenseInput, transactionDate: string): Promise<void> {
+    assertValidExpense(expense);
 
-    const user = await this.requireAuthenticatedUser();
+    const user = await requireAuthenticatedUser(this.authRepository);
 
     await this.expensesRepository.create({
       ...toExpensePayload(expense),
@@ -87,39 +98,19 @@ export class ExpensesService {
   }
 
   async getById(id: string): Promise<ExpenseDetail | null> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
     return this.expensesRepository.getById(id);
   }
 
-  async update(id: string, expense: NewSaleInput): Promise<void> {
-    if (Object.keys(validateNewSale(expense)).length > 0) {
-      throw new Error("Invalid expense");
-    }
+  async update(id: string, expense: ExpenseInput): Promise<void> {
+    assertValidExpense(expense);
 
-    await this.requireAuthenticatedUser();
-    const updated = await this.expensesRepository.update(id, toExpensePayload(expense));
-
-    if (!updated) {
-      throw new Error("Expense not found");
-    }
+    await requireAuthenticatedUser(this.authRepository);
+    await this.expensesRepository.update(id, toExpensePayload(expense));
   }
 
   async delete(id: string): Promise<void> {
-    await this.requireAuthenticatedUser();
-    const deleted = await this.expensesRepository.delete(id);
-
-    if (!deleted) {
-      throw new Error("Expense not found");
-    }
-  }
-
-  private async requireAuthenticatedUser() {
-    const user = await this.authRepository.getCurrentUser();
-
-    if (!user) {
-      throw new Error("Authenticated user required");
-    }
-
-    return user;
+    await requireAuthenticatedUser(this.authRepository);
+    await this.expensesRepository.delete(id);
   }
 }

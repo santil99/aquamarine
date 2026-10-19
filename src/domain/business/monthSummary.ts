@@ -1,5 +1,5 @@
 import type { CategoryTotal } from "@/domain/business/categoryTotal";
-import { subtractSaleAmounts, sumSaleAmounts } from "@/domain/sales/saleTotal";
+import { subtractAmounts, sumAmounts } from "@/domain/shared/amount";
 
 export interface MonthSummary {
   salesTotal: string;
@@ -13,15 +13,15 @@ export function summarizeMonth(
   sales: CategoryTotal[],
   expenses: CategoryTotal[],
 ): MonthSummary {
-  const salesTotal = sumSaleAmounts(sales.map((category) => category.total));
-  const expensesTotal = sumSaleAmounts(expenses.map((category) => category.total));
+  const salesTotal = sumAmounts(sales.map((category) => category.total));
+  const expensesTotal = sumAmounts(expenses.map((category) => category.total));
 
   return {
     salesTotal,
     salesCount: countTransactions(sales),
     expensesTotal,
     expensesCount: countTransactions(expenses),
-    balance: subtractSaleAmounts(salesTotal, expensesTotal),
+    balance: subtractAmounts(salesTotal, expensesTotal),
   };
 }
 

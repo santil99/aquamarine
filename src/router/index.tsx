@@ -3,7 +3,7 @@ import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } 
 import { AuthService } from "@/application/services/authService";
 import { ExpensesService } from "@/application/services/expensesService";
 import { SalesService } from "@/application/services/salesService";
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
 import type { ExpenseCatalogs } from "@/domain/expenses/expenseForm";
 import type { ExpenseSearchFilters } from "@/domain/expenses/expenseSearch";
 import type { SaleSearchFilters } from "@/domain/sales/saleSearch";
@@ -55,15 +55,15 @@ const loadExpenseCatalogs = async (): Promise<ExpenseCatalogs> => {
 
   return { categories, paymentMethods };
 };
-const registerSale = (input: NewSaleInput, transactionDate: string, newImages: Blob[]) =>
+const registerSale = (input: TransactionInput, transactionDate: string, newImages: Blob[]) =>
   salesService.registerSale(input, transactionDate, newImages);
-const registerExpense = (input: NewSaleInput, transactionDate: string) =>
+const registerExpense = (input: TransactionInput, transactionDate: string) =>
   expensesService.create(input, transactionDate);
 const loadExpense = (id: string) => expensesService.getById(id);
-const updateExpense = (id: string, input: NewSaleInput) => expensesService.update(id, input);
+const updateExpense = (id: string, input: TransactionInput) => expensesService.update(id, input);
 const deleteExpense = (id: string) => expensesService.delete(id);
 const loadSale = (id: string) => salesService.getSale(id);
-const updateSale = (id: string, input: NewSaleInput, keptPaths: string[], newImages: Blob[]) =>
+const updateSale = (id: string, input: TransactionInput, keptPaths: string[], newImages: Blob[]) =>
   salesService.updateSale(id, input, keptPaths, newImages);
 const deleteSale = (id: string) => salesService.deleteSale(id);
 const searchSales = (filters: SaleSearchFilters) =>

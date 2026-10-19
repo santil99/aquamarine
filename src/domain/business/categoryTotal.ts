@@ -1,4 +1,4 @@
-import { compareSaleAmounts, sumSaleAmounts } from "@/domain/sales/saleTotal";
+import { compareAmounts, sumAmounts } from "@/domain/shared/amount";
 
 export interface CategoryAmount {
   category: string;
@@ -23,7 +23,7 @@ export function groupByCategory(amounts: CategoryAmount[]): CategoryTotal[] {
     .map(([category, categoryAmounts]) => ({
       category,
       count: categoryAmounts.length,
-      total: sumSaleAmounts(categoryAmounts),
+      total: sumAmounts(categoryAmounts),
     }))
-    .sort((left, right) => compareSaleAmounts(right.total, left.total));
+    .sort((left, right) => compareAmounts(right.total, left.total));
 }

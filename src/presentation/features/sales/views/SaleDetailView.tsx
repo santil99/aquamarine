@@ -1,17 +1,18 @@
-import { useEffect, useState, type SyntheticEvent } from "react";
+import { useState, type SyntheticEvent } from "react";
 import {
   AlertDialog,
   Button,
   Form,
-  Spinner,
 } from "@heroui/react";
 import { CalendarDays } from "lucide-react";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
-import type { NewSaleInput } from "@/domain/sales/newSale";
+import type { TransactionInput } from "@/domain/shared/transactionInput";
 import type { SaleDetail, SaleWithImages } from "@/domain/sales/saleDetail";
+import { DetailStatus } from "@/presentation/features/shared/DetailStatus";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import { formatTransactionDate } from "@/presentation/formatters/transactionDate";
+import { useDetailLoader } from "@/presentation/features/shared/useDetailLoader";
 import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
 import { SaleImagesField } from "@/presentation/features/sales/SaleImagesField";
@@ -19,19 +20,13 @@ import { useSaleImages } from "@/presentation/features/sales/useSaleImages";
 import type { SaleFeedback } from "@/presentation/features/sales/navigation/salesNavigation";
 import { useTexts } from "@/presentation/texts/useTexts";
 
-type SaleState =
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "notFound" }
-  | { status: "success"; sale: SaleWithImages };
-
 interface SaleDetailViewProps {
   readonly saleId: string;
   readonly loadSale: (id: string) => Promise<SaleWithImages | null>;
   readonly loadCatalogs: () => Promise<SalesCatalogs>;
   readonly updateSale: (
     id: string,
-    input: NewSaleInput,
+    input: TransactionInput,
     keptPaths: string[],
     newImages: Blob[],
   ) => Promise<void>;
@@ -47,65 +42,43 @@ export function SaleDetailView({
   deleteSale,
   onExit,
 }: SaleDetailViewProps) {
-  const { common, saleDetail: texts, newSale } = useTexts();
-  const [sale, setSale] = useState<SaleState>({ status: "loading" });
-  const [attempt, setAttempt] = useState(0);
+  const { saleDetail: texts, newSale } = useTexts();
+  const { state: sale, retry: retrySale } = useDetailLoader(saleId, loadSale);
   const { state: catalogs, retry: retryCatalogs } = useSaleCatalogs(loadCatalogs);
 
-  useEffect(() => {
-    let isCurrent = true;
-
-    loadSale(saleId)
-      .then((loaded) => {
-        if (!isCurrent) return;
-        setSale(loaded ? { status: "success", sale: loaded } : { status: "notFound" });
-      })
-      .catch(() => {
-        if (isCurrent) setSale({ status: "error" });
-      });
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [loadSale, saleId, attempt]);
-
   if (sale.status === "loading" || catalogs.status === "loading") {
-    return (
-      <div className="flex justify-center">
-        <Spinner size="sm" aria-label={common.loading} />
-      </div>
-    );
+    return <DetailStatus kind="loading" />;
   }
 
   if (sale.status === "notFound") {
-    return <p role="alert">{texts.notFound}</p>;
+    return <DetailStatus kind="notFound" message={texts.notFound} />;
   }
 
   if (sale.status === "error") {
     return (
-      <div className="flex flex-col items-start gap-3">
-        <p role="alert" className="text-danger">{texts.loadError}</p>
-        <Button variant="outline" onPress={() => setAttempt((current) => current + 1)}>
-          {texts.retry}
-        </Button>
-      </div>
+      <DetailStatus
+        kind="error"
+        message={texts.loadError}
+        retryLabel={texts.retry}
+        onRetry={retrySale}
+      />
     );
   }
 
   if (catalogs.status === "error") {
     return (
-      <div className="flex flex-col items-start gap-3">
-        <p role="alert" className="text-danger">{newSale.catalogsError}</p>
-        <Button variant="outline" onPress={retryCatalogs}>
-          {newSale.retry}
-        </Button>
-      </div>
+      <DetailStatus
+        kind="error"
+        message={newSale.catalogsError}
+        retryLabel={newSale.retry}
+        onRetry={retryCatalogs}
+      />
     );
   }
 
   return (
     <SaleDetailForm
-      sale={sale.sale}
+      sale={sale.data}
       categories={catalogs.catalogs.categories}
       paymentMethods={catalogs.catalogs.paymentMethods}
       updateSale={updateSale}

@@ -1,18 +1,19 @@
 import type { AuthRepository } from "@/application/ports/authRepository";
 import type { SalesImageStorage } from "@/application/ports/salesImageStorage";
 import type { SalesCatalogs, SalesRepository } from "@/application/ports/salesRepository";
+import { InputValidationError, NotFoundError } from "@/application/errors";
+import { requireAuthenticatedUser } from "@/application/services/requireAuthenticatedUser";
 import type { BusinessContext } from "@/domain/business/businessContext";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import { groupByCategory, type CategoryTotal } from "@/domain/business/categoryTotal";
 import { buildDailySalesSeries, type DailySalesPoint } from "@/domain/business/dailySales";
 import type { SaleWithImages } from "@/domain/sales/saleDetail";
+import { normalizeAmount } from "@/domain/shared/amount";
 import {
-  normalizeSaleAmount,
-  normalizeSaleDetail,
-  validateNewSale,
-  type NewSaleInput,
-  type NewSaleValidationErrors,
-} from "@/domain/sales/newSale";
+  normalizeDetail,
+  validateTransactionInput,
+  type TransactionInput,
+} from "@/domain/shared/transactionInput";
 import {
   buildSaleImagePath,
   validateSaleImages,
@@ -20,15 +21,6 @@ import {
 } from "@/domain/sales/saleImages";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";
-
-export class NewSaleValidationError extends Error {
-  readonly errors: NewSaleValidationErrors;
-
-  constructor(errors: NewSaleValidationErrors) {
-    super("Invalid new sale");
-    this.errors = errors;
-  }
-}
 
 export class SaleImagesValidationError extends Error {
   readonly error: SaleImageError;
@@ -55,7 +47,7 @@ export class SalesService {
   }
 
   async listForDate(business: BusinessContext, date: string): Promise<SaleListItem[]> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
 
     return this.salesRepository.listForDate(business, date);
   }
@@ -64,12 +56,12 @@ export class SalesService {
     business: BusinessContext,
     filters: SaleSearchFilters,
   ): Promise<SaleSearchItem[]> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
 
     return this.salesRepository.search(business, {
       ...filters,
-      minAmount: filters.minAmount ? normalizeSaleAmount(filters.minAmount) : null,
-      maxAmount: filters.maxAmount ? normalizeSaleAmount(filters.maxAmount) : null,
+      minAmount: filters.minAmount ? normalizeAmount(filters.minAmount) : null,
+      maxAmount: filters.maxAmount ? normalizeAmount(filters.maxAmount) : null,
     });
   }
 
@@ -77,7 +69,7 @@ export class SalesService {
     business: BusinessContext,
     monthStart: string,
   ): Promise<CategoryTotal[]> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
 
     return groupByCategory(
       await this.salesRepository.listAmountsForMonth(business, monthStart),
@@ -88,7 +80,7 @@ export class SalesService {
     business: BusinessContext,
     monthStart: string,
   ): Promise<DailySalesPoint[]> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
 
     return buildDailySalesSeries(
       await this.salesRepository.listDailyAmountsForMonth(business, monthStart),
@@ -98,17 +90,17 @@ export class SalesService {
   }
 
   async loadCatalogs(): Promise<SalesCatalogs> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
 
     return this.salesRepository.listCatalogs();
   }
 
-  async registerSale(input: NewSaleInput, transactionDate: string, newImages: Blob[]): Promise<void> {
-    const user = await this.requireAuthenticatedUser();
-    const errors = validateNewSale(input);
+  async registerSale(input: TransactionInput, transactionDate: string, newImages: Blob[]): Promise<void> {
+    const user = await requireAuthenticatedUser(this.authRepository);
+    const errors = validateTransactionInput(input);
 
     if (Object.keys(errors).length > 0) {
-      throw new NewSaleValidationError(errors);
+      throw new InputValidationError(errors);
     }
 
     this.requireValidImages(newImages);
@@ -117,10 +109,10 @@ export class SalesService {
     try {
       await this.salesRepository.create({
         userId: user.id,
-        amount: normalizeSaleAmount(input.amount),
+        amount: normalizeAmount(input.amount),
         categoryId: input.categoryId,
         paymentMethodId: input.paymentMethodId,
-        detail: normalizeSaleDetail(input.detail),
+        detail: normalizeDetail(input.detail),
         transactionDate,
         imagePaths,
       });
@@ -131,7 +123,7 @@ export class SalesService {
   }
 
   async getSale(id: string): Promise<SaleWithImages | null> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
     const sale = await this.salesRepository.getById(id);
 
     if (!sale) return null;
@@ -149,31 +141,31 @@ export class SalesService {
    */
   async updateSale(
     id: string,
-    input: NewSaleInput,
+    input: TransactionInput,
     keptPaths: string[],
     newImages: Blob[],
   ): Promise<void> {
-    await this.requireAuthenticatedUser();
-    const errors = validateNewSale(input);
+    await requireAuthenticatedUser(this.authRepository);
+    const errors = validateTransactionInput(input);
 
     if (Object.keys(errors).length > 0) {
-      throw new NewSaleValidationError(errors);
+      throw new InputValidationError(errors);
     }
 
     this.requireValidImages(newImages, keptPaths.length);
 
     const current = await this.salesRepository.getById(id);
-    if (!current) throw new Error("Sale not found");
+    if (!current) throw new NotFoundError("Sale not found");
 
     const removedPaths = current.imagePaths.filter((path) => !keptPaths.includes(path));
     const uploadedPaths = await this.uploadImages(newImages);
 
     try {
       await this.salesRepository.update(id, {
-        amount: normalizeSaleAmount(input.amount),
+        amount: normalizeAmount(input.amount),
         categoryId: input.categoryId,
         paymentMethodId: input.paymentMethodId,
-        detail: normalizeSaleDetail(input.detail),
+        detail: normalizeDetail(input.detail),
         imagePaths: [...keptPaths, ...uploadedPaths],
       });
     } catch (error) {
@@ -185,7 +177,7 @@ export class SalesService {
   }
 
   async deleteSale(id: string): Promise<void> {
-    await this.requireAuthenticatedUser();
+    await requireAuthenticatedUser(this.authRepository);
     const sale = await this.salesRepository.getById(id);
 
     await this.salesRepository.delete(id);
@@ -230,15 +222,5 @@ export class SalesService {
     } catch (error) {
       console.error("Could not remove sale images", paths, error);
     }
-  }
-
-  private async requireAuthenticatedUser() {
-    const user = await this.authRepository.getCurrentUser();
-
-    if (!user) {
-      throw new Error("Authenticated user required");
-    }
-
-    return user;
   }
 }
