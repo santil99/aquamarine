@@ -74,7 +74,7 @@ export function DrawingCanvasModal({ isOpen, onOpenChange, onConfirm }: DrawingC
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <Modal.Backdrop>
-        <Modal.Container>
+        <Modal.Container placement="center">
           <Modal.Dialog>
             <Modal.Header>
               <Modal.Heading>{texts.drawTitle}</Modal.Heading>

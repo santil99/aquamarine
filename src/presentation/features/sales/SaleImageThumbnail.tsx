@@ -41,7 +41,7 @@ export function SaleImageThumbnail({ entry, onRemove }: SaleImageThumbnailProps)
 
       <Modal isOpen={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <Modal.Backdrop>
-          <Modal.Container>
+          <Modal.Container placement="center">
             <Modal.Dialog aria-label={texts.preview}>
               <Modal.Body>
                 {src ? <img src={src} alt="" className="max-h-[70vh] w-full object-contain" /> : null}
