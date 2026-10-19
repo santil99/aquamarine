@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router";
+import { Spinner } from "@heroui/react";
 import type { AuthService } from "@/application/services/authService";
 import { useSessionStatus } from "@/router/layouts/useSessionStatus";
 import { AppLayout } from "@/presentation/layout/AppLayout";
+import { useTexts } from "@/presentation/texts/useTexts";
 
 interface ProtectedLayoutProps {
   readonly auth: AuthService;
@@ -11,6 +14,7 @@ interface ProtectedLayoutProps {
 export function ProtectedLayout({ auth, loadUser }: ProtectedLayoutProps) {
   const navigate = useNavigate();
   const sessionStatus = useSessionStatus(auth);
+  const { common } = useTexts();
 
   if (sessionStatus === "checking") return null;
 
@@ -23,7 +27,10 @@ export function ProtectedLayout({ auth, loadUser }: ProtectedLayoutProps) {
 
   return (
     <AppLayout loadUser={loadUser} onLogout={logout}>
-      <Outlet />
+      <Suspense fallback={<Spinner aria-label={common.loading} />}>
+        <Outlet />
+      </Suspense>
     </AppLayout>
   );
 }
+

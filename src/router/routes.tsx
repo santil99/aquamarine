@@ -1,19 +1,37 @@
+import { lazy } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router";
 import type { AppDependencies } from "@/router";
 import { LoginLayout } from "@/router/layouts/LoginLayout";
 import { ProtectedLayout } from "@/router/layouts/ProtectedLayout";
-import { ExpenseDetailView } from "@/presentation/features/expenses/views/ExpenseDetailView";
-import { ExpensesListView } from "@/presentation/features/expenses/views/ExpensesListView";
-import { NewExpenseView } from "@/presentation/features/expenses/views/NewExpenseView";
-import { SummaryView } from "@/presentation/features/dashboard/views/SummaryView";
-import { NewSaleView } from "@/presentation/features/sales/views/NewSaleView";
-import { SaleDetailView } from "@/presentation/features/sales/views/SaleDetailView";
-import { SalesListView } from "@/presentation/features/sales/views/SalesListView";
 import {
   type SaleFeedback,
   type SalesListNavigationState,
 } from "@/presentation/features/sales/navigation/salesNavigation";
-import { SearchView } from "@/presentation/features/search/views/SearchView";
+
+const ExpenseDetailView = lazy(() =>
+  import("@/presentation/features/expenses/views/ExpenseDetailView").then((m) => ({ default: m.ExpenseDetailView })),
+);
+const ExpensesListView = lazy(() =>
+  import("@/presentation/features/expenses/views/ExpensesListView").then((m) => ({ default: m.ExpensesListView })),
+);
+const NewExpenseView = lazy(() =>
+  import("@/presentation/features/expenses/views/NewExpenseView").then((m) => ({ default: m.NewExpenseView })),
+);
+const SummaryView = lazy(() =>
+  import("@/presentation/features/dashboard/views/SummaryView").then((m) => ({ default: m.SummaryView })),
+);
+const NewSaleView = lazy(() =>
+  import("@/presentation/features/sales/views/NewSaleView").then((m) => ({ default: m.NewSaleView })),
+);
+const SaleDetailView = lazy(() =>
+  import("@/presentation/features/sales/views/SaleDetailView").then((m) => ({ default: m.SaleDetailView })),
+);
+const SalesListView = lazy(() =>
+  import("@/presentation/features/sales/views/SalesListView").then((m) => ({ default: m.SalesListView })),
+);
+const SearchView = lazy(() =>
+  import("@/presentation/features/search/views/SearchView").then((m) => ({ default: m.SearchView })),
+);
 
 interface RouteProps {
   readonly deps: AppDependencies;

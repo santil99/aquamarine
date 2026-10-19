@@ -23,6 +23,13 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Usar Vite, React, TypeScript estricto y HeroUI. Los textos de interfaz viven en `src/presentation/texts/` (un diccionario por idioma, `en.ts` tipado contra `es.ts`). Las vistas nunca importan un idioma fijo: obtienen los textos con `useTexts()` y el idioma activo se cambia desde `LanguageContext`. Los montos se formatean con el locale del idioma activo.
 - Leer la constitución y la spec activa antes de implementar. No ampliar el alcance aprobado por suposición.
 - No deben quedar warnings en ningun archivo. Comprobar que no haya warnings. Si hay corregirlos.
+- Errores de aplicación: los SERVICES lanzan `NotFoundError` o `InputValidationError` (`src/application/errors.ts`), nunca `Error` genérico ni booleanos como resultado. La presentación traduce cada error a un texto fijo y nunca muestra `error.message`.
+- Autenticación en SERVICES: toda operación que requiera sesión llama a `requireAuthenticatedUser` al inicio. Todos los SERVICES siguen el mismo orden de validaciones.
+- Vistas de detalle: los estados de carga, no encontrado y error usan `useDetailLoader` y `DetailStatus` (`features/shared/`). No reimplementar esa máquina de estados en una vista.
+- Reglas de montos y validación de transacciones viven en `domain/shared/`. No duplicarlas en formularios ni en vistas.
+- Layouts y router: separar cada archivo por responsabilidad (cabecera, menú, estado de sesión, rutas). Si un archivo combina varias, dividirlo.
+- Hook de textos: en vistas y componentes usar `const { clave: texts } = useTexts();`. Para `common`, usar desestructuración anidada.
+- Antes de cerrar un cambio: sin imports, alias ni tests obsoletos. Revisar `pnpm typecheck`, que detecta imports sin uso.
 
 ## Testing
 
@@ -31,6 +38,7 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - No agregar tests para SERVICES ni REPOSITORIES. Tampoco testear getters/setters, adaptadores triviales, formato trivial ni comportamiento que ya proporcione HeroUI.
 - Para cambios de UI, validar con los tests de presentación y los checks disponibles. No realizar test funcionales ni e2e. No levantar servidores de desarrollo para comprobar nada.
 - Los archivos de tests van dentro de la feature a la que pertenecen, en `features/<módulo>/tests/`. Por ejemplo `features/sales/tests/` para los de ventas.
+- Excepción aprobada: los tests de layout compartido van en `presentation/tests/layout/`.
 
 ## Comandos
 
@@ -38,6 +46,6 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Tests de componentes y presentación: `pnpm test`
 - Tipos: `pnpm typecheck`
 - Lint: `pnpm lint`
-- Build: `pnpm build`
+- Build: `pnpm build`. Si Vite avisa de chunks mayores a 500 kB, revisar primero si una dependencia pesada se carga en una ruta que no la usa. No ajustar `manualChunks` sin una decisión explícita, porque solo reorganiza el peso.
 
 Ejecutar checks proporcionales al cambio. No afirmar que un check se ejecutó si no fue posible hacerlo.

@@ -1,4 +1,4 @@
-# Auditoría de calidad de código, SOLID y mantenibilidad
+# Auditoría de calidad de código, SOLID y mantenibilidad - 18/10/2026
 
 Autoevaluación técnica del código actual de la aplicación. Este documento no implementa cambios; solo diagnostica y propone refactorizaciones.
 
@@ -261,7 +261,7 @@ Pregunta resuelta: los tests de layout se quedan en `presentation/tests/layout/`
 #### [P10] T10. Verificación final
 - **Estado:** completada. Ejecutado en esta sesión: `pnpm typecheck` (OK), `pnpm lint` (sin warnings), `pnpm test` (9 archivos, 51 tests en verde) y `pnpm build` (OK).
 - **Depende de:** T1 a T9.
-- **Observación:** `pnpm build` muestra un aviso de Vite: chunk principal de 1.279 kB (384 kB gzip) por encima del límite de 500 kB. No es un warning de archivo ni de código, y no se atendió en el plan. Como mejora futura, las rutas se podrían cargar con `lazy` / `import()`. No se verificó contra un baseline previo.
+- **Observación:** `pnpm build` mostraba un aviso de Vite: chunk principal de 1.279 kB (384 kB gzip) por encima del límite de 500 kB. Se atendió con carga diferida por ruta: las 8 vistas protegidas se cargan con `lazy` en `router/routes.tsx` y el `Outlet` tiene un `Suspense` con el `Spinner` de HeroUI en `ProtectedLayout`. Resultado: chunk principal de 542 kB (156 kB gzip). El aviso persiste porque ese chunk sigue por encima de 500 kB; el resto del peso está en HeroUI, React, Router y Supabase, que se necesitan al arrancar.
 - **Criterio de cierre:** checks en verde. Este informe refleja el estado final.
 
 ### 6.4 Orden de ejecución
