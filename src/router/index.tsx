@@ -10,6 +10,7 @@ import type { SaleSearchFilters } from "@/domain/sales/saleSearch";
 import { activeBusiness } from "@/infrastructure/business/mockBusinessContext";
 import { supabaseAuthRepository } from "@/infrastructure/supabase/supabaseAuthRepository";
 import { supabaseExpensesRepository } from "@/infrastructure/supabase/supabaseExpensesRepository";
+import { supabaseSalesImageStorage } from "@/infrastructure/supabase/supabaseSalesImageStorage";
 import { supabaseSalesRepository } from "@/infrastructure/supabase/supabaseSalesRepository";
 import { AppLayout } from "@/presentation/layout/AppLayout";
 import {
@@ -27,7 +28,11 @@ import { SearchView, type SearchCatalogs } from "@/presentation/features/search/
 import { SummaryView } from "@/presentation/features/dashboard/views/SummaryView";
 
 const authService = new AuthService(supabaseAuthRepository);
-const salesService = new SalesService(supabaseSalesRepository, supabaseAuthRepository);
+const salesService = new SalesService(
+  supabaseSalesRepository,
+  supabaseAuthRepository,
+  supabaseSalesImageStorage,
+);
 const expensesService = new ExpensesService(supabaseExpensesRepository, supabaseAuthRepository);
 
 const loadUser = () => authService.getCurrentUser();
@@ -50,15 +55,16 @@ const loadExpenseCatalogs = async (): Promise<ExpenseCatalogs> => {
 
   return { categories, paymentMethods };
 };
-const registerSale = (input: NewSaleInput, transactionDate: string) =>
-  salesService.registerSale(input, transactionDate);
+const registerSale = (input: NewSaleInput, transactionDate: string, newImages: Blob[]) =>
+  salesService.registerSale(input, transactionDate, newImages);
 const registerExpense = (input: NewSaleInput, transactionDate: string) =>
   expensesService.create(input, transactionDate);
 const loadExpense = (id: string) => expensesService.getById(id);
 const updateExpense = (id: string, input: NewSaleInput) => expensesService.update(id, input);
 const deleteExpense = (id: string) => expensesService.delete(id);
 const loadSale = (id: string) => salesService.getSale(id);
-const updateSale = (id: string, input: NewSaleInput) => salesService.updateSale(id, input);
+const updateSale = (id: string, input: NewSaleInput, keptPaths: string[], newImages: Blob[]) =>
+  salesService.updateSale(id, input, keptPaths, newImages);
 const deleteSale = (id: string) => salesService.deleteSale(id);
 const searchSales = (filters: SaleSearchFilters) =>
   salesService.searchSales(activeBusiness, filters);

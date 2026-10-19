@@ -2,10 +2,10 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
-import type { SaleDetail } from "@/domain/sales/saleDetail";
+import type { SaleWithImages } from "@/domain/sales/saleDetail";
 import { SaleDetailView } from "@/presentation/features/sales/views/SaleDetailView";
 
-const sale: SaleDetail = {
+const sale: SaleWithImages = {
   id: "sale-1",
   amount: "1234.5",
   categoryId: "cat-1",
@@ -14,6 +14,8 @@ const sale: SaleDetail = {
   paymentMethod: "Efectivo",
   detail: "Mesa 4",
   transactionDate: "2024-05-10",
+  imagePaths: [],
+  images: [],
 };
 
 const catalogs: SalesCatalogs = {
@@ -87,12 +89,42 @@ describe("SaleDetailView", () => {
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
     await waitFor(() => expect(props.onExit).toHaveBeenCalledWith("saved"));
-    expect(props.updateSale).toHaveBeenCalledWith("sale-1", {
-      amount: "2000",
-      categoryId: "cat-1",
-      paymentMethodId: "pay-1",
-      detail: "Mesa 4",
-    });
+    expect(props.updateSale).toHaveBeenCalledWith(
+      "sale-1",
+      {
+        amount: "2000",
+        categoryId: "cat-1",
+        paymentMethodId: "pay-1",
+        detail: "Mesa 4",
+      },
+      [],
+      [],
+    );
+  });
+
+  it("keeps only the remaining existing images when one is removed", async () => {
+    const user = userEvent.setup();
+    const withImages: SaleWithImages = {
+      ...sale,
+      imagePaths: ["sales/a.jpg", "sales/b.png"],
+      images: [
+        { path: "sales/a.jpg", url: "https://example.com/a.jpg" },
+        { path: "sales/b.png", url: "https://example.com/b.png" },
+      ],
+    };
+    const props = renderView({ loadSale: () => Promise.resolve(withImages) });
+
+    const removeButtons = await screen.findAllByRole("button", { name: "Quitar imagen" });
+    await user.click(removeButtons[0]);
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(props.onExit).toHaveBeenCalledWith("saved"));
+    expect(props.updateSale).toHaveBeenCalledWith(
+      "sale-1",
+      expect.any(Object),
+      ["sales/b.png"],
+      [],
+    );
   });
 
   it("does not save when the amount is invalid", async () => {

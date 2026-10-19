@@ -69,7 +69,7 @@ describe("NewSaleView", () => {
 
   it("registers a valid sale, shows feedback and clears the form", async () => {
     const interaction = userEvent.setup();
-    const registerSale = vi.fn<(input: NewSaleInput, transactionDate: string) => Promise<void>>(() => Promise.resolve());
+    const registerSale = vi.fn<(input: NewSaleInput, transactionDate: string, newImages: Blob[]) => Promise<void>>(() => Promise.resolve());
     render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={registerSale} timeZone={TIME_ZONE} />);
 
     const amount = (await screen.findByRole("textbox", { name: "Monto" })) as HTMLInputElement;
@@ -87,8 +87,21 @@ describe("NewSaleView", () => {
         detail: null,
       },
       getTodayInTimeZone(TIME_ZONE),
+      [],
     );
     expect(amount.value).toBe("");
+  });
+
+  it("rejects a file that is not a supported image", async () => {
+    const interaction = userEvent.setup({ applyAccept: false });
+    const { container } = render(
+      <NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={() => Promise.resolve()} timeZone={TIME_ZONE} />,
+    );
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    await interaction.upload(fileInput, new File(["notes"], "notes.txt", { type: "text/plain" }));
+
+    expect((await screen.findByRole("alert")).textContent).toBe("Solo se permiten imágenes JPG, PNG o WebP.");
   });
 
   it("keeps the entered data and shows an error when saving fails", async () => {

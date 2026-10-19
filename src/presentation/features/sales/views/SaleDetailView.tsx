@@ -8,12 +8,14 @@ import {
 import { CalendarDays } from "lucide-react";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 import type { NewSaleInput } from "@/domain/sales/newSale";
-import type { SaleDetail } from "@/domain/sales/saleDetail";
+import type { SaleDetail, SaleWithImages } from "@/domain/sales/saleDetail";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import { formatTransactionDate } from "@/presentation/formatters/transactionDate";
 import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
+import { SaleImagesField } from "@/presentation/features/sales/SaleImagesField";
+import { useSaleImages } from "@/presentation/features/sales/useSaleImages";
 import type { SaleFeedback } from "@/presentation/features/sales/navigation/salesNavigation";
 import { useTexts } from "@/presentation/texts/useTexts";
 
@@ -21,13 +23,18 @@ type SaleState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "notFound" }
-  | { status: "success"; sale: SaleDetail };
+  | { status: "success"; sale: SaleWithImages };
 
 interface SaleDetailViewProps {
   readonly saleId: string;
-  readonly loadSale: (id: string) => Promise<SaleDetail | null>;
+  readonly loadSale: (id: string) => Promise<SaleWithImages | null>;
   readonly loadCatalogs: () => Promise<SalesCatalogs>;
-  readonly updateSale: (id: string, input: NewSaleInput) => Promise<void>;
+  readonly updateSale: (
+    id: string,
+    input: NewSaleInput,
+    keptPaths: string[],
+    newImages: Blob[],
+  ) => Promise<void>;
   readonly deleteSale: (id: string) => Promise<void>;
   readonly onExit: (feedback?: SaleFeedback) => void;
 }
@@ -109,10 +116,10 @@ export function SaleDetailView({
 }
 
 interface SaleDetailFormProps {
-  readonly sale: SaleDetail;
+  readonly sale: SaleWithImages;
   readonly categories: SalesCatalogs["categories"];
   readonly paymentMethods: SalesCatalogs["paymentMethods"];
-  readonly updateSale: (id: string, input: NewSaleInput) => Promise<void>;
+  readonly updateSale: SaleDetailViewProps["updateSale"];
   readonly deleteSale: (id: string) => Promise<void>;
   readonly onExit: (feedback?: SaleFeedback) => void;
 }
@@ -127,6 +134,7 @@ function SaleDetailForm({
 }: SaleDetailFormProps) {
   const { common, saleDetail: texts, newSale } = useTexts();
   const { values, input, errors, handleChange, validateAll } = useSaleForm(toFormValues(sale));
+  const images = useSaleImages(sale.images);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -145,7 +153,7 @@ function SaleDetailForm({
     setIsSaving(true);
 
     try {
-      await updateSale(sale.id, input);
+      await updateSale(sale.id, input, images.keptPaths, images.newFiles);
       onExit("saved");
     } catch {
       setSaveError(texts.saveError);
@@ -188,6 +196,7 @@ function SaleDetailForm({
           errors={errors}
           onChange={handleChange}
         />
+        <SaleImagesField images={images} />
 
         {saveError ? (
           <p role="alert" className="text-sm text-danger">

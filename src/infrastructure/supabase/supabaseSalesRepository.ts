@@ -45,6 +45,7 @@ interface SaleDetailRow {
   detail: string | null;
   category_id: string | number;
   payment_method_id: string | number | null;
+  images: string[] | null;
   category: { name: string } | null;
   payment_method: { name: string } | null;
 }
@@ -132,6 +133,7 @@ export const supabaseSalesRepository: SalesRepository = {
       payment_method_id: record.paymentMethodId,
       detail: record.detail,
       sale_date: record.transactionDate,
+      images: record.imagePaths,
     });
 
     if (error) {
@@ -162,7 +164,7 @@ export const supabaseSalesRepository: SalesRepository = {
     const { data, error } = await supabase
       .from("sales")
       .select(
-        "id, amount::text, sale_date, detail, category_id, payment_method_id, category:categories(name), payment_method:payment_methods(name)",
+        "id, amount::text, sale_date, detail, category_id, payment_method_id, images, category:categories(name), payment_method:payment_methods(name)",
       )
       .eq("id", id)
       .maybeSingle<SaleDetailRow>();
@@ -182,6 +184,7 @@ export const supabaseSalesRepository: SalesRepository = {
         category_id: changes.categoryId,
         payment_method_id: changes.paymentMethodId,
         detail: changes.detail,
+        images: changes.imagePaths,
       })
       .eq("id", id);
 
@@ -218,6 +221,7 @@ function toSaleDetail(row: SaleDetailRow): SaleDetail {
     detail: row.detail,
     category: row.category?.name ?? "",
     paymentMethod: row.payment_method?.name ?? null,
+    imagePaths: row.images ?? [],
   };
 }
 

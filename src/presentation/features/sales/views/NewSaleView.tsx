@@ -5,6 +5,8 @@ import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { NewSaleInput } from "@/domain/sales/newSale";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
 import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
+import { SaleImagesField } from "@/presentation/features/sales/SaleImagesField";
+import { useSaleImages } from "@/presentation/features/sales/useSaleImages";
 import { TransactionDateField } from "@/presentation/features/shared/TransactionDateField";
 import { useSaleCatalogs } from "@/presentation/features/shared/useSaleCatalogs";
 import { useSaleForm } from "@/presentation/features/shared/useSaleForm";
@@ -20,13 +22,14 @@ const EMPTY_FORM: SaleFormValues = {
 interface NewSaleViewProps {
   readonly timeZone: string;
   readonly loadCatalogs: () => Promise<SalesCatalogs>;
-  readonly registerSale: (input: NewSaleInput, transactionDate: string) => Promise<void>;
+  readonly registerSale: (input: NewSaleInput, transactionDate: string, newImages: Blob[]) => Promise<void>;
 }
 
 export function NewSaleView({ timeZone, loadCatalogs, registerSale }: NewSaleViewProps) {
   const texts = useTexts().newSale;
   const { state: catalogs, retry } = useSaleCatalogs(loadCatalogs);
   const { values, input, errors, handleChange, validateAll, reset } = useSaleForm(EMPTY_FORM);
+  const images = useSaleImages();
   const [today] = useState(() => getTodayInTimeZone(timeZone));
   const [transactionDate, setTransactionDate] = useState(today);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -45,8 +48,9 @@ export function NewSaleView({ timeZone, loadCatalogs, registerSale }: NewSaleVie
     setIsSubmitting(true);
 
     try {
-      await registerSale(input, transactionDate);
+      await registerSale(input, transactionDate, images.newFiles);
       reset();
+      images.reset();
       setTransactionDate(today);
       toastQueue.add({ title: texts.saved });
     } catch {
@@ -84,6 +88,7 @@ export function NewSaleView({ timeZone, loadCatalogs, registerSale }: NewSaleVie
           errors={errors}
           onChange={handleChange}
         />
+        <SaleImagesField images={images} />
 
         {saveError ? (
           <p role="alert" className="text-sm text-danger">

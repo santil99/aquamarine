@@ -18,6 +18,7 @@ export interface NewSaleRecord {
   paymentMethodId: string | null;
   detail: string | null;
   transactionDate: string;
+  imagePaths: string[];
 }
 
 export interface SaleChanges {
@@ -25,6 +26,7 @@ export interface SaleChanges {
   categoryId: string;
   paymentMethodId: string | null;
   detail: string | null;
+  imagePaths: string[];
 }
 
 export interface SalesRepository {
