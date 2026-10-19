@@ -12,7 +12,7 @@ interface TransactionDateFieldProps {
 }
 
 export function TransactionDateField({ value, today, onChange }: TransactionDateFieldProps) {
-  const { locale, transactionDate } = useTexts().common;
+  const { common: { locale, transactionDate } } = useTexts();
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const selectDate = (date: string) => {

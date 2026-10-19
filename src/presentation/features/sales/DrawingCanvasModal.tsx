@@ -14,7 +14,7 @@ interface DrawingCanvasModalProps {
 }
 
 export function DrawingCanvasModal({ isOpen, onOpenChange, onConfirm }: DrawingCanvasModalProps) {
-  const texts = useTexts().saleImages;
+  const { saleImages: texts } = useTexts();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [lastPoint, setLastPoint] = useState<{ x: number; y: number } | null>(null);
 

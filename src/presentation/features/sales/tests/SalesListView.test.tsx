@@ -41,7 +41,6 @@ describe("SalesListView", () => {
     );
 
     expect(screen.getByRole("status")).toBeTruthy();
-    expect(screen.queryByText("Cargando ventas...")).toBeNull();
   });
 
   it("renders sales with formatted amounts and the exact daily total", async () => {

@@ -15,7 +15,7 @@ interface LoginViewProps {
 }
 
 export function LoginView({ signIn, onSignedIn }: LoginViewProps) {
-  const texts = useTexts().login;
+  const { login: texts } = useTexts();
   const fieldErrorMessages: Record<LoginFieldError, string> = {
     emailRequired: texts.emailRequired,
     emailInvalid: texts.emailInvalid,

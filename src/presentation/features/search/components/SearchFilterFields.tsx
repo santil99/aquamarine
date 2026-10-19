@@ -33,7 +33,7 @@ export function SearchFilterFields({
   onSubmit,
   onClear,
 }: SearchFilterFieldsProps) {
-  const texts = useTexts().search;
+  const { search: texts } = useTexts();
   const isSales = type === "sales";
 
   return (

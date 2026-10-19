@@ -14,7 +14,7 @@ interface MonthPickerProps {
 }
 
 export function MonthPicker({ selectedMonth, maxMonth, locale, onSelect }: MonthPickerProps) {
-  const texts = useTexts().common.monthNavigator;
+  const { common: { monthNavigator: texts } } = useTexts();
   const [year, setYear] = useState(() => Number(selectedMonth.slice(0, 4)));
   const maxYear = Number(maxMonth.slice(0, 4));
 

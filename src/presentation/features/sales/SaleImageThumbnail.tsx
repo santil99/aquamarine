@@ -11,7 +11,7 @@ interface SaleImageThumbnailProps {
 }
 
 export function SaleImageThumbnail({ entry, onRemove }: SaleImageThumbnailProps) {
-  const texts = useTexts().saleImages;
+  const { saleImages: texts } = useTexts();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const localUrl = useObjectUrl(entry.kind === "new" ? entry.file : null);
   const src = entry.kind === "stored" ? entry.url : localUrl;

@@ -170,7 +170,7 @@ No se implementa en esta fase. La base de datos no tiene tabla de negocios, ni v
 
 P1 es la prioridad más alta. Las dependencias son explícitas. Las tareas sin dependencias pueden hacerse en cualquier orden.
 
-Pregunta abierta (resolver antes de T9): ¿los tests de layout se mueven a `features/layout/tests/` o se acepta `presentation/tests/layout/` como excepción?
+Pregunta resuelta: los tests de layout se quedan en `presentation/tests/layout/`, como excepción aceptada por el usuario. No se mueven a `features/layout/tests/`.
 
 ---
 
@@ -222,14 +222,19 @@ Pregunta abierta (resolver antes de T9): ¿los tests de layout se mueven a `feat
 
 
 #### [P6] T6. Dividir `AppLayout.tsx`
+- **Estado:** completada. Verificada con `pnpm typecheck`, `pnpm lint` y `pnpm test` (51 tests en verde). `AppLayout.tsx` pasó de 303 líneas a 80.
 - **Depende de:** ninguna.
-- **Archivos:** `src/presentation/layout/AppLayout.tsx` y módulos nuevos en `src/presentation/layout/` (por ejemplo `AppHeader.tsx`, `NavigationMenu.tsx`, `ProfileSummary.tsx`, `ThemeSwitch.tsx`, `LanguageSwitch.tsx`).
-- **Pasos:** mover cada subcomponente a su archivo sin cambiar props visibles ni comportamiento. No crear carpetas adicionales.
-- **Criterio de cierre:** `AppLayout.tsx` queda como composición de menos de 100 líneas. Test de layout en verde.
+- **Archivos nuevos en `src/presentation/layout/`:** `AppHeader.tsx`, `AppDrawer.tsx` (menú lateral y su contenido), `NavigationList.tsx` (navegación con acordeones y enlaces), `ProfileHeader.tsx` (`ProfileAvatar` y `ProfileSummary`), `ThemeSwitch.tsx` y `LanguageSwitch.tsx` (cada uno con su propio estado), `profileState.ts` (tipo y `toProfileState`, sin JSX).
+- **Desviación menor del plan:** se agregó `AppDrawer.tsx` y `profileState.ts`, y los nombres de archivo de perfil y navegación difieren de los ejemplos. Sin carpetas nuevas.
+- **Pasos realizados:** cada subcomponente pasó a su archivo sin cambiar props visibles ni comportamiento. `ThemeSwitch` y `LanguageSwitch` ahora manejan su estado, en vez de recibirlo desde `AppLayout`.
+- **Criterio de cierre:** `AppLayout.tsx` queda como composición de 80 líneas. Tests de layout en verde.
 
 #### [P7] T7. Simplificar `router/index.tsx`
+- **Estado:** completada. Verificada con `pnpm typecheck`, `pnpm lint` (sin warnings) y `pnpm test` (51 tests en verde).
 - **Depende de:** ninguna.
-- **Archivos:** `src/router/index.tsx`, nuevos `src/router/routes.tsx` y `src/router/layouts/` (login y protegido).
+- **Archivos:** `src/router/index.tsx`, nuevos `src/router/routes.tsx` y `src/router/layouts/` (`LoginLayout.tsx`, `ProtectedLayout.tsx`, `useSessionStatus.ts`).
+- **Desviación de diseño:** `index.tsx` construye el objeto `dependencies` (servicios y funciones enlazadas) y exporta `AppDependencies = typeof dependencies`. `routes.tsx` y los layouts usan ese tipo por importación de tipo, sin importar valores de `index.tsx`. Los layouts reciben `auth` (tipo `AuthService`) y `loadUser` por props, en lugar de depender de servicios concretos.
+- **Desviación menor:** `useSessionStatus` recibe `auth` como parámetro y se comparte entre login y protegido. El export por defecto de `router/index.tsx` se mantiene para `App.tsx`.
 - **Pasos:**
   1. Mover la definición de rutas a `routes.tsx`.
   2. Mover los layouts de login y protegido a `router/layouts/`.
@@ -237,23 +242,27 @@ Pregunta abierta (resolver antes de T9): ¿los tests de layout se mueven a `feat
 - **Criterio de cierre:** `index.tsx` solo crea el router y compone dependencias. La navegación no cambia.
 
 #### [P8] T8. Decidir dónde vive `sumSaleAmounts`
+- **Estado:** completada como decisión, sin cambio de código. El helper se llama hoy `sumAmounts` (renombrado en T4) y vive en `domain/shared/amount.ts`.
 - **Depende de:** ninguna.
-- **Pasos:** dejar la llamada en `SalesListView`, ya que es una función pura de dominio y testeable. Moverla al servicio solo si aparece un segundo consumidor.
-- **Criterio de cierre:** decisión documentada. Sin cambio de código si no hay segundo consumidor.
+- **Decisión:** la suma diaria se queda en `SalesListView`. Es una función pura de dominio, testeable, y su único consumidor es esa vista. Mover la agregación al servicio solo agregaría una capa sin beneficio concreto (KISS/YAGNI). Se revisa si aparece un segundo consumidor.
+- **Criterio de cierre:** decisión documentada. Sin cambio de código porque no hay segundo consumidor. Test de total diario en `SalesListView.test.tsx` en verde.
 
 
 #### [P9] T9. Unificar estilo y tests
-- **Depende de:** pregunta abierta de tests de layout.
-- **Pasos:**
-  1. Usar un solo patrón para `useTexts()` en todas las vistas y eliminar alias redundantes como `const locale = common.locale`.
-  2. Eliminar el assert obsoleto de `"Cargando ventas..."` en `SalesListView.test.tsx`.
-  3. Ubicar el test de layout según la respuesta.
-- **Criterio de cierre:** un solo patrón de textos. Tests en verde.
+- **Estado:** completada. Verificada con `pnpm typecheck`, `pnpm lint` y `pnpm test` (51 tests en verde).
+- **Depende de:** ninguna (la pregunta de tests de layout quedó resuelta).
+- **Pasos realizados:**
+  1. Patrón único en las vistas: `const { clave: texts } = useTexts();` (o con `common`, según corresponda). Se migraron `LoginView`, `SearchView`, `NewExpenseView` y `NewSaleView`, que usaban `useTexts().clave`.
+  2. Eliminados los alias `const locale = common.locale` en `SalesListView` y `ExpensesListView`. Ahora se usa `common.locale` directamente.
+  3. Eliminado el assert obsoleto de `"Cargando ventas..."` en `SalesListView.test.tsx`. El test de spinner sigue validando `role="status"`.
+  4. Extendido el mismo patrón a componentes, hooks de presentación y layout (`MonthPicker`, `ThemeSwitch`, `LanguageSwitch`, `AppLayout`, `AppHeader`, `AppDrawer`, `SaleImageThumbnail`, `SaleImagesField`, `DrawingCanvasModal`, `SearchFilterFields`, `TransactionDateField`). Ya no queda ningún acceso `useTexts().clave`. Los casos con `common` usan desestructuración anidada, por ejemplo `const { common: { locale, transactionDate } } = useTexts();`.
+- **Criterio de cierre:** un solo patrón de textos en toda la presentación. Tests en verde.
 
 #### [P10] T10. Verificación final
-- **Depende de:** T1 a T9 (las que se ejecuten).
-- **Pasos:** `pnpm typecheck`, `pnpm lint`, `pnpm test` y `pnpm build`. Revisar que no haya warnings. Actualizar AUDITORIA.md marcando cada tarea.
-- **Criterio de cierre:** checks en verde y el informe refleja el estado final. Solo se afirma lo que se ejecutó.
+- **Estado:** completada. Ejecutado en esta sesión: `pnpm typecheck` (OK), `pnpm lint` (sin warnings), `pnpm test` (9 archivos, 51 tests en verde) y `pnpm build` (OK).
+- **Depende de:** T1 a T9.
+- **Observación:** `pnpm build` muestra un aviso de Vite: chunk principal de 1.279 kB (384 kB gzip) por encima del límite de 500 kB. No es un warning de archivo ni de código, y no se atendió en el plan. Como mejora futura, las rutas se podrían cargar con `lazy` / `import()`. No se verificó contra un baseline previo.
+- **Criterio de cierre:** checks en verde. Este informe refleja el estado final.
 
 ### 6.4 Orden de ejecución
 

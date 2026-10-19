@@ -14,7 +14,7 @@ interface SaleImagesFieldProps {
 }
 
 export function SaleImagesField({ images }: SaleImagesFieldProps) {
-  const texts = useTexts().saleImages;
+  const { saleImages: texts } = useTexts();
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isDrawingOpen, setIsDrawingOpen] = useState(false);

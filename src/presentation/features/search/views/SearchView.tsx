@@ -40,7 +40,7 @@ export function SearchView({
   onOpenSale,
   onOpenExpense,
 }: SearchViewProps) {
-  const texts = useTexts().search;
+  const { search: texts } = useTexts();
   const [today] = useState(() => getTodayInTimeZone(timeZone));
   const [type, setType] = useState<SearchType>("sales");
   const [draft, setDraft] = useState<SaleSearchFilters>(() => getDefaultSaleSearchFilters(today));

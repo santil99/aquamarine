@@ -26,7 +26,7 @@ interface NewSaleViewProps {
 }
 
 export function NewSaleView({ timeZone, loadCatalogs, registerSale }: NewSaleViewProps) {
-  const texts = useTexts().newSale;
+  const { newSale: texts } = useTexts();
   const { state: catalogs, retry } = useSaleCatalogs(loadCatalogs);
   const { values, input, errors, handleChange, validateAll, reset } = useSaleForm(EMPTY_FORM);
   const images = useSaleImages();

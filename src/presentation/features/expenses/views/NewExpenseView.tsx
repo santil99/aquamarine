@@ -24,7 +24,7 @@ interface NewExpenseViewProps {
 }
 
 export function NewExpenseView({ timeZone, loadCatalogs, registerExpense }: NewExpenseViewProps) {
-  const texts = useTexts().newExpense;
+  const { newExpense: texts } = useTexts();
   const { state: catalogs, retry } = useSaleCatalogs(loadCatalogs);
   const { values, input, errors, handleChange, validateAll, reset } = useSaleForm(EMPTY_FORM);
   const [today] = useState(() => getTodayInTimeZone(timeZone));

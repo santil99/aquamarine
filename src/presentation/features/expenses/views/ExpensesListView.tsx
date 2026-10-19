@@ -77,7 +77,6 @@ function ExpensesListContent({
   readonly onOpenExpense: (expenseId: string) => void;
 }) {
   const { common, expensesList: texts } = useTexts();
-  const locale = common.locale;
 
   if (state.status === "loading") {
     return (
@@ -121,10 +120,10 @@ function ExpensesListContent({
             {(expense) => (
               <Table.Row id={expense.id}>
                 <Table.Cell className="whitespace-nowrap">
-                  {formatTransactionDayMonth(expense.transactionDate, locale)}
+                  {formatTransactionDayMonth(expense.transactionDate, common.locale)}
                 </Table.Cell>
                 <Table.Cell className="whitespace-nowrap text-right">
-                  {formatAmount(expense.amount, locale)}
+                  {formatAmount(expense.amount, common.locale)}
                 </Table.Cell>
                 <Table.Cell>{expense.category}</Table.Cell>
                 <Table.Cell>{expense.paymentMethod ?? texts.noPaymentMethod}</Table.Cell>

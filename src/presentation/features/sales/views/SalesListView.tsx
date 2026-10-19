@@ -90,7 +90,6 @@ function SalesListContent({
   readonly onOpenSale: (saleId: string) => void;
 }) {
   const { common, salesList: texts } = useTexts();
-  const locale = common.locale;
 
   if (state.status === "loading") {
     return (
@@ -134,7 +133,7 @@ function SalesListContent({
               {(sale) => (
                 <Table.Row id={sale.id}>
                   <Table.Cell className="whitespace-nowrap text-right">
-                    {formatAmount(sale.amount, locale)}
+                    {formatAmount(sale.amount, common.locale)}
                   </Table.Cell>
                   <Table.Cell>{sale.category}</Table.Cell>
                   <Table.Cell>
@@ -159,7 +158,7 @@ function SalesListContent({
       </Table.Root>
       <div className="flex justify-between gap-2 border-t pt-3 font-semibold">
         <span>{texts.dailyTotal}</span>
-        <span>{formatAmount(sumAmounts(state.sales.map((sale) => sale.amount)), locale)}</span>
+        <span>{formatAmount(sumAmounts(state.sales.map((sale) => sale.amount)), common.locale)}</span>
       </div>
     </>
   );
