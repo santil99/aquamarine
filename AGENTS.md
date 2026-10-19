@@ -23,8 +23,8 @@ Aplicación interna de gestión comercial. Lleva un registro de ventas y gastos 
 - Usar Vite, React, TypeScript estricto y HeroUI. Los textos de interfaz viven en `src/presentation/texts/` (un diccionario por idioma, `en.ts` tipado contra `es.ts`). Las vistas nunca importan un idioma fijo: obtienen los textos con `useTexts()` y el idioma activo se cambia desde `LanguageContext`. Los montos se formatean con el locale del idioma activo.
 - Leer la constitución y la spec activa antes de implementar. No ampliar el alcance aprobado por suposición.
 - No deben quedar warnings en ningun archivo. Comprobar que no haya warnings. Si hay corregirlos.
-- Errores de aplicación: los SERVICES lanzan `NotFoundError` o `InputValidationError` (`src/application/errors.ts`), nunca `Error` genérico ni booleanos como resultado. La presentación traduce cada error a un texto fijo y nunca muestra `error.message`.
-- Autenticación en SERVICES: toda operación que requiera sesión llama a `requireAuthenticatedUser` al inicio. Todos los SERVICES siguen el mismo orden de validaciones.
+- Errores de aplicación: los SERVICES lanzan errores tipados de `src/application/errors.ts` (`NotFoundError`, `InputValidationError`). No introducir `Error` genérico nuevo ni devolver booleanos como resultado. La presentación traduce cada error a un texto fijo y nunca muestra `error.message`.
+- Autenticación en SERVICES: toda operación que requiera sesión llama a `requireAuthenticatedUser` antes de acceder al REPOSITORY. El orden respecto de la validación de entrada puede variar; ver el manual técnico.
 - Vistas de detalle: los estados de carga, no encontrado y error usan `useDetailLoader` y `DetailStatus` (`features/shared/`). No reimplementar esa máquina de estados en una vista.
 - Reglas de montos y validación de transacciones viven en `domain/shared/`. No duplicarlas en formularios ni en vistas.
 - Layouts y router: separar cada archivo por responsabilidad (cabecera, menú, estado de sesión, rutas). Si un archivo combina varias, dividirlo.
