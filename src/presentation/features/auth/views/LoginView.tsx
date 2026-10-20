@@ -51,7 +51,7 @@ export function LoginView({ signIn, onSignedIn }: LoginViewProps) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+    <main className="flex min-h-full flex-col items-center justify-center bg-background p-4">
       <section className="flex w-full max-w-sm flex-col gap-6">
         <h1 className="text-center text-2xl font-bold">{texts.title}</h1>
 

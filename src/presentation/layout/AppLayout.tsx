@@ -55,7 +55,7 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
 
   return (
     <>
-      <div className="flex min-h-screen flex-col bg-background">
+      <div className="flex min-h-full flex-col bg-background">
         <AppHeader onOpenMenu={() => setIsMenuOpen(true)} onLogout={handleLogout} />
         <main className="flex flex-1 flex-col items-center p-2 md:p-8">
           {hasLogoutError ? (

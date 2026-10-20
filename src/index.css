@@ -16,6 +16,31 @@
   --surface-secondary: var(--color-primary-subtle);
 }
 
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+}
+
+#root {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--background);
+}
+
 /* Modo oscuro: primario más claro para contrastar con el fondo y superficies algo más claras. */
 .dark {
   --color-primary: oklch(67.3% 0.182 276.935);
