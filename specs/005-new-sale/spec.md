@@ -6,7 +6,7 @@ Permitir registrar ventas en la base de datos y acceder desde el menú lateral a
 
 ## Requisitos funcionales
 
-- **RF-1. Navegación:** el drawer muestra “Nueva venta” y “Ventas del día”, sin opciones ficticias. Cada opción tiene un icono a la izquierda (HeroUI deberia ofrecer algo asi). Nueva venta abre `/sales/new`; Ventas del día abre `/`. Al navegar, el drawer se cierra. Se conservan el perfil y el control de tema existentes.
+- **RF-1. Navegación:** `/` redirige a Nueva venta (`/sales/new`) como pantalla predeterminada de la aplicación. El drawer muestra “Nueva venta” y “Ventas del día”, sin opciones ficticias. Cada opción tiene un icono a la izquierda (HeroUI deberia ofrecer algo asi). Nueva venta abre `/sales/new`; Ventas del día abre `/sales`. Al navegar, el drawer se cierra. Se conservan el perfil y el control de tema existentes.
 - **RF-2. Formulario:** incluir Monto numérico, Categoría, Medio de pago y Descripción/Detalle. Solo Monto y Categoría son obligatorios. Categoría y Medio de pago cargan opciones de sus tablas existentes y guardan los identificadores seleccionados.
 - **RF-3. Monto:** ingresar en pesos argentinos (ARS), exigir un valor mayor que cero, aceptar montos enteros como caso habitual y permitir hasta dos decimales para excepciones. No imponer un máximo funcional ni redondear o descartar decimales ingresados.
 - **RF-4. Descripción:** es opcional; si se proporciona, limitar a 500 caracteres y persistirla en `sales.detail` junto con la venta.
@@ -27,7 +27,7 @@ Permitir registrar ventas en la base de datos y acceder desde el menú lateral a
 - **CA-3:** los Select muestran opciones de sus catálogos existentes y se persisten los identificadores seleccionados.
 - **CA-4:** un envío válido registra inmediatamente una sola venta; durante la espera se previenen duplicados. Al completarse con éxito aparece confirmación debajo del formulario, se limpian los campos y se permanece en `/sales/new`.
 - **CA-5:** ante fallo de guardado aparece un error, se conservan los datos y es posible reintentar sin duplicar una venta exitosa.
-- **CA-6:** desde el drawer, Nueva venta abre `/sales/new` y Ventas del día abre `/`; el drawer se cierra al navegar y no muestra opciones ficticias.
+- **CA-6:** al abrir `/`, se muestra Nueva venta mediante la ruta `/sales/new`. Desde el drawer, Nueva venta abre `/sales/new` y Ventas del día abre `/sales`; el drawer se cierra al navegar y no muestra opciones ficticias.
 - **CA-7:** una venta registrada aparece en Ventas del día cuando corresponda según la fecha y zona horaria del negocio.
 
 ## Fuera de alcance

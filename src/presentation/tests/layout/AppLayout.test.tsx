@@ -45,6 +45,7 @@ describe("AppLayout", () => {
     expect(screen.getByText("Contenido")).toBeTruthy();
 
     await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+    await interaction.click(await screen.findByRole("button", { name: "Ventas" }));
 
     expect(await screen.findByText("Santiago")).toBeTruthy();
     expect(screen.getByText("santi@example.com")).toBeTruthy();
@@ -61,12 +62,27 @@ describe("AppLayout", () => {
     );
 
     await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+    await interaction.click(await screen.findByRole("button", { name: "Ventas" }));
     await interaction.click(await screen.findByRole("button", { name: "Nueva venta" }));
 
     expect(await screen.findByText("/sales/new")).toBeTruthy();
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).toBeNull();
     });
+  });
+
+  it("navigates to the summary route", async () => {
+    const interaction = userEvent.setup();
+    render(
+      <AppLayout loadUser={() => Promise.resolve(authenticatedUser)} onLogout={noopLogout}>
+        <LocationProbe />
+      </AppLayout>,
+    );
+
+    await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+    await interaction.click(await screen.findByRole("button", { name: "Resumen" }));
+
+    expect(await screen.findByText("/summary")).toBeTruthy();
   });
 
   it("shows a localized fallback in the menu when there is no user", async () => {
@@ -81,12 +97,16 @@ describe("AppLayout", () => {
   it("closes the menu when a navigation option is selected", async () => {
     const interaction = userEvent.setup();
     render(
-      <AppLayout loadUser={() => Promise.resolve(authenticatedUser)} onLogout={noopLogout}>{null}</AppLayout>,
+      <AppLayout loadUser={() => Promise.resolve(authenticatedUser)} onLogout={noopLogout}>
+        <LocationProbe />
+      </AppLayout>,
     );
 
     await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
+    await interaction.click(await screen.findByRole("button", { name: "Ventas" }));
     await interaction.click(await screen.findByRole("button", { name: "Ventas del día" }));
 
+    expect(await screen.findByText("/sales")).toBeTruthy();
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).toBeNull();
     });

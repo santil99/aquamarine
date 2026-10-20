@@ -27,7 +27,7 @@ export function createNavigationMenu(texts: Texts["layout"]["navigation"]): Navi
       Icon: ShoppingBag,
       items: [
         { kind: "item", path: "/sales/new", label: texts.newSale, Icon: Plus },
-        { kind: "item", path: "/", label: texts.salesToday, Icon: List },
+        { kind: "item", path: "/sales", label: texts.salesToday, Icon: List },
       ],
     },
     {
@@ -41,6 +41,6 @@ export function createNavigationMenu(texts: Texts["layout"]["navigation"]): Navi
       ],
     },
     { kind: "item", path: "/search", label: texts.search, Icon: Search },
-    { kind: "item", path: "/resumen", label: texts.summary, Icon: ChartColumn },
+    { kind: "item", path: "/summary", label: texts.summary, Icon: ChartColumn },
   ];
 }

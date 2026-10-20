@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Proveer una pantalla de resumen (`/resumen` o pantalla principal del balance) que consolide las finanzas del mes seleccionado, mostrando las métricas principales (recaudado, gastos y balance neto) en una tarjeta superior junto con un navegador mensual, y detallando el desglose agrupado por categoría (tanto para ventas como para gastos) ordenado de mayor a menor importe.
+Proveer una pantalla de resumen (`/summary` o pantalla principal del balance) que consolide las finanzas del mes seleccionado, mostrando las métricas principales (recaudado, gastos y balance neto) en una tarjeta superior junto con un navegador mensual, y detallando el desglose agrupado por categoría (tanto para ventas como para gastos) ordenado de mayor a menor importe.
 
 ## Requisitos funcionales
 

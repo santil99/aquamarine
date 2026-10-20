@@ -46,11 +46,12 @@ export function AppRoutes({ dependencies: deps }: AppRoutesProps) {
     <Routes>
       <Route path="/login" element={<LoginLayout auth={deps.auth} />} />
       <Route element={<ProtectedLayout auth={deps.auth} loadUser={deps.loadUser} />}>
-        <Route path="/" element={<SalesListRoute deps={deps} />} />
+        <Route path="/" element={<Navigate to="/sales/new" replace />} />
+        <Route path="/sales" element={<SalesListRoute deps={deps} />} />
         <Route path="/sales/new" element={<NewSaleRoute deps={deps} />} />
         <Route path="/sales/:id" element={<SaleDetailRoute deps={deps} />} />
         <Route path="/search" element={<SearchRoute deps={deps} />} />
-        <Route path="/resumen" element={<SummaryRoute deps={deps} />} />
+        <Route path="/summary" element={<SummaryRoute deps={deps} />} />
         <Route path="/expenses" element={<ExpensesRoute deps={deps} />} />
         <Route path="/expenses/new" element={<NewExpenseRoute deps={deps} />} />
         <Route path="/expenses/:id" element={<ExpenseDetailRoute deps={deps} />} />
@@ -161,7 +162,7 @@ function SaleDetailRoute({ deps }: RouteProps) {
   const { date } = useNavigationState<SalesListNavigationState>();
 
   const exitToList = (feedback?: SaleFeedback) =>
-    navigate("/", { state: { date, feedback } satisfies SalesListNavigationState });
+    navigate("/sales", { state: { date, feedback } satisfies SalesListNavigationState });
 
   return (
     <SaleDetailView
