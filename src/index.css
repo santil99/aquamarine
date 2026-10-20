@@ -41,6 +41,11 @@ body {
   background-color: var(--background);
 }
 
+.app-drawer__backdrop,
+.app-drawer__content {
+  height: calc(var(--visual-viewport-height, 100dvh) + env(safe-area-inset-bottom, 0px));
+}
+
 /* Modo oscuro: primario más claro para contrastar con el fondo y superficies algo más claras. */
 .dark {
   --color-primary: oklch(67.3% 0.182 276.935);

@@ -28,8 +28,8 @@ export function AppDrawer({
 
   return (
     <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
-      <Drawer.Backdrop>
-        <Drawer.Content placement="left">
+      <Drawer.Backdrop className="app-drawer__backdrop">
+        <Drawer.Content className="app-drawer__content" placement="left">
           <Drawer.Dialog aria-label={texts.menuLabel} className="flex h-full flex-col">
             {/* Cabecera con Avatar, datos y botón de cierre */}
             <Drawer.Header className="flex flex-col gap-4 border-b pb-4">
