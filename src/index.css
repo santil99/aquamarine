@@ -41,9 +41,16 @@ body {
   background-color: var(--background);
 }
 
+/* HeroUI fija la altura con --visual-viewport-height y deja una franja sin cubrir en iOS.
+   Con inset: 0 (ya aplicado por HeroUI) la capa ocupa todo el viewport, incluida el área segura. */
 .app-drawer__backdrop,
 .app-drawer__content {
-  height: calc(var(--visual-viewport-height, 100dvh) + env(safe-area-inset-bottom, 0px));
+  height: auto;
+}
+
+.app-drawer__dialog {
+  padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Modo oscuro: primario más claro para contrastar con el fondo y superficies algo más claras. */

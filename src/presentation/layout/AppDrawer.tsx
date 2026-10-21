@@ -30,7 +30,7 @@ export function AppDrawer({
     <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
       <Drawer.Backdrop className="app-drawer__backdrop">
         <Drawer.Content className="app-drawer__content" placement="left">
-          <Drawer.Dialog aria-label={texts.menuLabel} className="flex h-full flex-col">
+          <Drawer.Dialog aria-label={texts.menuLabel} className="app-drawer__dialog flex h-full flex-col">
             {/* Cabecera con Avatar, datos y botón de cierre */}
             <Drawer.Header className="flex flex-col gap-4 border-b pb-4">
               <div className="flex items-start justify-between">

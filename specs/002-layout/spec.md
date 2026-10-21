@@ -14,7 +14,7 @@ Dar al usuario que ya inició sesión y seleccionó un negocio un header común 
 
 - **Mobile-first y accesible:** el header y el panel deben adaptarse al ancho disponible y sus controles deben ser accesibles mediante teclado y tecnologías de asistencia.
 - **iOS y viewport móvil:** la aplicación ocupa el viewport hasta las áreas seguras, mantiene el fondo de la app detrás de la barra de estado y evita el rebote del documento; el contenido puede seguir desplazándose dentro de la aplicación.
-- **Drawer móvil:** el panel y su fondo cubren también el área segura inferior del viewport, sin dejar franjas visibles al abrirse.
+- **Drawer móvil:** el panel y su fondo cubren todo el viewport, incluidas las áreas seguras superior e inferior; el contenido del panel respeta el área segura superior.
 
 ## Fuera de alcance
 
