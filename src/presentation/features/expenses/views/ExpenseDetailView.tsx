@@ -137,8 +137,6 @@ function ExpenseDetailForm({
 
   return (
     <section className="flex w-full max-w-md flex-col gap-4">
-      <h2 className="text-xl font-bold">{texts.title}</h2>
-
       <p className="flex items-center gap-2 text-sm">
         <CalendarDays size={18} aria-hidden="true" />
         <span className="font-medium">{texts.dateLabel}:</span>

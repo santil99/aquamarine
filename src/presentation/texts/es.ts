@@ -17,7 +17,6 @@ export const es = {
     },
   },
   layout: {
-    title: "Aquamarine",
     openMenu: "Abrir menú",
     closeMenu: "Cerrar menú",
     menuLabel: "Menú de navegación",
@@ -82,6 +81,7 @@ export const es = {
     },
   },
   summary: {
+    title: "Resumen",
     netBalance: "Balance neto",
     collected: "Recaudado",
     expenses: "Gastos",

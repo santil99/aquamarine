@@ -62,8 +62,6 @@ export function NewExpenseView({ timeZone, loadCatalogs, registerExpense }: NewE
 
   return (
     <section className="flex w-full max-w-md flex-col gap-4">
-      <h5 className="text-xl text-center font-bold">{texts.title}</h5>
-
       {catalogs.status === "error" ? (
         <div className="flex flex-col items-start gap-3 rounded-lg border border-danger/20 p-3">
           <p role="alert" className="text-sm text-danger">{texts.catalogsError}</p>

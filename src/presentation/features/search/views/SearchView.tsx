@@ -40,7 +40,6 @@ export function SearchView({
   onOpenSale,
   onOpenExpense,
 }: SearchViewProps) {
-  const { search: texts } = useTexts();
   const [today] = useState(() => getTodayInTimeZone(timeZone));
   const [type, setType] = useState<SearchType>("sales");
   const [draft, setDraft] = useState<SaleSearchFilters>(() => getDefaultSaleSearchFilters(today));
@@ -105,8 +104,6 @@ export function SearchView({
 
   return (
     <section className="flex w-full flex-col gap-6">
-      <h1 className="text-2xl font-semibold">{texts.title}</h1>
-
       <SearchFilterFields
         type={type}
         onTypeChange={changeType}

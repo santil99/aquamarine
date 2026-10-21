@@ -41,7 +41,6 @@ describe("AppLayout", () => {
       </AppLayout>,
     );
 
-    expect(screen.getByRole("heading", { name: "Aquamarine" })).toBeTruthy();
     expect(screen.getByText("Contenido")).toBeTruthy();
 
     await interaction.click(screen.getByRole("button", { name: "Abrir menú" }));
@@ -51,6 +50,19 @@ describe("AppLayout", () => {
     expect(screen.getByText("santi@example.com")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Nueva venta" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Ventas del día" })).toBeTruthy();
+  });
+
+  it.each([
+    ["/sales/new", "Nueva venta"],
+    ["/sales/abc", "Detalle de venta"],
+  ])("shows the title of the current screen in the header at %s", (path, title) => {
+    renderWithoutRouter(
+      <MemoryRouter initialEntries={[path]}>
+        <AppLayout loadUser={() => Promise.resolve(null)} onLogout={noopLogout}>{null}</AppLayout>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("heading", { name: title })).toBeTruthy();
   });
 
   it("navigates to the selected screen and closes the menu", async () => {

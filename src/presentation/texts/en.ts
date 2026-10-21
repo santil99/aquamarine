@@ -19,7 +19,6 @@ export const en: Texts = {
     },
   },
   layout: {
-    title: "My business",
     openMenu: "Open menu",
     closeMenu: "Close menu",
     menuLabel: "Navigation menu",
@@ -84,6 +83,7 @@ export const en: Texts = {
     },
   },
   summary: {
+    title: "Summary",
     netBalance: "Net balance",
     collected: "Collected",
     expenses: "Expenses",

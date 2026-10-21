@@ -3,6 +3,7 @@ import type { AuthenticatedUser } from "@/application/ports/authRepository";
 import { useTexts } from "@/presentation/texts/useTexts";
 import { createNavigationMenu } from "@/presentation/layout/navigationMenu";
 import { toProfileState, type ProfileState } from "@/presentation/layout/profileState";
+import { getScreenTitle } from "@/presentation/layout/screenTitle";
 import { AppHeader } from "@/presentation/layout/AppHeader";
 import { AppDrawer } from "@/presentation/layout/AppDrawer";
 import { useLocation, useNavigate } from "react-router";
@@ -14,13 +15,15 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
-  const { layout: texts } = useTexts();
+  const allTexts = useTexts();
+  const texts = allTexts.layout;
   const navigationEntries = createNavigationMenu(texts.navigation);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState<ProfileState>({ status: "loading" });
   const [hasLogoutError, setHasLogoutError] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const screenTitle = getScreenTitle(location.pathname, allTexts);
 
   async function navigateTo(path: string) {
     setIsMenuOpen(false);
@@ -56,7 +59,7 @@ export function AppLayout({ loadUser, onLogout, children }: AppLayoutProps) {
   return (
     <>
       <div className="flex min-h-full flex-col bg-background">
-        <AppHeader onOpenMenu={() => setIsMenuOpen(true)} onLogout={handleLogout} />
+        <AppHeader title={screenTitle} onOpenMenu={() => setIsMenuOpen(true)} onLogout={handleLogout} />
         <main className="flex flex-1 flex-col items-center p-2 md:p-8">
           {hasLogoutError ? (
             <p role="alert" className="mb-4 text-sm text-danger">
