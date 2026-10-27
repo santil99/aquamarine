@@ -41,11 +41,13 @@ body {
   background-color: var(--background);
 }
 
-/* HeroUI fija la altura con --visual-viewport-height y deja una franja sin cubrir en iOS.
-   Con inset: 0 (ya aplicado por HeroUI) la capa ocupa todo el viewport, incluida el área segura. */
+/* HeroUI iguala la altura a --visual-viewport-height, que en PWA de iOS excluye el área segura inferior
+   y deja una franja con el fondo de #root. Se fuerza la altura de pantalla completa. */
 .app-drawer__backdrop,
 .app-drawer__content {
-  height: auto;
+  bottom: 0;
+  height: 100vh;
+  height: 100dvh;
 }
 
 .app-drawer__dialog {
