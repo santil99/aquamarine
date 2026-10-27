@@ -5,6 +5,7 @@ import type { TransactionInput } from "@/domain/shared/transactionInput";
 import type { ExpenseCatalogs } from "@/domain/expenses/expenseForm";
 import type { ExpenseSearchFilters } from "@/domain/expenses/expenseSearch";
 import type { SaleSearchFilters } from "@/domain/sales/saleSearch";
+import type { ReportPeriodId } from "@/domain/reports/reportPeriod";
 import { activeBusiness } from "@/infrastructure/business/mockBusinessContext";
 import { supabaseAuthRepository } from "@/infrastructure/supabase/supabaseAuthRepository";
 import { supabaseExpensesRepository } from "@/infrastructure/supabase/supabaseExpensesRepository";
@@ -62,6 +63,8 @@ const loadMonthlyExpenseTotals = (monthStart: string) =>
   expensesService.getCategoryTotalsForMonth(activeBusiness, monthStart);
 const loadMonthlyDailySales = (monthStart: string) =>
   salesService.getDailyTotalsForMonth(activeBusiness, monthStart);
+const loadSalesReport = (periodId: ReportPeriodId) =>
+  salesService.getSalesReport(activeBusiness, periodId);
 
 const dependencies = {
   auth: authService,
@@ -85,6 +88,7 @@ const dependencies = {
   loadMonthlySalesTotals,
   loadMonthlyExpenseTotals,
   loadMonthlyDailySales,
+  loadSalesReport,
 };
 
 export type AppDependencies = typeof dependencies;

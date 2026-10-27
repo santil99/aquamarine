@@ -16,6 +16,7 @@ const SCREEN_TITLE_RULES: readonly ScreenTitleRule[] = [
   { path: "/expenses", title: (texts) => texts.expensesList.title },
   { path: "/search", title: (texts) => texts.search.title },
   { path: "/summary", title: (texts) => texts.summary.title },
+  { path: "/reports", title: (texts) => texts.reports.title },
 ];
 
 export function getScreenTitle(pathname: string, texts: Texts): string {

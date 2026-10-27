@@ -21,6 +21,8 @@ import {
 } from "@/domain/sales/saleImages";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";
+import { getReportPeriod, type ReportPeriodId } from "@/domain/reports/reportPeriod";
+import { buildSalesReport, type SalesReport } from "@/domain/reports/salesReport";
 
 export class SaleImagesValidationError extends Error {
   readonly error: SaleImageError;
@@ -93,6 +95,15 @@ export class SalesService {
     await requireAuthenticatedUser(this.authRepository);
 
     return this.salesRepository.listCatalogs();
+  }
+
+  async getSalesReport(business: BusinessContext, periodId: ReportPeriodId): Promise<SalesReport> {
+    await requireAuthenticatedUser(this.authRepository);
+
+    const period = getReportPeriod(periodId, getTodayInTimeZone(business.timeZone));
+    const rows = await this.salesRepository.listForPeriod(business, period.dateFrom, period.dateTo);
+
+    return buildSalesReport(rows, period, business.timeZone);
   }
 
   async registerSale(input: TransactionInput, transactionDate: string, newImages: Blob[]): Promise<void> {

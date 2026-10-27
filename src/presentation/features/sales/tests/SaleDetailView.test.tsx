@@ -14,6 +14,7 @@ const sale: SaleWithImages = {
   paymentMethod: "Efectivo",
   detail: "Mesa 4",
   transactionDate: "2024-05-10",
+  createdAt: "2024-05-10T14:30:00Z",
   imagePaths: [],
   images: [],
 };
@@ -69,6 +70,7 @@ describe("SaleDetailView", () => {
     expect(
       (screen.getByRole("textbox", { name: "Detalle (opcional)" }) as HTMLTextAreaElement).value,
     ).toBe("Mesa 4");
+    expect(screen.getByText("11:30")).toBeTruthy();
   });
 
   it("shows a not found message when the sale does not exist", async () => {

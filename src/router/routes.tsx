@@ -32,6 +32,9 @@ const SalesListView = lazy(() =>
 const SearchView = lazy(() =>
   import("@/presentation/features/search/views/SearchView").then((m) => ({ default: m.SearchView })),
 );
+const SalesReportView = lazy(() =>
+  import("@/presentation/features/reports/views/SalesReportView").then((m) => ({ default: m.SalesReportView })),
+);
 
 interface RouteProps {
   readonly deps: AppDependencies;
@@ -52,6 +55,7 @@ export function AppRoutes({ dependencies: deps }: AppRoutesProps) {
         <Route path="/sales/:id" element={<SaleDetailRoute deps={deps} />} />
         <Route path="/search" element={<SearchRoute deps={deps} />} />
         <Route path="/summary" element={<SummaryRoute deps={deps} />} />
+        <Route path="/reports" element={<ReportsRoute deps={deps} />} />
         <Route path="/expenses" element={<ExpensesRoute deps={deps} />} />
         <Route path="/expenses/new" element={<NewExpenseRoute deps={deps} />} />
         <Route path="/expenses/:id" element={<ExpenseDetailRoute deps={deps} />} />
@@ -85,6 +89,10 @@ function SummaryRoute({ deps }: RouteProps) {
       timeZone={deps.timeZone}
     />
   );
+}
+
+function ReportsRoute({ deps }: RouteProps) {
+  return <SalesReportView loadReport={deps.loadSalesReport} />;
 }
 
 function ExpensesRoute({ deps }: RouteProps) {
@@ -167,6 +175,7 @@ function SaleDetailRoute({ deps }: RouteProps) {
   return (
     <SaleDetailView
       saleId={id}
+      timeZone={deps.timeZone}
       loadSale={deps.loadSale}
       loadCatalogs={deps.loadCatalogs}
       updateSale={deps.updateSale}

@@ -4,8 +4,9 @@ import {
   Button,
   Form,
 } from "@heroui/react";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Clock } from "lucide-react";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
+import { getTimeInTimeZone } from "@/domain/business/businessDay";
 import type { TransactionInput } from "@/domain/shared/transactionInput";
 import type { SaleDetail, SaleWithImages } from "@/domain/sales/saleDetail";
 import { DetailStatus } from "@/presentation/features/shared/DetailStatus";
@@ -22,6 +23,7 @@ import { useTexts } from "@/presentation/texts/useTexts";
 
 interface SaleDetailViewProps {
   readonly saleId: string;
+  readonly timeZone: string;
   readonly loadSale: (id: string) => Promise<SaleWithImages | null>;
   readonly loadCatalogs: () => Promise<SalesCatalogs>;
   readonly updateSale: (
@@ -36,6 +38,7 @@ interface SaleDetailViewProps {
 
 export function SaleDetailView({
   saleId,
+  timeZone,
   loadSale,
   loadCatalogs,
   updateSale,
@@ -79,6 +82,7 @@ export function SaleDetailView({
   return (
     <SaleDetailForm
       sale={sale.data}
+      timeZone={timeZone}
       categories={catalogs.catalogs.categories}
       paymentMethods={catalogs.catalogs.paymentMethods}
       updateSale={updateSale}
@@ -90,6 +94,7 @@ export function SaleDetailView({
 
 interface SaleDetailFormProps {
   readonly sale: SaleWithImages;
+  readonly timeZone: string;
   readonly categories: SalesCatalogs["categories"];
   readonly paymentMethods: SalesCatalogs["paymentMethods"];
   readonly updateSale: SaleDetailViewProps["updateSale"];
@@ -99,6 +104,7 @@ interface SaleDetailFormProps {
 
 function SaleDetailForm({
   sale,
+  timeZone,
   categories,
   paymentMethods,
   updateSale,
@@ -155,6 +161,11 @@ function SaleDetailForm({
         <CalendarDays size={18} aria-hidden="true" />
         <span className="font-medium">{texts.dateLabel}:</span>
         <span>{formatTransactionDate(sale.transactionDate, common.locale)}</span>
+      </p>
+      <p className="flex items-center gap-2 text-sm">
+        <Clock size={18} aria-hidden="true" />
+        <span className="font-medium">{texts.timeLabel}:</span>
+        <span>{getTimeInTimeZone(timeZone, new Date(sale.createdAt))}</span>
       </p>
 
       <Form onSubmit={handleSave} className="flex w-full flex-col gap-4">

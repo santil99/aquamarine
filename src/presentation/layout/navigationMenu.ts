@@ -1,4 +1,4 @@
-import { ChartColumn, List, Plus, Receipt, ReceiptText, Search, ShoppingBag, Wallet, type LucideIcon } from "lucide-react";
+import { ChartColumn, FileDown, List, Plus, Receipt, ReceiptText, Search, ShoppingBag, Wallet, type LucideIcon } from "lucide-react";
 import type { Texts } from "@/presentation/texts/types";
 
 export interface NavigationItem {
@@ -42,5 +42,6 @@ export function createNavigationMenu(texts: Texts["layout"]["navigation"]): Navi
     },
     { kind: "item", path: "/search", label: texts.search, Icon: Search },
     { kind: "item", path: "/summary", label: texts.summary, Icon: ChartColumn },
+    { kind: "item", path: "/reports", label: texts.reports, Icon: FileDown },
   ];
 }

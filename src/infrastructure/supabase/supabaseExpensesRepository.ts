@@ -90,8 +90,8 @@ export const supabaseExpensesRepository: ExpensesRepository = {
     if (filters.categoryId) query = query.eq("category_id", filters.categoryId);
 
     const { data, error } = await query
-      .order("expense_date", { ascending: false })
-      .order("created_at", { ascending: false })
+      .order("expense_date", { ascending: true })
+      .order("created_at", { ascending: true })
       .returns<ExpenseSearchRow[]>();
 
     if (error) {

@@ -3,6 +3,7 @@ import { addMonths } from "@/domain/business/businessDay";
 import type { SaleCatalogOption } from "@/domain/sales/saleCatalog";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
+import type { SalesReportRow } from "@/domain/reports/salesReport";
 import type { SaleSearchItem } from "@/domain/sales/saleSearch";
 import { escapeLikePattern } from "@/infrastructure/supabase/escapeLikePattern";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
@@ -33,6 +34,15 @@ interface SaleSearchRow {
   payment_method: { name: string } | null;
 }
 
+interface SaleReportRowRecord {
+  id: string;
+  amount: string;
+  sale_date: string;
+  created_at: string;
+  detail: string | null;
+  payment_method: { name: string } | null;
+}
+
 interface SaleCatalogRow {
   id: string | number;
   name: string;
@@ -42,6 +52,7 @@ interface SaleDetailRow {
   id: string;
   amount: string;
   sale_date: string;
+  created_at: string;
   detail: string | null;
   category_id: string | number;
   payment_method_id: string | number | null;
@@ -83,6 +94,26 @@ export const supabaseSalesRepository: SalesRepository = {
     return data.map((row) => ({ transactionDate: row.sale_date, amount: row.amount }));
   },
 
+  async listForPeriod(_business, dateFrom, dateTo) {
+    // Amount is cast to text so the decimal value is not parsed as a JS number.
+    const { data, error } = await supabase
+      .from("sales")
+      .select(
+        "id, amount::text, sale_date, created_at, detail, payment_method:payment_methods(name)",
+      )
+      .gte("sale_date", dateFrom)
+      .lte("sale_date", dateTo)
+      .order("sale_date", { ascending: true })
+      .order("created_at", { ascending: true })
+      .returns<SaleReportRowRecord[]>();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map(toSalesReportRow);
+  },
+
   async search(_business, filters) {
     let query = supabase
       .from("sales")
@@ -99,8 +130,8 @@ export const supabaseSalesRepository: SalesRepository = {
     if (filters.paymentMethodId) query = query.eq("payment_method_id", filters.paymentMethodId);
 
     const { data, error } = await query
-      .order("sale_date", { ascending: false })
-      .order("created_at", { ascending: false })
+      .order("sale_date", { ascending: true })
+      .order("created_at", { ascending: true })
       .returns<SaleSearchRow[]>();
 
     if (error) {
@@ -164,7 +195,7 @@ export const supabaseSalesRepository: SalesRepository = {
     const { data, error } = await supabase
       .from("sales")
       .select(
-        "id, amount::text, sale_date, detail, category_id, payment_method_id, images, category:categories(name), payment_method:payment_methods(name)",
+        "id, amount::text, sale_date, created_at, detail, category_id, payment_method_id, images, category:categories(name), payment_method:payment_methods(name)",
       )
       .eq("id", id)
       .maybeSingle<SaleDetailRow>();
@@ -216,6 +247,7 @@ function toSaleDetail(row: SaleDetailRow): SaleDetail {
     id: row.id,
     amount: row.amount,
     transactionDate: row.sale_date,
+    createdAt: row.created_at,
     categoryId: String(row.category_id),
     paymentMethodId: row.payment_method_id === null ? null : String(row.payment_method_id),
     detail: row.detail,
@@ -231,6 +263,17 @@ function toSaleSearchItem(row: SaleSearchRow): SaleSearchItem {
     amount: row.amount,
     transactionDate: row.sale_date,
     category: row.category?.name ?? "",
+    paymentMethod: row.payment_method?.name ?? null,
+    detail: row.detail,
+  };
+}
+
+function toSalesReportRow(row: SaleReportRowRecord): SalesReportRow {
+  return {
+    id: row.id,
+    amount: row.amount,
+    transactionDate: row.sale_date,
+    createdAt: row.created_at,
     paymentMethod: row.payment_method?.name ?? null,
     detail: row.detail,
   };

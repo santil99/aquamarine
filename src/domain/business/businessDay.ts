@@ -7,6 +7,16 @@ export function getDateInTimeZone(timeZone: string, instant = new Date()): strin
   }).format(instant);
 }
 
+/** Time of day as `HH:mm` in the given time zone. */
+export function getTimeInTimeZone(timeZone: string, instant: Date): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(instant);
+}
+
 export function getTodayInTimeZone(timeZone: string, now = new Date()): string {
   return getDateInTimeZone(timeZone, now);
 }

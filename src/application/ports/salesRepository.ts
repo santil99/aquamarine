@@ -5,6 +5,7 @@ import type { SaleCatalogOption } from "@/domain/sales/saleCatalog";
 import type { SaleDetail } from "@/domain/sales/saleDetail";
 import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SaleSearchFilters, SaleSearchItem } from "@/domain/sales/saleSearch";
+import type { SalesReportRow } from "@/domain/reports/salesReport";
 
 export interface SalesCatalogs {
   categories: SaleCatalogOption[];
@@ -46,6 +47,11 @@ export interface SalesRepository {
     business: BusinessContext,
     filters: SaleSearchFilters,
   ): Promise<SaleSearchItem[]>;
+  listForPeriod(
+    business: BusinessContext,
+    dateFrom: string,
+    dateTo: string,
+  ): Promise<SalesReportRow[]>;
   listCatalogs(): Promise<SalesCatalogs>;
   create(record: NewSaleRecord): Promise<void>;
   getById(id: string): Promise<SaleDetail | null>;

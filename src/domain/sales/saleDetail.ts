@@ -3,6 +3,8 @@ import type { TransactionInput } from "@/domain/shared/transactionInput";
 export interface SaleDetail extends TransactionInput {
   id: string;
   transactionDate: string;
+  /** Registration instant (ISO), used to show the time of day. */
+  createdAt: string;
   category: string;
   paymentMethod: string | null;
   imagePaths: string[];
