@@ -1,6 +1,7 @@
 import type { TransactionInput } from "@/domain/shared/transactionInput";
 
 export const NO_PAYMENT_METHOD = "none";
+export const DEFAULT_PAYMENT_METHOD_ID = "1";
 
 export interface SaleFormValues {
   amount: string;

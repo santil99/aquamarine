@@ -85,6 +85,19 @@ describe("ExpensesListView", () => {
     expect(await screen.findByText(formatMonthLabel(target, "es-AR"))).toBeTruthy();
   });
 
+  it("shows the monthly total of the expenses listed", async () => {
+    render(
+      <ExpensesListView
+        listExpenses={() => Promise.resolve(expenses)}
+        timeZone={TIME_ZONE}
+        onOpenExpense={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText("Total del mes")).toBeTruthy();
+    expect(screen.getByText("1.314,50")).toBeTruthy();
+  });
+
   it("opens the detail of an expense from its eye button", async () => {
     const onOpenExpense = vi.fn();
     const user = userEvent.setup();

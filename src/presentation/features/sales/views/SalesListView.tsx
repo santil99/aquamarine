@@ -127,19 +127,19 @@ function SalesListContent({
               <Table.Column isRowHeader>{texts.columns.amount}</Table.Column>
               <Table.Column>{texts.columns.category}</Table.Column>
               <Table.Column>{texts.columns.paymentMethod}</Table.Column>
-              <Table.Column>{texts.columns.action}</Table.Column>
+              <Table.Column className="w-px">{texts.columns.action}</Table.Column>
             </Table.Header>
             <Table.Body items={state.sales}>
               {(sale) => (
                 <Table.Row id={sale.id}>
-                  <Table.Cell className="whitespace-nowrap text-right">
+                  <Table.Cell className="whitespace-nowrap py-2 text-right">
                     {formatAmount(sale.amount, common.locale)}
                   </Table.Cell>
-                  <Table.Cell>{sale.category}</Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className="max-w-0 truncate py-2">{sale.category}</Table.Cell>
+                  <Table.Cell className="max-w-0 truncate py-2">
                     {sale.paymentMethod ?? texts.noPaymentMethod}
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className="w-px py-2">
                     <Button
                       isIconOnly
                       size="sm"

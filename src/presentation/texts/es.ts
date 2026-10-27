@@ -73,6 +73,7 @@ export const es = {
     retry: "Reintentar",
     detail: "Ver detalle",
     noPaymentMethod: "—",
+    monthlyTotal: "Total del mes",
     columns: {
       date: "Fecha",
       amount: "Monto",

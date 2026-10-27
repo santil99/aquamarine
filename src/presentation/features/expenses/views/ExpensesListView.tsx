@@ -4,6 +4,7 @@ import { Eye } from "lucide-react";
 import { getMonthStart, getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import { DateNavigator } from "@/presentation/components/DateNavigator";
+import { sumAmounts } from "@/domain/shared/amount";
 import { formatAmount } from "@/presentation/formatters/amount";
 import { formatTransactionDayMonth } from "@/presentation/formatters/transactionDate";
 import { createMonthMode } from "@/presentation/components/monthMode";
@@ -106,43 +107,51 @@ function ExpensesListContent({
   }
 
   return (
-    <Table.Root variant="secondary">
-      <Table.ScrollContainer>
-        <Table.Content aria-label={texts.title}>
-          <Table.Header>
-            <Table.Column isRowHeader>{texts.columns.date}</Table.Column>
-            <Table.Column>{texts.columns.amount}</Table.Column>
-            <Table.Column>{texts.columns.category}</Table.Column>
-            <Table.Column>{texts.columns.paymentMethod}</Table.Column>
-            <Table.Column>{texts.columns.action}</Table.Column>
-          </Table.Header>
-          <Table.Body items={state.expenses}>
-            {(expense) => (
-              <Table.Row id={expense.id}>
-                <Table.Cell className="whitespace-nowrap">
-                  {formatTransactionDayMonth(expense.transactionDate, common.locale)}
-                </Table.Cell>
-                <Table.Cell className="whitespace-nowrap text-right">
-                  {formatAmount(expense.amount, common.locale)}
-                </Table.Cell>
-                <Table.Cell>{expense.category}</Table.Cell>
-                <Table.Cell>{expense.paymentMethod ?? texts.noPaymentMethod}</Table.Cell>
-                <Table.Cell>
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    variant="ghost"
-                    aria-label={texts.detail}
-                    onPress={() => onOpenExpense(expense.id)}
-                  >
-                    <Eye size={18} />
-                  </Button>
-                </Table.Cell>
-              </Table.Row>
-            )}
-          </Table.Body>
-        </Table.Content>
-      </Table.ScrollContainer>
-    </Table.Root>
+    <>
+      <Table.Root variant="secondary">
+        <Table.ScrollContainer>
+          <Table.Content aria-label={texts.title}>
+            <Table.Header>
+              <Table.Column isRowHeader>{texts.columns.date}</Table.Column>
+              <Table.Column>{texts.columns.amount}</Table.Column>
+              <Table.Column>{texts.columns.category}</Table.Column>
+              <Table.Column>{texts.columns.paymentMethod}</Table.Column>
+              <Table.Column className="w-px">{texts.columns.action}</Table.Column>
+            </Table.Header>
+            <Table.Body items={state.expenses}>
+              {(expense) => (
+                <Table.Row id={expense.id}>
+                  <Table.Cell className="whitespace-nowrap py-2">
+                    {formatTransactionDayMonth(expense.transactionDate, common.locale)}
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap py-2 text-right">
+                    {formatAmount(expense.amount, common.locale)}
+                  </Table.Cell>
+                  <Table.Cell className="max-w-0 truncate py-2">{expense.category}</Table.Cell>
+                  <Table.Cell className="max-w-0 truncate py-2">
+                    {expense.paymentMethod ?? texts.noPaymentMethod}
+                  </Table.Cell>
+                  <Table.Cell className="w-px py-2">
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="ghost"
+                      aria-label={texts.detail}
+                      onPress={() => onOpenExpense(expense.id)}
+                    >
+                      <Eye size={18} />
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table.Content>
+        </Table.ScrollContainer>
+      </Table.Root>
+      <div className="flex justify-between gap-2 border-t pt-3 font-semibold">
+        <span>{texts.monthlyTotal}</span>
+        <span>{formatAmount(sumAmounts(state.expenses.map((expense) => expense.amount)), common.locale)}</span>
+      </div>
+    </>
   );
 }

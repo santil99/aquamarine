@@ -75,6 +75,7 @@ export const en: Texts = {
     retry: "Retry",
     detail: "View details",
     noPaymentMethod: "—",
+    monthlyTotal: "Monthly total",
     columns: {
       date: "Date",
       amount: "Amount",

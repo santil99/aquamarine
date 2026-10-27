@@ -4,7 +4,7 @@ import type { SalesCatalogs } from "@/application/ports/salesRepository";
 import { getTodayInTimeZone } from "@/domain/business/businessDay";
 import type { TransactionInput } from "@/domain/shared/transactionInput";
 import { SaleFields } from "@/presentation/features/shared/SaleFields";
-import { NO_PAYMENT_METHOD, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
+import { DEFAULT_PAYMENT_METHOD_ID, type SaleFormValues } from "@/presentation/features/shared/saleFormValues";
 import { SaleImagesField } from "@/presentation/features/sales/SaleImagesField";
 import { useSaleImages } from "@/presentation/features/sales/useSaleImages";
 import { TransactionDateField } from "@/presentation/features/shared/TransactionDateField";
@@ -15,7 +15,7 @@ import { useTexts } from "@/presentation/texts/useTexts";
 const EMPTY_FORM: SaleFormValues = {
   amount: "",
   categoryId: null,
-  paymentMethodId: NO_PAYMENT_METHOD,
+  paymentMethodId: DEFAULT_PAYMENT_METHOD_ID,
   detail: "",
 };
 

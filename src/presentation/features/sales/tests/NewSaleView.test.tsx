@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
@@ -10,7 +10,7 @@ const TIME_ZONE = "UTC";
 
 const catalogs: SalesCatalogs = {
   categories: [{ id: "cat-1", name: "Comida" }],
-  paymentMethods: [{ id: "pm-1", name: "Efectivo" }],
+  paymentMethods: [{ id: "1", name: "Efectivo" }],
 };
 
 describe("NewSaleView", () => {
@@ -67,6 +67,14 @@ describe("NewSaleView", () => {
     expect(screen.queryByText("Selecciona una categoría")).toBeNull();
   });
 
+  it("selects Efectivo as the default payment method", async () => {
+    render(<NewSaleView loadCatalogs={() => Promise.resolve(catalogs)} registerSale={() => Promise.resolve()} timeZone={TIME_ZONE} />);
+
+    await screen.findByRole("textbox", { name: "Monto" });
+
+    await waitFor(() => expect(screen.getByRole("button", { name: /Medio de pago/ }).textContent).toContain("Efectivo"));
+  });
+
   it("registers a valid sale, shows feedback and clears the form", async () => {
     const interaction = userEvent.setup();
     const registerSale = vi.fn<(input: TransactionInput, transactionDate: string, newImages: Blob[]) => Promise<void>>(() => Promise.resolve());
@@ -83,7 +91,7 @@ describe("NewSaleView", () => {
       {
         amount: "150,50",
         categoryId: "cat-1",
-        paymentMethodId: null,
+        paymentMethodId: "1",
         detail: null,
       },
       getTodayInTimeZone(TIME_ZONE),
