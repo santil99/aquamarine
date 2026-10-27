@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import pRetry from "p-retry";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 
 export type CatalogState<T> =
@@ -6,24 +7,33 @@ export type CatalogState<T> =
   | { status: "error" }
   | { status: "success"; catalogs: T };
 
+/** Total attempts = 1 + CATALOG_RETRIES. Catalog reads are idempotent, so retrying them is safe. */
+const CATALOG_RETRIES = 2;
+
 export function useSaleCatalogs<T = SalesCatalogs>(loadCatalogs: () => Promise<T>) {
   const [state, setState] = useState<CatalogState<T>>({ status: "loading" });
 
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    let isCurrent = true;
+    const controller = new AbortController();
 
-    loadCatalogs()
+    pRetry(loadCatalogs, {
+      retries: CATALOG_RETRIES,
+      minTimeout: 500,
+      factor: 2,
+      randomize: true,
+      signal: controller.signal,
+    })
       .then((catalogs) => {
-        if (isCurrent) setState({ status: "success", catalogs });
+        if (!controller.signal.aborted) setState({ status: "success", catalogs });
       })
       .catch(() => {
-        if (isCurrent) setState({ status: "error" });
+        if (!controller.signal.aborted) setState({ status: "error" });
       });
 
     return () => {
-      isCurrent = false;
+      controller.abort();
     };
   }, [loadCatalogs, attempt]);
 
