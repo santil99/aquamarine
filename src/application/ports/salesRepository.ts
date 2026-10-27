@@ -43,6 +43,12 @@ export interface SalesRepository {
     business: BusinessContext,
     monthStart: string,
   ): Promise<DailySaleAmount[]>;
+  /** Amounts with sale_date in [dateFrom, dateToExclusive). */
+  listAmountsForRange(
+    business: BusinessContext,
+    dateFrom: string,
+    dateToExclusive: string,
+  ): Promise<DailySaleAmount[]>;
   search(
     business: BusinessContext,
     filters: SaleSearchFilters,

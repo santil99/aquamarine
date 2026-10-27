@@ -5,11 +5,17 @@ import type { ExpenseCatalogOption, ExpenseDetail } from "@/domain/expenses/expe
 import type { ExpenseListItem } from "@/domain/expenses/expenseListItem";
 import type { ExpenseSearchItem } from "@/domain/expenses/expenseSearch";
 import { escapeLikePattern } from "@/infrastructure/supabase/escapeLikePattern";
+import { fetchAllPages } from "@/infrastructure/supabase/fetchAllPages";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
 
 interface ExpenseCategoryAmountRow {
   amount: string;
   category: { name: string } | null;
+}
+
+interface ExpenseDailyAmountRow {
+  amount: string;
+  expense_date: string;
 }
 
 interface ExpenseRow {
@@ -75,6 +81,23 @@ export const supabaseExpensesRepository: ExpensesRepository = {
     }
 
     return data.map((row) => ({ category: row.category?.name ?? "", amount: row.amount }));
+  },
+
+  async listAmountsForRange(_business, dateFrom, dateToExclusive) {
+    // Amount is cast to text so the decimal value is not parsed as a JS number.
+    const rows = await fetchAllPages<ExpenseDailyAmountRow>((from, to) =>
+      supabase
+        .from("expenses")
+        .select("amount::text, expense_date")
+        .gte("expense_date", dateFrom)
+        .lt("expense_date", dateToExclusive)
+        .order("expense_date", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to)
+        .returns<ExpenseDailyAmountRow[]>(),
+    );
+
+    return rows.map((row) => ({ transactionDate: row.expense_date, amount: row.amount }));
   },
 
   async search(_business, filters) {

@@ -97,6 +97,31 @@ export const es = {
     saleCount: (count: number) => (count === 1 ? "1 venta" : `${count} ventas`),
     expenseCount: (count: number) => (count === 1 ? "1 egreso" : `${count} egresos`),
     recordCount: (count: number) => (count === 1 ? "1 registro" : `${count} registros`),
+    segments: {
+      label: "Vista del resumen",
+      month: "Mes",
+      trend: "Evolución",
+    },
+    trend: {
+      rangeLabel: "Rango",
+      metricLabel: "Métrica",
+      range: (months: number) => `${months} meses`,
+      metrics: {
+        income: "Ingresos",
+        expenses: "Gastos",
+        balance: "Balance",
+        ticket: "Ticket",
+      },
+      metricTitles: {
+        income: "Ingresos por mes",
+        expenses: "Gastos por mes",
+        balance: "Balance neto por mes",
+        ticket: "Ticket promedio por mes",
+      },
+      partialMonth: "En curso",
+      changeLabel: "Frente al mes anterior",
+      noPreviousData: "Sin datos del mes anterior para comparar.",
+    },
   },
   reports: {
     title: "Reportes",

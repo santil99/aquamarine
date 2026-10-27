@@ -4,7 +4,8 @@ import type { SalesCatalogs, SalesRepository } from "@/application/ports/salesRe
 import { InputValidationError, NotFoundError } from "@/application/errors";
 import { requireAuthenticatedUser } from "@/application/services/requireAuthenticatedUser";
 import type { BusinessContext } from "@/domain/business/businessContext";
-import { getTodayInTimeZone } from "@/domain/business/businessDay";
+import { addMonths, getTodayInTimeZone } from "@/domain/business/businessDay";
+import { buildMonthlyTotals, TREND_MONTHS, type MonthlyTotal } from "@/domain/business/monthlyTrend";
 import { groupByCategory, type CategoryTotal } from "@/domain/business/categoryTotal";
 import { buildDailySalesSeries, type DailySalesPoint } from "@/domain/business/dailySales";
 import type { SaleWithImages } from "@/domain/sales/saleDetail";
@@ -88,6 +89,19 @@ export class SalesService {
       await this.salesRepository.listDailyAmountsForMonth(business, monthStart),
       monthStart,
       getTodayInTimeZone(business.timeZone),
+    );
+  }
+
+  async getMonthlyTotals(business: BusinessContext, endMonthStart: string): Promise<MonthlyTotal[]> {
+    await requireAuthenticatedUser(this.authRepository);
+
+    return buildMonthlyTotals(
+      await this.salesRepository.listAmountsForRange(
+        business,
+        addMonths(endMonthStart, -(TREND_MONTHS - 1)),
+        addMonths(endMonthStart, 1),
+      ),
+      endMonthStart,
     );
   }
 

@@ -83,9 +83,13 @@ function SearchRoute({ deps }: RouteProps) {
 function SummaryRoute({ deps }: RouteProps) {
   return (
     <SummaryView
-      loadSales={deps.loadMonthlySalesTotals}
-      loadExpenses={deps.loadMonthlyExpenseTotals}
-      loadDailySales={deps.loadMonthlyDailySales}
+      loaders={{
+        sales: deps.loadMonthlySalesTotals,
+        expenses: deps.loadMonthlyExpenseTotals,
+        dailySales: deps.loadMonthlyDailySales,
+        salesTrend: deps.loadSalesTrend,
+        expensesTrend: deps.loadExpensesTrend,
+      }}
       timeZone={deps.timeZone}
     />
   );

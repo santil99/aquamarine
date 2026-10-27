@@ -99,6 +99,31 @@ export const en: Texts = {
     saleCount: (count: number) => (count === 1 ? "1 sale" : `${count} sales`),
     expenseCount: (count: number) => (count === 1 ? "1 expense" : `${count} expenses`),
     recordCount: (count: number) => (count === 1 ? "1 record" : `${count} records`),
+    segments: {
+      label: "Summary view",
+      month: "Month",
+      trend: "Trend",
+    },
+    trend: {
+      rangeLabel: "Range",
+      metricLabel: "Metric",
+      range: (months: number) => `${months} months`,
+      metrics: {
+        income: "Income",
+        expenses: "Expenses",
+        balance: "Balance",
+        ticket: "Ticket",
+      },
+      metricTitles: {
+        income: "Income per month",
+        expenses: "Expenses per month",
+        balance: "Net balance per month",
+        ticket: "Average ticket per month",
+      },
+      partialMonth: "In progress",
+      changeLabel: "Versus previous month",
+      noPreviousData: "No data from the previous month to compare.",
+    },
   },
   reports: {
     title: "Reports",

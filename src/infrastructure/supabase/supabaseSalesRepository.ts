@@ -6,6 +6,7 @@ import type { SaleListItem } from "@/domain/sales/saleListItem";
 import type { SalesReportRow } from "@/domain/reports/salesReport";
 import type { SaleSearchItem } from "@/domain/sales/saleSearch";
 import { escapeLikePattern } from "@/infrastructure/supabase/escapeLikePattern";
+import { fetchAllPages } from "@/infrastructure/supabase/fetchAllPages";
 import { supabase } from "@/infrastructure/supabase/supabaseClient";
 
 interface SaleCategoryAmountRow {
@@ -92,6 +93,23 @@ export const supabaseSalesRepository: SalesRepository = {
     }
 
     return data.map((row) => ({ transactionDate: row.sale_date, amount: row.amount }));
+  },
+
+  async listAmountsForRange(_business, dateFrom, dateToExclusive) {
+    // Amount is cast to text so the decimal value is not parsed as a JS number.
+    const rows = await fetchAllPages<SaleDailyAmountRow>((from, to) =>
+      supabase
+        .from("sales")
+        .select("amount::text, sale_date")
+        .gte("sale_date", dateFrom)
+        .lt("sale_date", dateToExclusive)
+        .order("sale_date", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to)
+        .returns<SaleDailyAmountRow[]>(),
+    );
+
+    return rows.map((row) => ({ transactionDate: row.sale_date, amount: row.amount }));
   },
 
   async listForPeriod(_business, dateFrom, dateTo) {

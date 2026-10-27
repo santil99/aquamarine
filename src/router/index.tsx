@@ -65,6 +65,10 @@ const loadMonthlyDailySales = (monthStart: string) =>
   salesService.getDailyTotalsForMonth(activeBusiness, monthStart);
 const loadSalesReport = (periodId: ReportPeriodId) =>
   salesService.getSalesReport(activeBusiness, periodId);
+const loadSalesTrend = (endMonthStart: string) =>
+  salesService.getMonthlyTotals(activeBusiness, endMonthStart);
+const loadExpensesTrend = (endMonthStart: string) =>
+  expensesService.getMonthlyTotals(activeBusiness, endMonthStart);
 
 const dependencies = {
   auth: authService,
@@ -89,6 +93,8 @@ const dependencies = {
   loadMonthlyExpenseTotals,
   loadMonthlyDailySales,
   loadSalesReport,
+  loadSalesTrend,
+  loadExpensesTrend,
 };
 
 export type AppDependencies = typeof dependencies;
