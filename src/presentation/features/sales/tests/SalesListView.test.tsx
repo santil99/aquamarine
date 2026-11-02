@@ -125,16 +125,23 @@ describe("SalesListView", () => {
 
   it("loads the sales of the day picked in the calendar", async () => {
     const today = getTodayInTimeZone(TIME_ZONE);
-    const day = today.endsWith("-15") ? "16" : "15";
-    const target = `${today.slice(0, 8)}${day}`;
+    const previousMonthStart = `${addDays(`${today.slice(0, 8)}01`, -1).slice(0, 8)}01`;
+    const target = `${previousMonthStart.slice(0, 8)}15`;
     const listSales = vi.fn(() => Promise.resolve(sales));
     const user = userEvent.setup();
 
-    render(<SalesListView listSales={listSales} timeZone={TIME_ZONE} onOpenSale={vi.fn()} />);
-    await user.click(await screen.findByText("Hoy"));
+    render(
+      <SalesListView
+        listSales={listSales}
+        timeZone={TIME_ZONE}
+        onOpenSale={vi.fn()}
+        initialDate={previousMonthStart}
+      />,
+    );
+    await user.click(await screen.findByText(previousMonthStart.split("-").reverse().join("/")));
 
     const calendar = await screen.findByRole("grid");
-    await user.click(within(calendar).getByText(String(Number(day))));
+    await user.click(within(calendar).getByText("15"));
 
     expect(listSales).toHaveBeenLastCalledWith(target);
     const trigger = screen

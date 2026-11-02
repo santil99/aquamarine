@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import pRetry from "p-retry";
 import type { SalesCatalogs } from "@/application/ports/salesRepository";
 
@@ -8,7 +8,7 @@ export type CatalogState<T> =
   | { status: "success"; catalogs: T };
 
 /** Total attempts = 1 + CATALOG_RETRIES. Catalog reads are idempotent, so retrying them is safe. */
-const CATALOG_RETRIES = 2;
+const CATALOG_RETRIES = 3;
 
 export function useSaleCatalogs<T = SalesCatalogs>(loadCatalogs: () => Promise<T>) {
   const [state, setState] = useState<CatalogState<T>>({ status: "loading" });
@@ -20,7 +20,7 @@ export function useSaleCatalogs<T = SalesCatalogs>(loadCatalogs: () => Promise<T
 
     pRetry(loadCatalogs, {
       retries: CATALOG_RETRIES,
-      minTimeout: 500,
+      minTimeout: 1000,
       factor: 2,
       randomize: true,
       signal: controller.signal,
@@ -37,10 +37,28 @@ export function useSaleCatalogs<T = SalesCatalogs>(loadCatalogs: () => Promise<T
     };
   }, [loadCatalogs, attempt]);
 
-  function retry() {
+  const retry = useCallback(() => {
     setState({ status: "loading" });
     setAttempt((current) => current + 1);
-  }
+  }, []);
+
+  const hasError = state.status === "error";
+
+  useEffect(() => {
+    if (!hasError) return;
+
+    const retryWhenBack = () => {
+      if (document.visibilityState === "visible") retry();
+    };
+
+    document.addEventListener("visibilitychange", retryWhenBack);
+    window.addEventListener("online", retryWhenBack);
+
+    return () => {
+      document.removeEventListener("visibilitychange", retryWhenBack);
+      window.removeEventListener("online", retryWhenBack);
+    };
+  }, [hasError, retry]);
 
   return { state, retry };
 }
